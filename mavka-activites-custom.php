@@ -1200,3 +1200,130 @@ function mavka_save_volontaire_handler() {
     exit;
 }
 add_action('admin_post_mavka_save_volontaire', 'mavka_save_volontaire_handler');
+
+
+/* ============================================================
+ * 10. PRIVʼAZKA D'UNE PAGE (Page WordPress) À UN VOLONTAIRE
+ *
+ *    Chaque page publique d'un intervenant (ex. Hanna Sokha) a besoin
+ *    de savoir "à quel utilisateur WordPress j'appartiens", pour que
+ *    le Loop Grid Elementor de cette page puisse n'afficher QUE les
+ *    Activités liées à CETTE personne (et pas toutes les Activités
+ *    du site). On stocke ça dans un simple meta-box sur les Pages —
+ *    même logique que pour les Activités, sans dépendance externe.
+ * ============================================================ */
+function mavka_page_intervenant_metabox() {
+    add_meta_box(
+        'mavka_page_intervenant',
+        'MAVKA — Volontaire associé à cette page',
+        'mavka_page_intervenant_metabox_html',
+        'page',
+        'side',
+        'default'
+    );
+}
+add_action('add_meta_boxes', 'mavka_page_intervenant_metabox');
+
+function mavka_page_intervenant_metabox_html($post) {
+    wp_nonce_field('mavka_save_page_intervenant', 'mavka_page_intervenant_nonce');
+    $selected = (int) get_post_meta($post->ID, 'mavka_page_intervenant_user_id', true);
+    $users = get_users(['orderby' => 'display_name']);
+    ?>
+    <p>
+        <label for="mavka_page_intervenant_user_id"><strong>Volontaire</strong></label><br>
+        <select name="mavka_page_intervenant_user_id" id="mavka_page_intervenant_user_id" style="width:100%">
+            <option value="">— Aucun —</option>
+            <?php foreach ($users as $user) : ?>
+                <option value="<?php echo esc_attr($user->ID); ?>" <?php selected($selected, $user->ID); ?>>
+                    <?php echo esc_html($user->display_name); ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </p>
+    <p><em>Utilisé par le Loop Grid Elementor "activites_intervenant_query" (voir plus bas) pour afficher automatiquement, sur cette page, les Activités publiques liées à ce volontaire — sans avoir à retaper les dates/lieux/liens HelloAsso.</em></p>
+    <?php
+}
+
+function mavka_save_page_intervenant_meta($post_id) {
+    if (!isset($_POST['mavka_page_intervenant_nonce']) ||
+        !wp_verify_nonce($_POST['mavka_page_intervenant_nonce'], 'mavka_save_page_intervenant')) {
+        return;
+    }
+    if (isset($_POST['mavka_page_intervenant_user_id'])) {
+        $user_id = (int) $_POST['mavka_page_intervenant_user_id'];
+        if ($user_id > 0) {
+            update_post_meta($post_id, 'mavka_page_intervenant_user_id', $user_id);
+        } else {
+            delete_post_meta($post_id, 'mavka_page_intervenant_user_id');
+        }
+    }
+}
+add_action('save_post_page', 'mavka_save_page_intervenant_meta');
+
+
+/* ============================================================
+ * 11. ACTIVITÉS PUBLIQUES D'UN VOLONTAIRE PRÉCIS (fonction partagée)
+ *
+ *    Même filtre que mavka_get_activites_publiques() (publique,
+ *    pas encore périmée, ou "toujours affichée" type En savoir
+ *    plus/Événement régulier) — mais restreint aux Activités liées
+ *    à CE user_id précis via la table de liaison. Le tri final
+ *    réutilise mavka_order_activite_ids_by_date() (section 3bis),
+ *    pour rester cohérent avec le reste du site.
+ * ============================================================ */
+function mavka_get_activites_publiques_for_user($user_id) {
+    global $wpdb;
+    $cutoff = mavka_date_limite_activites_publiques();
+
+    $table = $wpdb->prefix . 'mavka_activite_intervenant';
+    $linked_ids = $wpdb->get_col(
+        $wpdb->prepare("SELECT activite_id FROM $table WHERE user_id = %d", $user_id)
+    );
+
+    if (empty($linked_ids)) {
+        return [];
+    }
+
+    $placeholders = implode(',', array_fill(0, count($linked_ids), '%d'));
+
+    $candidate_ids = $wpdb->get_col($wpdb->prepare("
+        SELECT p.ID
+        FROM {$wpdb->posts} p
+        LEFT JOIN {$wpdb->postmeta} mpub  ON (mpub.post_id  = p.ID AND mpub.meta_key  = 'afficher_publiquement')
+        LEFT JOIN {$wpdb->postmeta} mbtn  ON (mbtn.post_id  = p.ID AND mbtn.meta_key  = 'texte_bouton')
+        LEFT JOIN {$wpdb->postmeta} mdate ON (mdate.post_id = p.ID AND mdate.meta_key = 'date')
+        WHERE p.ID IN ($placeholders)
+          AND p.post_type = 'activite'
+          AND p.post_status = 'publish'
+          AND (mpub.meta_value IS NULL OR mpub.meta_value != 'non')
+          AND (
+                mbtn.meta_value IN ('En savoir plus', 'Événement régulier')
+                OR mdate.meta_value IS NULL OR mdate.meta_value = ''
+                OR mdate.meta_value >= %s
+              )
+    ", array_merge($linked_ids, [$cutoff])));
+
+    return mavka_order_activite_ids_by_date($candidate_ids);
+}
+
+/* ============================================================
+ * 12. FILTRE POUR ELEMENTOR LOOP GRID "Ateliers de ce volontaire"
+ *    Query ID dans Elementor : activites_intervenant_query
+ *
+ *    À utiliser sur la page publique d'un intervenant (ex. page
+ *    "Hanna Sokha"), juste après la section "Ce que je propose".
+ *    Le volontaire concerné est déterminé par le champ renseigné
+ *    dans le meta-box "Volontaire associé à cette page" (section 10
+ *    ci-dessus) — pas besoin de retaper quoi que ce soit ici, tout
+ *    vient automatiquement de la table de liaison Activité ↔ Volontaire.
+ * ============================================================ */
+add_action('elementor/query/activites_intervenant_query', function ($query) {
+    $page_id = get_queried_object_id();
+    $user_id = (int) get_post_meta($page_id, 'mavka_page_intervenant_user_id', true);
+
+    $ordered_ids = $user_id ? mavka_get_activites_publiques_for_user($user_id) : [];
+
+    $query->set('post_type', 'activite');
+    $query->set('post__in', !empty($ordered_ids) ? $ordered_ids : [0]);
+    $query->set('orderby', 'post__in'); // ЗБЕРІГАЄМО порядок, порахований вручну
+});
