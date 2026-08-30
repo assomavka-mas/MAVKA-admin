@@ -3,8 +3,23 @@
  * Plugin Name: MAVKA Activités (custom, sans JetEngine)
  * Description: CPT "Activité" + lien avec les volontaires,
  *              filtre Elementor Loop Grid, accès complet admin.
- * Version: 1.6
+ * Version: 1.7
  */
+
+/* ============================================================
+ * HISTORIQUE DES VERSIONS (à lire en langage simple, sans jargon)
+ *
+ *    1.7 — Ajout de l'affichage automatique des Activités d'UN
+ *          volontaire précis sur SA page publique (ex. page de
+ *          Hanna Sokha) : nouveau champ "Volontaire associé à
+ *          cette page" sur les Pages, + nouveau Query ID Elementor
+ *          "activites_intervenant_query" à utiliser dans un Loop
+ *          Grid. Rien n'a été supprimé ni modifié dans les
+ *          fonctionnalités existantes (versions 1.6 et avant).
+ *
+ *    1.6 — Version de départ de ce suivi de versions (tout ce qui
+ *          existait avant l'ajout de cet historique).
+ * ============================================================ */
 
 if (!defined('ABSPATH')) exit; // захист від прямого доступу до файлу
 
