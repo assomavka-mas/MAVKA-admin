@@ -3,11 +3,22 @@
  * Plugin Name: MAVKA Activités (custom, sans JetEngine)
  * Description: CPT "Activité" + lien avec les volontaires,
  *              filtre Elementor Loop Grid, accès complet admin.
- * Version: 1.7
+ * Version: 1.8
  */
 
 /* ============================================================
  * HISTORIQUE DES VERSIONS (à lire en langage simple, sans jargon)
+ *
+ *    1.8 — Anti-surcharge de la page d'accueil : nouveau champ
+ *          "Afficher sur la page d'accueil ?" sur chaque Activité
+ *          (Oui par défaut — rien ne change pour les Activités
+ *          déjà publiées tant que vous ne le mettez pas sur Non).
+ *          Mettre "Non" cache l'Activité de la page d'accueil UNIQUEMENT
+ *          — elle reste visible sur la page publique du·de la volontaire
+ *          et dans son "Mon Espace". Ajout aussi d'une nouvelle option
+ *          de "Texte du bouton" : "Découvrir le·la bénévole", pensée
+ *          pour une Activité "vitrine" sans date qui renvoie vers la
+ *          page du·de la volontaire plutôt que vers HelloAsso.
  *
  *    1.7 — Ajout de l'affichage automatique des Activités d'UN
  *          volontaire précis sur SA page publique (ex. page de
@@ -234,6 +245,12 @@ function mavka_activite_metabox_html($post) {
         <label><input type="radio" name="mavka_afficher_publiquement" value="oui" <?php checked($afficher !== 'non'); ?>> Oui</label>
         <label style="margin-left:16px;"><input type="radio" name="mavka_afficher_publiquement" value="non" <?php checked($afficher === 'non'); ?>> Non (interne uniquement)</label></p>
 
+    <p><label><strong>Afficher sur la page d'accueil ?</strong></label><br>
+        <?php $afficher_accueil = get_post_meta($post->ID, 'afficher_accueil', true); ?>
+        <label><input type="radio" name="mavka_afficher_accueil" value="oui" <?php checked($afficher_accueil !== 'non'); ?>> Oui</label>
+        <label style="margin-left:16px;"><input type="radio" name="mavka_afficher_accueil" value="non" <?php checked($afficher_accueil === 'non'); ?>> Non (visible seulement sur la page du·de la volontaire et son espace)</label></p>
+    <p><em>Utile pour éviter de surcharger la page d'accueil quand un·e volontaire a plusieurs Activités : décochez celles qui n'ont pas besoin d'apparaître sur le titre, tout en les gardant visibles sur sa page personnelle.</em></p>
+
     <hr>
     <p><label><strong>Lien d'inscription (HelloAsso)</strong></label><br>
         <input type="url" name="mavka_lien_inscription" value="<?php echo esc_attr($lien); ?>" style="width:100%" placeholder="https://..."></p>
@@ -250,6 +267,7 @@ function mavka_activite_metabox_html($post) {
             'Événement régulier',
             'En savoir plus',
             'Payer la participation',
+            'Découvrir le·la bénévole', // pour la carte "vitrine" d'un·e volontaire sur la page d'accueil (sans date, lien vers sa page — pas HelloAsso)
         ];
         ?>
         <select name="mavka_texte_bouton">
@@ -332,6 +350,9 @@ function mavka_save_activite_meta($post_id) {
         // за замовчуванням "oui", якщо поле не прийшло взагалі (напр. дуже стара форма в кеші браузера)
         $afficher_val = isset($_POST['mavka_afficher_publiquement']) ? sanitize_text_field($_POST['mavka_afficher_publiquement']) : 'oui';
         update_post_meta($post_id, 'afficher_publiquement', $afficher_val);
+
+        $afficher_accueil_val = isset($_POST['mavka_afficher_accueil']) ? sanitize_text_field($_POST['mavka_afficher_accueil']) : 'oui';
+        update_post_meta($post_id, 'afficher_accueil', $afficher_accueil_val);
     }
 
     global $wpdb;
@@ -519,6 +540,11 @@ function mavka_get_activites_publiques() {
                 'compare' => '!=',
             ],
             [
+                'key'     => 'afficher_accueil',
+                'value'   => 'non',
+                'compare' => '!=',
+            ],
+            [
                 'key'     => 'date',
                 'value'   => $cutoff,
                 'compare' => '>=',
@@ -555,6 +581,11 @@ function mavka_get_activites_publiques() {
             'relation' => 'AND',
             [
                 'key'     => 'afficher_publiquement',
+                'value'   => 'non',
+                'compare' => '!=',
+            ],
+            [
+                'key'     => 'afficher_accueil',
                 'value'   => 'non',
                 'compare' => '!=',
             ],
@@ -625,11 +656,13 @@ add_action('elementor/query/activites_publiques_query', function ($query) {
         SELECT p.ID
         FROM {$wpdb->posts} p
         LEFT JOIN {$wpdb->postmeta} mpub  ON (mpub.post_id  = p.ID AND mpub.meta_key  = 'afficher_publiquement')
+        LEFT JOIN {$wpdb->postmeta} macc  ON (macc.post_id  = p.ID AND macc.meta_key  = 'afficher_accueil')
         LEFT JOIN {$wpdb->postmeta} mbtn  ON (mbtn.post_id  = p.ID AND mbtn.meta_key  = 'texte_bouton')
         LEFT JOIN {$wpdb->postmeta} mdate ON (mdate.post_id = p.ID AND mdate.meta_key = 'date')
         WHERE p.post_type = 'activite'
           AND p.post_status = 'publish'
           AND (mpub.meta_value IS NULL OR mpub.meta_value != 'non')
+          AND (macc.meta_value IS NULL OR macc.meta_value != 'non')
           AND (
                 mbtn.meta_value IN ('En savoir plus', 'Événement régulier')
                 OR mdate.meta_value IS NULL OR mdate.meta_value = ''
@@ -908,11 +941,13 @@ function mavka_debug_activites_shortcode() {
             $raw_date = get_post_meta($aid, 'date', true);
             $raw_btn  = get_post_meta($aid, 'texte_bouton', true);
             $raw_badge = get_post_meta($aid, 'badge_ouvert', true);
+            $raw_accueil = get_post_meta($aid, 'afficher_accueil', true);
             ?>
             #<?php echo esc_html($aid); ?> «<?php echo esc_html(get_the_title($aid)); ?>» —
             date="<?php echo esc_html($raw_date); ?>" —
             texte_bouton="<?php echo esc_html($raw_btn); ?>" —
-            badge_ouvert="<?php echo esc_html($raw_badge); ?>"<br>
+            badge_ouvert="<?php echo esc_html($raw_badge); ?>" —
+            afficher_accueil="<?php echo esc_html($raw_accueil !== '' ? $raw_accueil : 'oui (par défaut)'); ?>"<br>
         <?php endforeach; ?>
         <br>
         <strong>--- Ordre calculé pour la page d'accueil (mavka_get_activites_publiques) ---</strong><br>
