@@ -16,7 +16,7 @@
  *          Mettre "Non" cache l'Activité de la page d'accueil UNIQUEMENT
  *          — elle reste visible sur la page publique du·de la volontaire
  *          et dans son "Mon Espace". Ajout aussi d'une nouvelle option
- *          de "Texte du bouton" : "Découvrir le·la bénévole", pensée
+ *          de "Texte du bouton" : "Voir sa page", pensée
  *          pour une Activité "vitrine" sans date qui renvoie vers la
  *          page du·de la volontaire plutôt que vers HelloAsso.
  *
@@ -267,7 +267,7 @@ function mavka_activite_metabox_html($post) {
             'Événement régulier',
             'En savoir plus',
             'Payer la participation',
-            'Découvrir le·la bénévole', // pour la carte "vitrine" d'un·e volontaire sur la page d'accueil (sans date, lien vers sa page — pas HelloAsso)
+            'Voir sa page', // pour la carte "vitrine" d'un·e volontaire sur la page d'accueil (sans date, lien vers sa page — pas HelloAsso)
         ];
         ?>
         <select name="mavka_texte_bouton">
