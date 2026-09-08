@@ -120,3 +120,10 @@ table.mavka-table tr:last-child td { border-bottom: none; }
 .mavka-form-section--photo     { --section-color: var(--mavka-color-teal-dark, #276A62); }
 .mavka-form-section--interne   { --section-color: var(--mavka-color-text-muted); }
 .mavka-form-section--acces     { --section-color: var(--mavka-color-purple-dark); }
+
+/* Grille 2 colonnes pour ne pas avoir une seule longue liste verticale */
+.mavka-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; align-items: start; }
+.mavka-form-section--span2 { grid-column: 1 / -1; }
+@media (max-width: 860px) {
+  .mavka-form-grid { grid-template-columns: 1fr; }
+}

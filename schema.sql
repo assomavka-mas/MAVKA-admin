@@ -9,10 +9,9 @@ CREATE TABLE IF NOT EXISTS intervenants (
   dossier VARCHAR(255) NULL,             -- "id-nom-slug", nom du dossier dans /assets/uploads/intervenants/
   role_titre VARCHAR(255) NULL,          -- напр. "Présidente", "Bénévole"
   resume VARCHAR(300) NULL,              -- courte description affichée sur la carte (sous le rôle)
-  domaine VARCHAR(100) NULL,             -- Culture / Éducation / Bien-être / Développement personnel
+  domaine VARCHAR(255) NULL,             -- plusieurs valeurs possibles, séparées par des virgules
   adresse VARCHAR(255) NULL,
   specialite VARCHAR(255) NULL,          -- напр. "Musique", "Art-thérapie"
-  secteur_intervention VARCHAR(255) NULL,
   bio TEXT NULL,                         -- public : onglet "Présentation"
   parcours_personnel TEXT NULL,          -- public : onglet "Parcours" (récit personnel, pas le suivi interne)
   vision TEXT NULL,                      -- public : onglet "Ma vision"
@@ -25,7 +24,8 @@ CREATE TABLE IF NOT EXISTS intervenants (
   cv_fichier VARCHAR(255) NULL,
   documents_pro_lien VARCHAR(500) NULL,        -- lien Google Drive
   documents_pro_fichier VARCHAR(255) NULL,
-  projet_developpement TEXT NULL,        -- interne : suivi de Larysa pour la mairie, pas affiché publiquement
+  projet_developpement VARCHAR(500) NULL,        -- interne, lien Google Drive : suivi de Larysa pour la mairie
+  projet_developpement_fichier VARCHAR(255) NULL, -- interne, fichier téléversé
   objectifs_mavka TEXT NULL,             -- interne : idem
   photo VARCHAR(255) NULL,               -- ім'я файлу в /assets/uploads/intervenants/{dossier}/
   email VARCHAR(255) NULL,

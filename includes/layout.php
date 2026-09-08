@@ -6,7 +6,7 @@ function admin_header(string $title, array $user, string $active = ''): void {
 <head>
   <meta charset="utf-8">
   <title><?= htmlspecialchars($title) ?> — MAVKA</title>
-  <link rel="stylesheet" href="/assets/admin.css">
+  <link rel="stylesheet" href="/assets/admin.css?v=<?= @filemtime(__DIR__ . '/../assets/admin.css') ?: time() ?>">
 </head>
 <body>
 <div class="mavka-admin-shell">
