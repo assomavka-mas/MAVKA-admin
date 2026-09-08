@@ -147,7 +147,8 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
   <input type="hidden" name="action" value="save">
 
   <div class="mavka-form-section mavka-form-section--identite">
-    <h3 class="mavka-form-section__title">🪪 Identité</h3>
+    <div class="mavka-form-section__header"><h3 class="mavka-form-section__title">🪪 Identité</h3></div>
+    <div class="mavka-form-section__body">
     <label>Nom</label>
     <input type="text" name="nom" value="<?= htmlspecialchars($iv['nom']) ?>" required>
 
@@ -186,10 +187,12 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
     </div>
 
     <label style="margin-top:16px;"><input type="checkbox" name="actif" <?= $iv['actif'] ? 'checked' : '' ?> style="width:auto;"> Actif (visible dans les listes)</label>
+    </div>
   </div>
 
   <div class="mavka-form-section mavka-form-section--public">
-    <h3 class="mavka-form-section__title">🌍 Contenu public de la page volontaire</h3>
+    <div class="mavka-form-section__header"><h3 class="mavka-form-section__title">🌍 Contenu public de la page volontaire</h3></div>
+    <div class="mavka-form-section__body">
     <p class="mavka-form-section__hint">Ce que voient les visiteurs du site, dans les 3 onglets de sa page.</p>
     <label>Présentation (Bio)</label>
     <textarea name="bio"><?= htmlspecialchars($iv['bio'] ?? '') ?></textarea>
@@ -199,10 +202,12 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
     <textarea name="vision"><?= htmlspecialchars($iv['vision'] ?? '') ?></textarea>
     <label>Email de contact</label>
     <input type="email" name="email" value="<?= htmlspecialchars($iv['email'] ?? '') ?>">
+    </div>
   </div>
 
   <div class="mavka-form-section mavka-form-section--documents">
-    <h3 class="mavka-form-section__title">📄 Documents</h3>
+    <div class="mavka-form-section__header"><h3 class="mavka-form-section__title">📄 Documents</h3></div>
+    <div class="mavka-form-section__body">
     <p class="mavka-form-section__hint">Pour chaque document : soit un lien Google Drive, soit un fichier téléversé ici (image ou PDF) — les deux sont possibles.</p>
 
     <label>Charte du bénévolat</label>
@@ -227,30 +232,37 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
     <input type="url" name="documents_pro_lien" placeholder="https://drive.google.com/..." value="<?= htmlspecialchars($iv['documents_pro_lien'] ?? '') ?>">
     <input type="file" name="documents_pro_fichier" accept="image/png,image/jpeg,image/webp,application/pdf" style="margin-top:6px;">
     <?php if ($u = $file_url('documents_pro_fichier')): ?><p style="margin:4px 0;"><a href="<?= $u ?>" target="_blank">Fichier actuel</a></p><?php endif; ?>
+    </div>
   </div>
 
   <div class="mavka-form-section mavka-form-section--photo">
-    <h3 class="mavka-form-section__title">🖼️ Photo de profil</h3>
+    <div class="mavka-form-section__header"><h3 class="mavka-form-section__title">🖼️ Photo de profil</h3></div>
+    <div class="mavka-form-section__body">
     <?php if ($u = $file_url('photo')): ?>
       <img src="<?= $u ?>" alt="" style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin-bottom:8px; display:block;">
     <?php endif; ?>
     <input type="file" name="photo" accept="image/png,image/jpeg,image/webp">
+    </div>
   </div>
 
   <div class="mavka-form-section mavka-form-section--interne">
-    <h3 class="mavka-form-section__title">🔒 Suivi interne</h3>
+    <div class="mavka-form-section__header"><h3 class="mavka-form-section__title">🔒 Suivi interne</h3></div>
+    <div class="mavka-form-section__body">
     <p class="mavka-form-section__hint">Pour toi et la mairie — jamais affiché sur le site.</p>
     <label>Mon projet de développement</label>
     <textarea name="projet_developpement"><?= htmlspecialchars($iv['projet_developpement'] ?? '') ?></textarea>
     <label>Mes objectifs avec MAVKA</label>
     <textarea name="objectifs_mavka"><?= htmlspecialchars($iv['objectifs_mavka'] ?? '') ?></textarea>
+    </div>
   </div>
 
   <div class="mavka-form-section mavka-form-section--acces">
-    <h3 class="mavka-form-section__title">🔑 Accès espace bénévole</h3>
+    <div class="mavka-form-section__header"><h3 class="mavka-form-section__title">🔑 Accès espace bénévole</h3></div>
+    <div class="mavka-form-section__body">
     <p class="mavka-form-section__hint">Si rempli, cette personne pourra se connecter avec Google (avec cette adresse exacte) et voir ses propres activités. Vide = pas d'accès.</p>
     <label>Email Google de connexion</label>
     <input type="email" name="login_email" placeholder="prenom.nom@gmail.com" value="<?= htmlspecialchars($login_email) ?>">
+    </div>
   </div>
 
   <button type="submit" class="mavka-btn mavka-btn--primary" style="margin-top:8px;">Enregistrer</button>
