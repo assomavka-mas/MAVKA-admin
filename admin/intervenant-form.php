@@ -140,6 +140,21 @@ $file_url = fn($f) => !empty($iv[$f]) ? '/assets/uploads/intervenants/' . $iv['d
 admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $user, 'intervenants');
 ?>
 <h1><?= $id ? "Modifier l'intervenant·e" : "Nouvel·le intervenant·e" ?></h1>
+
+<?php if ($id && $iv['nom']): ?>
+<div class="mavka-sticky-identity">
+  <?php if ($u = $file_url('photo')): ?>
+    <img src="<?= $u ?>" alt="">
+  <?php else: ?>
+    <div class="mavka-sticky-identity__placeholder"><?= htmlspecialchars(mb_strtoupper(mb_substr($iv['nom'], 0, 1))) ?></div>
+  <?php endif; ?>
+  <div>
+    <div class="mavka-sticky-identity__name"><?= htmlspecialchars($iv['nom']) ?></div>
+    <?php if ($iv['role_titre']): ?><div class="mavka-sticky-identity__role"><?= htmlspecialchars($iv['role_titre']) ?></div><?php endif; ?>
+  </div>
+</div>
+<?php endif; ?>
+
 <?php if (isset($_GET['ok'])): ?><?php flash('ok', 'Enregistré avec succès.'); ?><?php endif; ?>
 <?php if ($error): ?><?php flash('err', $error); ?><?php endif; ?>
 
