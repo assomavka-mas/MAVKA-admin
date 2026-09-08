@@ -143,104 +143,118 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
 <?php if (isset($_GET['ok'])): ?><?php flash('ok', 'Enregistré avec succès.'); ?><?php endif; ?>
 <?php if ($error): ?><?php flash('err', $error); ?><?php endif; ?>
 
-<form method="post" enctype="multipart/form-data" class="mavka-form mavka-card" style="max-width:640px;">
+<form method="post" enctype="multipart/form-data" class="mavka-form" style="max-width:640px;">
   <input type="hidden" name="action" value="save">
-  <label>Nom</label>
-  <input type="text" name="nom" value="<?= htmlspecialchars($iv['nom']) ?>" required>
 
-  <div class="row">
-    <div><label>Rôle</label><input type="text" name="role_titre" placeholder="Bénévole" value="<?= htmlspecialchars($iv['role_titre'] ?? '') ?>"></div>
-    <div>
-      <label>Domaine</label>
-      <select name="domaine">
-        <option value="">—</option>
-        <?php foreach (['Culture', 'Éducation', 'Bien-être', 'Développement personnel'] as $d): ?>
-        <option value="<?= $d ?>" <?= $iv['domaine'] === $d ? 'selected' : '' ?>><?= $d ?></option>
-        <?php endforeach; ?>
-      </select>
-    </div>
-  </div>
+  <div class="mavka-form-section mavka-form-section--identite">
+    <h3 class="mavka-form-section__title">🪪 Identité</h3>
+    <label>Nom</label>
+    <input type="text" name="nom" value="<?= htmlspecialchars($iv['nom']) ?>" required>
 
-  <label>Résumé (courte description affichée sur la carte, sous le rôle)</label>
-  <input type="text" name="resume" placeholder="Développement personnel, accompagnement des intervenants, Parcours MAVKA" value="<?= htmlspecialchars($iv['resume'] ?? '') ?>" maxlength="300">
-
-  <div class="row">
-    <div>
-      <label>Statut (calculé automatiquement)</label>
-      <div style="display:flex; gap:6px; padding:10px 0;">
-        <?php foreach (intervenant_statuts($iv) as $s): ?>
-        <span class="mavka-badge mavka-badge--success"><?= htmlspecialchars($s) ?></span>
-        <?php endforeach; ?>
+    <div class="row">
+      <div><label>Rôle</label><input type="text" name="role_titre" placeholder="Bénévole" value="<?= htmlspecialchars($iv['role_titre'] ?? '') ?>"></div>
+      <div>
+        <label>Domaine</label>
+        <select name="domaine">
+          <option value="">—</option>
+          <?php foreach (['Culture', 'Éducation', 'Bien-être', 'Développement personnel'] as $d): ?>
+          <option value="<?= $d ?>" <?= $iv['domaine'] === $d ? 'selected' : '' ?>><?= $d ?></option>
+          <?php endforeach; ?>
+        </select>
       </div>
     </div>
-    <div><label>Adresse</label><input type="text" name="adresse" placeholder="16000 Angoulême" value="<?= htmlspecialchars($iv['adresse'] ?? '') ?>"></div>
+
+    <label>Résumé (courte description affichée sur la carte, sous le rôle)</label>
+    <input type="text" name="resume" placeholder="Développement personnel, accompagnement des intervenants, Parcours MAVKA" value="<?= htmlspecialchars($iv['resume'] ?? '') ?>" maxlength="300">
+
+    <div class="row">
+      <div>
+        <label>Statut (calculé automatiquement)</label>
+        <div style="display:flex; gap:6px; padding:10px 0;">
+          <?php foreach (intervenant_statuts($iv) as $s): ?>
+          <span class="mavka-badge mavka-badge--success"><?= htmlspecialchars($s) ?></span>
+          <?php endforeach; ?>
+        </div>
+      </div>
+      <div><label>Adresse</label><input type="text" name="adresse" placeholder="16000 Angoulême" value="<?= htmlspecialchars($iv['adresse'] ?? '') ?>"></div>
+    </div>
+    <p class="mavka-form-section__hint">Bénévole apparaît quand "Charte du bénévolat" est rempli, Intervenant quand "Contrat d'intervention" est rempli (lien ou fichier) — voir plus bas. Se met à jour après enregistrement.</p>
+
+    <div class="row">
+      <div><label>Spécialité</label><input type="text" name="specialite" placeholder="Musique" value="<?= htmlspecialchars($iv['specialite'] ?? '') ?>"></div>
+      <div><label>Secteur intervention</label><input type="text" name="secteur_intervention" value="<?= htmlspecialchars($iv['secteur_intervention'] ?? '') ?>"></div>
+    </div>
+
+    <label style="margin-top:16px;"><input type="checkbox" name="actif" <?= $iv['actif'] ? 'checked' : '' ?> style="width:auto;"> Actif (visible dans les listes)</label>
   </div>
-  <p style="font-size:12.5px; color:var(--mavka-color-text-muted); margin:-8px 0 8px;">Bénévole apparaît quand "Charte du bénévolat" est rempli, Intervenant quand "Contrat d'intervention" est rempli (lien ou fichier). Les deux peuvent être actifs en même temps. Se met à jour après enregistrement.</p>
 
-  <div class="row">
-    <div><label>Spécialité</label><input type="text" name="specialite" placeholder="Musique" value="<?= htmlspecialchars($iv['specialite'] ?? '') ?>"></div>
-    <div><label>Secteur intervention</label><input type="text" name="secteur_intervention" value="<?= htmlspecialchars($iv['secteur_intervention'] ?? '') ?>"></div>
+  <div class="mavka-form-section mavka-form-section--public">
+    <h3 class="mavka-form-section__title">🌍 Contenu public de la page volontaire</h3>
+    <p class="mavka-form-section__hint">Ce que voient les visiteurs du site, dans les 3 onglets de sa page.</p>
+    <label>Présentation (Bio)</label>
+    <textarea name="bio"><?= htmlspecialchars($iv['bio'] ?? '') ?></textarea>
+    <label>Parcours (son histoire personnelle)</label>
+    <textarea name="parcours_personnel"><?= htmlspecialchars($iv['parcours_personnel'] ?? '') ?></textarea>
+    <label>Ma vision</label>
+    <textarea name="vision"><?= htmlspecialchars($iv['vision'] ?? '') ?></textarea>
+    <label>Email de contact</label>
+    <input type="email" name="email" value="<?= htmlspecialchars($iv['email'] ?? '') ?>">
   </div>
 
-  <h3 style="margin-top:20px; font-size:16px;">Contenu public de la page volontaire</h3>
-  <p style="font-size:12.5px; color:var(--mavka-color-text-muted); margin:0 0 8px;">Ce que voient les visiteurs du site, dans les 3 onglets de sa page.</p>
-  <label>Présentation (Bio)</label>
-  <textarea name="bio"><?= htmlspecialchars($iv['bio'] ?? '') ?></textarea>
-  <label>Parcours (son histoire personnelle)</label>
-  <textarea name="parcours_personnel"><?= htmlspecialchars($iv['parcours_personnel'] ?? '') ?></textarea>
-  <label>Ma vision</label>
-  <textarea name="vision"><?= htmlspecialchars($iv['vision'] ?? '') ?></textarea>
+  <div class="mavka-form-section mavka-form-section--documents">
+    <h3 class="mavka-form-section__title">📄 Documents</h3>
+    <p class="mavka-form-section__hint">Pour chaque document : soit un lien Google Drive, soit un fichier téléversé ici (image ou PDF) — les deux sont possibles.</p>
 
-  <label style="margin-top:16px;">Email de contact</label>
-  <input type="email" name="email" value="<?= htmlspecialchars($iv['email'] ?? '') ?>">
+    <label>Charte du bénévolat</label>
+    <input type="url" name="charte_benevolat_lien" placeholder="https://drive.google.com/..." value="<?= htmlspecialchars($iv['charte_benevolat_lien'] ?? '') ?>">
+    <input type="file" name="charte_benevolat_fichier" accept="image/png,image/jpeg,image/webp,application/pdf" style="margin-top:6px;">
+    <?php if ($u = $file_url('charte_benevolat_fichier')): ?><p style="margin:4px 0;"><a href="<?= $u ?>" target="_blank">Fichier actuel</a></p><?php endif; ?>
 
-  <h3 style="margin-top:20px; font-size:16px;">Documents</h3>
-  <p style="font-size:12.5px; color:var(--mavka-color-text-muted); margin:0 0 8px;">Pour chaque document : soit un lien Google Drive, soit un fichier téléversé ici (image ou PDF) — les deux sont possibles.</p>
+    <label style="margin-top:16px;">Contrat d'intervention</label>
+    <input type="url" name="contrat_intervention_lien" placeholder="https://drive.google.com/..." value="<?= htmlspecialchars($iv['contrat_intervention_lien'] ?? '') ?>">
+    <input type="file" name="contrat_intervention_fichier" accept="image/png,image/jpeg,image/webp,application/pdf" style="margin-top:6px;">
+    <?php if ($u = $file_url('contrat_intervention_fichier')): ?><p style="margin:4px 0;"><a href="<?= $u ?>" target="_blank">Fichier actuel</a></p><?php endif; ?>
 
-  <label>Charte du bénévolat</label>
-  <input type="url" name="charte_benevolat_lien" placeholder="https://drive.google.com/..." value="<?= htmlspecialchars($iv['charte_benevolat_lien'] ?? '') ?>">
-  <input type="file" name="charte_benevolat_fichier" accept="image/png,image/jpeg,image/webp,application/pdf" style="margin-top:6px;">
-  <?php if ($u = $file_url('charte_benevolat_fichier')): ?><p style="margin:4px 0;"><a href="<?= $u ?>" target="_blank">Fichier actuel</a></p><?php endif; ?>
+    <label style="margin-top:16px;">Date signée</label>
+    <input type="date" name="date_signee" value="<?= htmlspecialchars($iv['date_signee'] ?? '') ?>">
 
-  <label style="margin-top:16px;">Contrat d'intervention</label>
-  <input type="url" name="contrat_intervention_lien" placeholder="https://drive.google.com/..." value="<?= htmlspecialchars($iv['contrat_intervention_lien'] ?? '') ?>">
-  <input type="file" name="contrat_intervention_fichier" accept="image/png,image/jpeg,image/webp,application/pdf" style="margin-top:6px;">
-  <?php if ($u = $file_url('contrat_intervention_fichier')): ?><p style="margin:4px 0;"><a href="<?= $u ?>" target="_blank">Fichier actuel</a></p><?php endif; ?>
+    <label style="margin-top:16px;">CV</label>
+    <input type="url" name="cv_lien" placeholder="https://drive.google.com/..." value="<?= htmlspecialchars($iv['cv_lien'] ?? '') ?>">
+    <input type="file" name="cv_fichier" accept="image/png,image/jpeg,image/webp,application/pdf" style="margin-top:6px;">
+    <?php if ($u = $file_url('cv_fichier')): ?><p style="margin:4px 0;"><a href="<?= $u ?>" target="_blank">Fichier actuel</a></p><?php endif; ?>
 
-  <label style="margin-top:16px;">Date signée</label>
-  <input type="date" name="date_signee" value="<?= htmlspecialchars($iv['date_signee'] ?? '') ?>">
+    <label style="margin-top:16px;">Documents professionnels</label>
+    <input type="url" name="documents_pro_lien" placeholder="https://drive.google.com/..." value="<?= htmlspecialchars($iv['documents_pro_lien'] ?? '') ?>">
+    <input type="file" name="documents_pro_fichier" accept="image/png,image/jpeg,image/webp,application/pdf" style="margin-top:6px;">
+    <?php if ($u = $file_url('documents_pro_fichier')): ?><p style="margin:4px 0;"><a href="<?= $u ?>" target="_blank">Fichier actuel</a></p><?php endif; ?>
+  </div>
 
-  <label style="margin-top:16px;">CV</label>
-  <input type="url" name="cv_lien" placeholder="https://drive.google.com/..." value="<?= htmlspecialchars($iv['cv_lien'] ?? '') ?>">
-  <input type="file" name="cv_fichier" accept="image/png,image/jpeg,image/webp,application/pdf" style="margin-top:6px;">
-  <?php if ($u = $file_url('cv_fichier')): ?><p style="margin:4px 0;"><a href="<?= $u ?>" target="_blank">Fichier actuel</a></p><?php endif; ?>
+  <div class="mavka-form-section mavka-form-section--photo">
+    <h3 class="mavka-form-section__title">🖼️ Photo de profil</h3>
+    <?php if ($u = $file_url('photo')): ?>
+      <img src="<?= $u ?>" alt="" style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin-bottom:8px; display:block;">
+    <?php endif; ?>
+    <input type="file" name="photo" accept="image/png,image/jpeg,image/webp">
+  </div>
 
-  <label style="margin-top:16px;">Documents professionnels</label>
-  <input type="url" name="documents_pro_lien" placeholder="https://drive.google.com/..." value="<?= htmlspecialchars($iv['documents_pro_lien'] ?? '') ?>">
-  <input type="file" name="documents_pro_fichier" accept="image/png,image/jpeg,image/webp,application/pdf" style="margin-top:6px;">
-  <?php if ($u = $file_url('documents_pro_fichier')): ?><p style="margin:4px 0;"><a href="<?= $u ?>" target="_blank">Fichier actuel</a></p><?php endif; ?>
+  <div class="mavka-form-section mavka-form-section--interne">
+    <h3 class="mavka-form-section__title">🔒 Suivi interne</h3>
+    <p class="mavka-form-section__hint">Pour toi et la mairie — jamais affiché sur le site.</p>
+    <label>Mon projet de développement</label>
+    <textarea name="projet_developpement"><?= htmlspecialchars($iv['projet_developpement'] ?? '') ?></textarea>
+    <label>Mes objectifs avec MAVKA</label>
+    <textarea name="objectifs_mavka"><?= htmlspecialchars($iv['objectifs_mavka'] ?? '') ?></textarea>
+  </div>
 
-  <h3 style="margin-top:20px; font-size:16px;">Suivi interne (toi + mairie, jamais affiché sur le site)</h3>
-  <label>Mon projet de développement</label>
-  <textarea name="projet_developpement"><?= htmlspecialchars($iv['projet_developpement'] ?? '') ?></textarea>
-  <label>Mes objectifs avec MAVKA</label>
-  <textarea name="objectifs_mavka"><?= htmlspecialchars($iv['objectifs_mavka'] ?? '') ?></textarea>
+  <div class="mavka-form-section mavka-form-section--acces">
+    <h3 class="mavka-form-section__title">🔑 Accès espace bénévole</h3>
+    <p class="mavka-form-section__hint">Si rempli, cette personne pourra se connecter avec Google (avec cette adresse exacte) et voir ses propres activités. Vide = pas d'accès.</p>
+    <label>Email Google de connexion</label>
+    <input type="email" name="login_email" placeholder="prenom.nom@gmail.com" value="<?= htmlspecialchars($login_email) ?>">
+  </div>
 
-  <h3 style="margin-top:20px; font-size:16px;">Photo de profil</h3>
-  <?php if ($u = $file_url('photo')): ?>
-    <img src="<?= $u ?>" alt="" style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin-bottom:8px; display:block;">
-  <?php endif; ?>
-  <input type="file" name="photo" accept="image/png,image/jpeg,image/webp">
-
-  <label style="margin-top:16px;"><input type="checkbox" name="actif" <?= $iv['actif'] ? 'checked' : '' ?> style="width:auto;"> Actif (visible dans les listes)</label>
-
-  <h3 style="margin-top:20px; font-size:16px;">Accès espace bénévole (facultatif)</h3>
-  <p style="font-size:13px; color:var(--mavka-color-text-muted); margin:0;">Si rempli, cette personne pourra se connecter avec Google (avec cette adresse exacte) et voir ses propres activités. Vide = pas d'accès.</p>
-  <label>Email Google de connexion</label>
-  <input type="email" name="login_email" placeholder="prenom.nom@gmail.com" value="<?= htmlspecialchars($login_email) ?>">
-
-  <button type="submit" class="mavka-btn mavka-btn--primary" style="margin-top:20px;">Enregistrer</button>
-  <a href="/admin/intervenants.php" class="mavka-btn" style="margin-top:20px;">Annuler</a>
+  <button type="submit" class="mavka-btn mavka-btn--primary" style="margin-top:8px;">Enregistrer</button>
+  <a href="/admin/intervenants.php" class="mavka-btn" style="margin-top:8px;">Annuler</a>
 </form>
 
 <?php if ($id): ?>
