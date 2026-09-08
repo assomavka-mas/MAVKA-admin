@@ -8,7 +8,7 @@ $user = auth_require('admin');
 $id = isset($_GET['id']) ? (int)$_GET['id'] : null;
 $iv = [
     'nom' => '', 'dossier' => '', 'role_titre' => '', 'resume' => '', 'domaine' => '', 'adresse' => '',
-    'specialite' => '', 'secteur_intervention' => '', 'bio' => '',
+    'specialite' => '', 'secteur_intervention' => '', 'bio' => '', 'parcours_personnel' => '', 'vision' => '',
     'charte_benevolat_lien' => '', 'charte_benevolat_fichier' => null,
     'contrat_intervention_lien' => '', 'contrat_intervention_fichier' => null,
     'date_signee' => '',
@@ -32,7 +32,7 @@ if ($id) {
 }
 
 $error = '';
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'save') === 'save') {
     $iv['nom'] = trim($_POST['nom'] ?? '');
     $iv['role_titre'] = trim($_POST['role_titre'] ?? '');
     $iv['resume'] = trim($_POST['resume'] ?? '');
@@ -41,6 +41,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $iv['specialite'] = trim($_POST['specialite'] ?? '');
     $iv['secteur_intervention'] = trim($_POST['secteur_intervention'] ?? '');
     $iv['bio'] = trim($_POST['bio'] ?? '');
+    $iv['parcours_personnel'] = trim($_POST['parcours_personnel'] ?? '');
+    $iv['vision'] = trim($_POST['vision'] ?? '');
     $iv['charte_benevolat_lien'] = trim($_POST['charte_benevolat_lien'] ?? '');
     $iv['contrat_intervention_lien'] = trim($_POST['contrat_intervention_lien'] ?? '');
     $iv['date_signee'] = $_POST['date_signee'] ?: null;
@@ -56,7 +58,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Le nom est obligatoire.';
     } else {
         $fields = [
-            'nom', 'dossier', 'role_titre', 'resume', 'domaine', 'adresse', 'specialite', 'secteur_intervention', 'bio',
+            'nom', 'dossier', 'role_titre', 'resume', 'domaine', 'adresse', 'specialite', 'secteur_intervention',
+            'bio', 'parcours_personnel', 'vision',
             'charte_benevolat_lien', 'charte_benevolat_fichier', 'contrat_intervention_lien', 'contrat_intervention_fichier',
             'date_signee', 'cv_lien', 'cv_fichier', 'documents_pro_lien', 'documents_pro_fichier',
             'projet_developpement', 'objectifs_mavka', 'photo', 'email', 'actif',
@@ -108,6 +111,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// Gestion de la liste "Ce que je propose" (ateliers possibles, séparés des Activités programmées)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add_atelier' && $id) {
+    $titre = trim($_POST['atelier_titre'] ?? '');
+    if ($titre !== '') {
+        db()->prepare('INSERT INTO intervenant_ateliers (intervenant_id, titre, description) VALUES (?,?,?)')
+            ->execute([$id, $titre, trim($_POST['atelier_description'] ?? '')]);
+    }
+    header('Location: /admin/intervenant-form.php?id=' . $id . '&ok=1');
+    exit;
+}
+if (isset($_GET['delete_atelier']) && $id) {
+    db()->prepare('DELETE FROM intervenant_ateliers WHERE id = ? AND intervenant_id = ?')
+        ->execute([(int)$_GET['delete_atelier'], $id]);
+    header('Location: /admin/intervenant-form.php?id=' . $id);
+    exit;
+}
+
+$ateliers = [];
+if ($id) {
+    $stmt = db()->prepare('SELECT * FROM intervenant_ateliers WHERE intervenant_id = ? ORDER BY ordre ASC, id ASC');
+    $stmt->execute([$id]);
+    $ateliers = $stmt->fetchAll();
+}
+
 $file_url = fn($f) => !empty($iv[$f]) ? '/assets/uploads/intervenants/' . $iv['dossier'] . '/' . $iv[$f] : null;
 
 admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $user, 'intervenants');
@@ -117,6 +144,7 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
 <?php if ($error): ?><?php flash('err', $error); ?><?php endif; ?>
 
 <form method="post" enctype="multipart/form-data" class="mavka-form mavka-card" style="max-width:640px;">
+  <input type="hidden" name="action" value="save">
   <label>Nom</label>
   <input type="text" name="nom" value="<?= htmlspecialchars($iv['nom']) ?>" required>
 
@@ -154,9 +182,16 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
     <div><label>Secteur intervention</label><input type="text" name="secteur_intervention" value="<?= htmlspecialchars($iv['secteur_intervention'] ?? '') ?>"></div>
   </div>
 
-  <label>Bio</label>
+  <h3 style="margin-top:20px; font-size:16px;">Contenu public de la page volontaire</h3>
+  <p style="font-size:12.5px; color:var(--mavka-color-text-muted); margin:0 0 8px;">Ce que voient les visiteurs du site, dans les 3 onglets de sa page.</p>
+  <label>Présentation (Bio)</label>
   <textarea name="bio"><?= htmlspecialchars($iv['bio'] ?? '') ?></textarea>
-  <label>Email de contact</label>
+  <label>Parcours (son histoire personnelle)</label>
+  <textarea name="parcours_personnel"><?= htmlspecialchars($iv['parcours_personnel'] ?? '') ?></textarea>
+  <label>Ma vision</label>
+  <textarea name="vision"><?= htmlspecialchars($iv['vision'] ?? '') ?></textarea>
+
+  <label style="margin-top:16px;">Email de contact</label>
   <input type="email" name="email" value="<?= htmlspecialchars($iv['email'] ?? '') ?>">
 
   <h3 style="margin-top:20px; font-size:16px;">Documents</h3>
@@ -185,7 +220,8 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
   <input type="file" name="documents_pro_fichier" accept="image/png,image/jpeg,image/webp,application/pdf" style="margin-top:6px;">
   <?php if ($u = $file_url('documents_pro_fichier')): ?><p style="margin:4px 0;"><a href="<?= $u ?>" target="_blank">Fichier actuel</a></p><?php endif; ?>
 
-  <label style="margin-top:16px;">Mon projet de développement</label>
+  <h3 style="margin-top:20px; font-size:16px;">Suivi interne (toi + mairie, jamais affiché sur le site)</h3>
+  <label>Mon projet de développement</label>
   <textarea name="projet_developpement"><?= htmlspecialchars($iv['projet_developpement'] ?? '') ?></textarea>
   <label>Mes objectifs avec MAVKA</label>
   <textarea name="objectifs_mavka"><?= htmlspecialchars($iv['objectifs_mavka'] ?? '') ?></textarea>
@@ -206,4 +242,34 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
   <button type="submit" class="mavka-btn mavka-btn--primary" style="margin-top:20px;">Enregistrer</button>
   <a href="/admin/intervenants.php" class="mavka-btn" style="margin-top:20px;">Annuler</a>
 </form>
+
+<?php if ($id): ?>
+<h2 style="margin-top:32px;">Ce que je propose</h2>
+<p style="font-size:13.5px; color:var(--mavka-color-text-muted); max-width:600px;">Liste des ateliers possibles (pas forcément programmés) — écrite une fois, rarement modifiée. Différent des Activités réelles avec une date, gérées dans "Activités".</p>
+
+<div style="display:flex; flex-direction:column; gap:10px; margin:16px 0; max-width:600px;">
+  <?php foreach ($ateliers as $at): ?>
+  <div class="mavka-card" style="padding:14px 18px; display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+    <div>
+      <div style="font-weight:700;"><?= htmlspecialchars($at['titre']) ?></div>
+      <?php if ($at['description']): ?><div style="font-size:13.5px; color:var(--mavka-color-text-muted); margin-top:4px;"><?= htmlspecialchars($at['description']) ?></div><?php endif; ?>
+    </div>
+    <a href="/admin/intervenant-form.php?id=<?= $id ?>&delete_atelier=<?= $at['id'] ?>" class="mavka-btn mavka-btn--sm mavka-btn--danger"
+       onclick="return confirm('Supprimer ?');">Supprimer</a>
+  </div>
+  <?php endforeach; ?>
+  <?php if (!$ateliers): ?>
+  <p style="color:var(--mavka-color-text-muted); font-size:13.5px;">Aucun atelier proposé pour l'instant.</p>
+  <?php endif; ?>
+</div>
+
+<form method="post" class="mavka-form mavka-card" style="max-width:500px;">
+  <input type="hidden" name="action" value="add_atelier">
+  <label>Titre de l'atelier</label>
+  <input type="text" name="atelier_titre" required>
+  <label>Description</label>
+  <textarea name="atelier_description"></textarea>
+  <button type="submit" class="mavka-btn mavka-btn--primary" style="margin-top:16px;">Ajouter</button>
+</form>
+<?php endif; ?>
 <?php admin_footer(); ?>

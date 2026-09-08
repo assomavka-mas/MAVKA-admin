@@ -13,7 +13,9 @@ CREATE TABLE IF NOT EXISTS intervenants (
   adresse VARCHAR(255) NULL,
   specialite VARCHAR(255) NULL,          -- напр. "Musique", "Art-thérapie"
   secteur_intervention VARCHAR(255) NULL,
-  bio TEXT NULL,
+  bio TEXT NULL,                         -- public : onglet "Présentation"
+  parcours_personnel TEXT NULL,          -- public : onglet "Parcours" (récit personnel, pas le suivi interne)
+  vision TEXT NULL,                      -- public : onglet "Ma vision"
   charte_benevolat_lien VARCHAR(500) NULL,     -- lien Google Drive
   charte_benevolat_fichier VARCHAR(255) NULL,  -- fichier téléversé (image ou PDF)
   contrat_intervention_lien VARCHAR(500) NULL, -- lien Google Drive
@@ -23,8 +25,8 @@ CREATE TABLE IF NOT EXISTS intervenants (
   cv_fichier VARCHAR(255) NULL,
   documents_pro_lien VARCHAR(500) NULL,        -- lien Google Drive
   documents_pro_fichier VARCHAR(255) NULL,
-  projet_developpement TEXT NULL,
-  objectifs_mavka TEXT NULL,
+  projet_developpement TEXT NULL,        -- interne : suivi de Larysa pour la mairie, pas affiché publiquement
+  objectifs_mavka TEXT NULL,             -- interne : idem
   photo VARCHAR(255) NULL,               -- ім'я файлу в /assets/uploads/intervenants/{dossier}/
   email VARCHAR(255) NULL,
   actif TINYINT(1) NOT NULL DEFAULT 1,
@@ -37,6 +39,15 @@ CREATE TABLE IF NOT EXISTS intervenant_documents (
   image VARCHAR(255) NOT NULL,           -- ім'я файлу в /assets/uploads/intervenants/{dossier}/documents/
   label VARCHAR(150) NULL,               -- напр. "CV", "Charte signée"
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (intervenant_id) REFERENCES intervenants(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS intervenant_ateliers (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  intervenant_id INT NOT NULL,
+  titre VARCHAR(255) NOT NULL,           -- "Ce que je propose" — atelier possible, pas forcément programmé
+  description TEXT NULL,
+  ordre INT NOT NULL DEFAULT 0,
   FOREIGN KEY (intervenant_id) REFERENCES intervenants(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
