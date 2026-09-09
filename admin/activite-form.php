@@ -126,7 +126,7 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
     <div class="row">
       <div>
         <label>Type d'activité</label>
-        <select name="format">
+        <select id="f_format" name="format">
           <option value="">—</option>
           <?php foreach (['Collectif', 'Individuel', 'Événementiel'] as $f): ?>
           <option value="<?= $f ?>" <?= $a['format'] === $f ? 'selected' : '' ?>><?= $f ?></option>
@@ -135,7 +135,7 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
       </div>
       <div>
         <label>Public</label>
-        <select name="public">
+        <select id="f_public" name="public">
           <option value="">—</option>
           <?php foreach (['Enfant', 'Familial', 'Adultes'] as $p): ?>
           <option value="<?= $p ?>" <?= $a['public'] === $p ? 'selected' : '' ?>><?= $p ?></option>
@@ -166,7 +166,7 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
     <div class="row mavka-row--nombres">
       <div>
         <label>Nombre de places <span class="mavka-form-section__hint" style="margin:0; font-weight:400;">(vide = illimité)</span></label>
-        <input type="number" min="0" class="mavka-input-court" name="nombre_places" value="<?= htmlspecialchars((string)($a['nombre_places'] ?? '')) ?>">
+        <input type="number" min="0" id="f_nombre_places" class="mavka-input-court" name="nombre_places" value="<?= htmlspecialchars((string)($a['nombre_places'] ?? '')) ?>">
       </div>
       <div>
         <label>Ordre d'affichage <span class="mavka-form-section__hint" style="margin:0; font-weight:400;">(0 = premier)</span></label>
@@ -212,18 +212,21 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
           <img id="pv_photo" class="mavka-activite-preview__photo" alt=""
                <?= !empty($a['photo']) ? 'src="/assets/uploads/activites/' . htmlspecialchars($a['photo']) . '"' : 'hidden' ?>>
         </div>
-        <span id="pv_badge_categorie" class="mavka-activite-preview__badge" title="Provisoire — sera intégré à la carte lors de la maquette finale"></span>
+        <span id="pv_badge_categorie" class="mavka-activite-preview__badge mavka-activite-preview__badge--photo mavka-activite-preview__badge--tl" title="Provisoire — sera intégré à la carte lors de la maquette finale"></span>
+        <span id="pv_badge_format" class="mavka-activite-preview__badge mavka-activite-preview__badge--photo mavka-activite-preview__badge--tr" title="Provisoire — sera intégré à la carte lors de la maquette finale"></span>
+        <span id="pv_badge_public" class="mavka-activite-preview__badge mavka-activite-preview__badge--photo mavka-activite-preview__badge--bl" title="Provisoire — sera intégré à la carte lors de la maquette finale"></span>
         <span class="mavka-activite-preview__photo-pencil" title="Changer la photo">✎</span>
       </label>
       <input type="file" id="f_photo" name="photo" accept="image/png,image/jpeg,image/webp" hidden>
 
-      <input type="text" id="f_titre" name="titre" class="mavka-activite-preview__titre" placeholder="Titre de l'activité" value="<?= htmlspecialchars($a['titre']) ?>" required>
+      <input type="text" id="f_titre" name="titre" class="mavka-activite-preview__field-default mavka-activite-preview__titre" placeholder="Titre de l'activité" value="<?= htmlspecialchars($a['titre']) ?>" required>
 
       <div class="mavka-activite-preview__meta">
         <div class="mavka-activite-preview__meta-row">
           <span>📅</span>
           <input type="date" id="f_date_debut" name="date_debut" class="mavka-activite-preview__field-default" value="<?= htmlspecialchars($a['date_debut'] ?? '') ?>">
           <input type="text" id="f_heure" name="heure" class="mavka-activite-preview__field-default" placeholder="18:00" value="<?= htmlspecialchars($a['heure']) ?>">
+          <span id="pv_badge_places" class="mavka-activite-preview__badge" title="Provisoire — sera intégré à la carte lors de la maquette finale"></span>
         </div>
         <input type="text" id="f_recurrence" name="recurrence" class="mavka-activite-preview__field-default" placeholder='Récurrence, ex. "Le jeudi"' value="<?= htmlspecialchars($a['recurrence']) ?>" <?= $a['texte_bouton'] === 'Événement régulier' ? '' : 'hidden' ?>>
         <div class="mavka-activite-preview__meta-row">
@@ -232,7 +235,7 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
         </div>
       </div>
 
-      <textarea id="f_description" name="description" class="mavka-activite-preview__desc" placeholder="Description de l'activité"><?= htmlspecialchars($a['description']) ?></textarea>
+      <textarea id="f_description" name="description" class="mavka-activite-preview__field-default mavka-activite-preview__desc" placeholder="Description de l'activité"><?= htmlspecialchars($a['description']) ?></textarea>
 
       <?php
         // Préinscription gratuite : date libre, sert à constituer une liste pour la mairie
@@ -276,25 +279,8 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
   padding: 18px; overflow: hidden;
 }
 
-/* Champs "invisibles" tant qu'on n'interagit pas avec eux — la carte doit se lire
-   comme la carte publique, pas comme un formulaire, jusqu'à ce qu'on clique dedans.
-   Date/Heure/Récurrence gardent leur apparence de champ normale (.mavka-form input). */
-.mavka-activite-preview__card input:not([type="checkbox"]):not(.mavka-activite-preview__field-default),
-.mavka-activite-preview__card textarea {
-  width: 100%; border: 1.5px dashed transparent; border-radius: 6px; background: transparent;
-  font-family: inherit; color: inherit; padding: 2px 4px; margin: -2px -4px;
-  transition: border-color .15s, background-color .15s;
-}
-.mavka-activite-preview__card input:not([type="checkbox"]):not(.mavka-activite-preview__field-default):hover,
-.mavka-activite-preview__card textarea:hover {
-  border-color: var(--mavka-color-teal-light);
-}
-.mavka-activite-preview__card input:not([type="checkbox"]):not(.mavka-activite-preview__field-default):focus,
-.mavka-activite-preview__card textarea:focus {
-  outline: none; border-color: var(--mavka-color-teal); background: var(--mavka-color-cream-soft);
-}
-.mavka-activite-preview__card input::placeholder,
-.mavka-activite-preview__card textarea::placeholder { color: inherit; opacity: .45; }
+/* Une seule apparence de champ pour tout le formulaire de la carte (titre, date, heure,
+   lieu, ville, description) — celle par défaut de .mavka-form, pas de traitement à part. */
 
 .mavka-activite-preview__photo-wrap {
   display: block; cursor: pointer; position: relative; margin-bottom: 12px;
@@ -310,20 +296,24 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
   font-size: 13px; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(36,27,40,.2);
 }
 .mavka-activite-preview__photo-wrap:hover .mavka-activite-preview__photo-pencil { background: var(--mavka-color-teal-dark, #276A62); }
-/* Provisoire : juste pour que la catégorie soit visible quelque part avant la maquette
-   finale des pages publiques — couleur volontairement hors palette pour rester repérable
-   comme "à refaire". */
+/* Provisoire : juste pour que Catégorie/Type/Public/Places soient visibles quelque part
+   avant la maquette finale des pages publiques — couleur volontairement hors palette pour
+   rester repérable comme "à refaire". */
 .mavka-activite-preview__badge {
-  position: absolute; top: 8px; left: 8px; max-width: calc(100% - 46px);
+  display: inline-block; max-width: 100%;
   background: #FFD54D; color: #4A3B00; font-size: 11.5px; font-weight: 700;
   padding: 4px 9px; border-radius: 6px; box-shadow: 0 1px 3px rgba(36,27,40,.25);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .mavka-activite-preview__badge:empty { display: none; }
+.mavka-activite-preview__badge--photo { position: absolute; max-width: calc(50% - 30px); }
+.mavka-activite-preview__badge--tl { top: 8px; left: 8px; }
+.mavka-activite-preview__badge--tr { top: 8px; right: 8px; }
+.mavka-activite-preview__badge--bl { bottom: 8px; left: 8px; }
 
-.mavka-activite-preview__card .mavka-activite-preview__titre {
+.mavka-activite-preview__card .mavka-activite-preview__field-default.mavka-activite-preview__titre {
   font-family: var(--mavka-font-display); font-style: italic; font-weight: 400; font-size: 19px;
-  line-height: 1.25; color: var(--mavka-color-ink); margin: 0 0 12px; display: block;
+  line-height: 1.25; color: var(--mavka-color-ink); margin: 0 0 12px; display: block; padding: 4px 6px;
 }
 .mavka-activite-preview__meta {
   border: 1.5px solid var(--mavka-color-orange); border-radius: 10px; padding: 8px 12px; margin-bottom: 12px;
@@ -334,8 +324,8 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
 .mavka-activite-preview__meta-row input[type="text"] { flex: 1; }
 .mavka-activite-preview__card .mavka-activite-preview__field-default { font-size: 13px; padding: 6px 8px; }
 .mavka-activite-preview__card #f_recurrence.mavka-activite-preview__field-default { margin-top: 6px; }
-.mavka-activite-preview__card .mavka-activite-preview__desc {
-  font-size: 13.5px; line-height: 1.5; margin: 0 0 14px; min-height: 54px; resize: vertical;
+.mavka-activite-preview__card .mavka-activite-preview__field-default.mavka-activite-preview__desc {
+  font-size: 13.5px; line-height: 1.5; margin: 0 0 14px; min-height: 130px; resize: vertical;
 }
 .mavka-activite-preview__card .mavka-activite-preview__btn {
   width: 100%; appearance: none; background: var(--mavka-color-purple); color: #fff; text-align: center;
@@ -402,6 +392,24 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
   $('f_categorie').addEventListener('change', updateBadgeCategorie);
   $('f_categorie_display').addEventListener('input', updateBadgeCategorie);
   updateBadgeCategorie();
+
+  // Même principe pour Type d'activité, Public (sur la photo) et Nombre de places (dans
+  // l'encadré date/lieu) — vide si le champ n'est pas rempli, la plashka disparaît d'elle-même.
+  var badgeFormat = $('pv_badge_format');
+  $('f_format').addEventListener('change', function () { badgeFormat.textContent = this.value; });
+  badgeFormat.textContent = $('f_format').value;
+
+  var badgePublic = $('pv_badge_public');
+  $('f_public').addEventListener('change', function () { badgePublic.textContent = this.value; });
+  badgePublic.textContent = $('f_public').value;
+
+  var badgePlaces = $('pv_badge_places');
+  function updateBadgePlaces() {
+    var places = $('f_nombre_places').value.trim();
+    badgePlaces.textContent = places ? places + ' places' : '';
+  }
+  $('f_nombre_places').addEventListener('input', updateBadgePlaces);
+  updateBadgePlaces();
 })();
 </script>
 <?php admin_footer(); ?>
