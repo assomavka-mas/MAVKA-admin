@@ -25,6 +25,8 @@ if ($id) {
     $selected_intervenants = array_column($stmt->fetchAll(), 'intervenant_id');
 }
 
+$intervenants = db()->query('SELECT * FROM intervenants WHERE actif = 1 ORDER BY nom')->fetchAll();
+
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $a['titre'] = trim($_POST['titre'] ?? '');
@@ -43,12 +45,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // texte de bouton le champ est masqué côté formulaire, donc on ignore aussi
     // toute valeur envoyée pour ne pas garder une récurrence fantôme en base.
     $a['recurrence'] = $a['texte_bouton'] === 'Événement régulier' ? trim($_POST['recurrence'] ?? '') : '';
-    $a['lien_inscription'] = trim($_POST['lien_inscription'] ?? '');
     $a['statut'] = $_POST['statut'] === 'brouillon' ? 'brouillon' : 'publie';
     $a['statut_activite'] = in_array($_POST['statut_activite'] ?? '', ['ouvert', 'complet', 'annule', 'termine'])
         ? $_POST['statut_activite'] : 'ouvert';
     $a['ordre'] = (int)($_POST['ordre'] ?? 0);
     $posted_intervenants = array_map('intval', $_POST['intervenants'] ?? []);
+
+    // "Voir sa page" renvoie vers la page "Notre équipe" du·de la première personne cochée
+    // ci-dessous, plutôt qu'un lien saisi à la main — pas encore de lien pour "Événement régulier"
+    // ou "Gratuit" par exemple, seul ce bouton a besoin d'une page volontaire précise.
+    if ($a['texte_bouton'] === 'Voir sa page') {
+        $premier_intervenant = null;
+        foreach ($intervenants as $iv) {
+            if (in_array($iv['id'], $posted_intervenants, true)) { $premier_intervenant = $iv; break; }
+        }
+        $a['lien_inscription'] = $premier_intervenant ? intervenant_page_url($premier_intervenant['nom']) : '';
+    } else {
+        $a['lien_inscription'] = trim($_POST['lien_inscription'] ?? '');
+    }
 
     $new_photo = handle_upload('photo', 'activites');
     if ($new_photo) {
@@ -77,8 +91,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 }
-
-$intervenants = db()->query('SELECT * FROM intervenants WHERE actif = 1 ORDER BY nom')->fetchAll();
 
 admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activites');
 ?>
@@ -150,8 +162,14 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
 
     <div class="row">
       <div>
-        <label>Lien d'inscription</label>
-        <input type="url" name="lien_inscription" placeholder="https://helloasso.com/..." value="<?= htmlspecialchars($a['lien_inscription']) ?>">
+        <div id="f_lien_inscription_wrap">
+          <label>Lien d'inscription</label>
+          <input type="url" id="f_lien_inscription" name="lien_inscription" placeholder="https://helloasso.com/..." value="<?= htmlspecialchars($a['lien_inscription']) ?>">
+        </div>
+        <div id="f_lien_equipe_hint" class="mavka-form-section__hint" style="margin:14px 0 0; display:none;">
+          <label>Lien d'inscription</label>
+          Généré automatiquement — page "Notre équipe" de la première personne cochée ci-dessous.
+        </div>
       </div>
       <div>
         <label>Statut de publication</label>
@@ -328,8 +346,26 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
     recurrenceInput.hidden = !estRegulier;
     recurrenceInput.disabled = !estRegulier;
   }
-  boutonSelect.addEventListener('change', applyRecurrenceVisibility);
-  applyRecurrenceVisibility();
+
+  // "Voir sa page" calcule le lien côté serveur à partir de l'intervenant·e coché·e —
+  // le champ manuel n'a plus de sens dans ce cas, on le remplace par une explication.
+  var lienInput = $('f_lien_inscription');
+  var lienWrap = $('f_lien_inscription_wrap');
+  var lienHint = $('f_lien_equipe_hint');
+
+  function applyLienInscriptionMode() {
+    var versSaPage = boutonSelect.value === 'Voir sa page';
+    lienWrap.hidden = versSaPage;
+    lienInput.disabled = versSaPage;
+    lienHint.style.display = versSaPage ? 'block' : 'none';
+  }
+
+  function applyBoutonMode() {
+    applyRecurrenceVisibility();
+    applyLienInscriptionMode();
+  }
+  boutonSelect.addEventListener('change', applyBoutonMode);
+  applyBoutonMode();
 
   $('f_photo').addEventListener('change', function (e) {
     var file = e.target.files && e.target.files[0];

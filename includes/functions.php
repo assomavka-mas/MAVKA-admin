@@ -29,6 +29,12 @@ function intervenant_dossier(int $id, string $nom): string {
     return $id . '-' . slugify($nom);
 }
 
+// Page publique "Notre équipe" d'un·e volontaire, ex. https://mavka16.fr/notre-equipe/hanna-sokha/
+// — contrairement au dossier de fichiers, pas d'id devant le nom (c'est WordPress qui gère ce slug).
+function intervenant_page_url(string $nom): string {
+    return 'https://mavka16.fr/notre-equipe/' . slugify($nom) . '/';
+}
+
 // Traite un champ <input type="file"> et renvoie le nom du fichier enregistré,
 // ou null si aucun fichier n'a été envoyé (auquel cas on garde l'ancien fichier).
 function handle_upload(string $field, string $subdir): ?string {
