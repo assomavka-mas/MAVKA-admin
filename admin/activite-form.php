@@ -169,11 +169,10 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
         <input type="number" min="0" id="f_nombre_places" class="mavka-input-court" name="nombre_places" value="<?= htmlspecialchars((string)($a['nombre_places'] ?? '')) ?>">
       </div>
       <div>
-        <label>Ordre d'affichage <span class="mavka-form-section__hint" style="margin:0; font-weight:400;">(0 = premier)</span></label>
+        <label>Ordre d'affichage <span class="mavka-form-section__hint" style="margin:0; font-weight:400;">(0 = premier)</span><sup class="mavka-footnote-ref">1</sup></label>
         <input type="number" class="mavka-input-court" name="ordre" value="<?= (int)$a['ordre'] ?>">
       </div>
     </div>
-    <p class="mavka-form-section__hint">L'ordre détermine qui apparaît en premier sur le site (0, puis 1, 2...) ; à ordre égal, la date la plus proche passe devant. Aucun calcul automatique — c'est une priorité manuelle.</p>
 
     <div>
       <div id="f_lien_inscription_wrap">
@@ -238,19 +237,12 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
       <textarea id="f_description" name="description" class="mavka-activite-preview__field-default mavka-activite-preview__desc" placeholder="Description de l'activité"><?= htmlspecialchars($a['description']) ?></textarea>
 
       <?php
-        // Préinscription gratuite : date libre, sert à constituer une liste pour la mairie
-        //   (typiquement 2 séances test).
-        // Préinscription : date fixée, places limitées — on compte les inscrits (payant ou
-        //   gratuit selon la description/HelloAsso).
-        // Gratuit : entrée libre, grandes salles / événements ouverts, pas de liste à tenir.
-        // Événement régulier : pas de date unique (ex. "1er et 3e mercredi du mois") — voir Récurrence.
-        // En savoir plus : partenaires / événements ouverts qui intéressent l'association.
-        // Voir sa page : renvoie vers la page du volontaire/intervenant·e plutôt que vers une inscription.
         $boutons = ['Préinscription gratuite', 'Préinscription', 'Gratuit', 'Événement régulier', 'En savoir plus', 'Voir sa page'];
         if ($a['texte_bouton'] && !in_array($a['texte_bouton'], $boutons)) {
             array_unshift($boutons, $a['texte_bouton']); // garde l'ancienne valeur personnalisée si elle ne fait pas partie de la liste
         }
       ?>
+      <label class="mavka-activite-preview__btn-label">Texte du bouton<sup class="mavka-footnote-ref">2</sup></label>
       <select id="f_texte_bouton" name="texte_bouton" class="mavka-activite-preview__btn">
         <?php foreach ($boutons as $b): ?>
         <option value="<?= htmlspecialchars($b) ?>" <?= $a['texte_bouton'] === $b ? 'selected' : '' ?>><?= htmlspecialchars($b) ?></option>
@@ -264,6 +256,19 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
     <a href="/admin/activites.php" class="mavka-btn">Annuler</a>
   </div>
 
+  <div class="mavka-activite-footnotes">
+    <p><sup class="mavka-footnote-ref">1</sup> L'ordre détermine qui apparaît en premier sur le site (0, puis 1, 2...) ; à ordre égal, la date la plus proche passe devant. Aucun calcul automatique — c'est une priorité manuelle.</p>
+    <p><sup class="mavka-footnote-ref">2</sup> Critère de choix du texte du bouton :</p>
+    <ul>
+      <li><strong>Préinscription gratuite</strong> — date libre, sert à constituer une liste pour la mairie (typiquement 2 séances test).</li>
+      <li><strong>Préinscription</strong> — date fixée, places limitées : on compte les inscrits (payant ou gratuit selon la description/HelloAsso).</li>
+      <li><strong>Gratuit</strong> — entrée libre, grandes salles / événements ouverts, pas de liste à tenir.</li>
+      <li><strong>Événement régulier</strong> — pas de date unique (ex. "1er et 3e mercredi du mois") — voir Récurrence.</li>
+      <li><strong>En savoir plus</strong> — partenaires / événements ouverts qui intéressent l'association.</li>
+      <li><strong>Voir sa page</strong> — renvoie vers la page du volontaire/intervenant·e plutôt que vers une inscription.</li>
+    </ul>
+  </div>
+
 </form>
 </div>
 
@@ -271,6 +276,18 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
 .mavka-activite-layout { display: flex; align-items: flex-start; gap: 24px; flex-wrap: wrap; }
 .mavka-input-court { max-width: 90px; }
 .mavka-activite-actions { flex-basis: 100%; }
+.mavka-footnote-ref { color: var(--mavka-color-danger-text); font-weight: 700; margin-left: 1px; }
+.mavka-activite-footnotes {
+  flex-basis: 100%; font-size: 12.5px; color: var(--mavka-color-text-muted); line-height: 1.6;
+  border-top: 1.5px solid var(--mavka-color-cream-soft); padding-top: 14px; margin-top: 4px;
+}
+.mavka-activite-footnotes p { margin: 0 0 6px; }
+.mavka-activite-footnotes ul { margin: 0; padding-left: 20px; }
+.mavka-activite-footnotes li { margin-bottom: 3px; }
+.mavka-activite-footnotes strong { color: var(--mavka-color-text); }
+.mavka-activite-preview__btn-label {
+  display: block; font-size: 12.5px; font-weight: 700; color: var(--mavka-color-text-muted); margin: 0 0 6px;
+}
 .mavka-form-section--parametres { --section-color: var(--mavka-color-purple-dark); }
 .mavka-activite-preview { width: 560px; flex-shrink: 0; position: sticky; top: 24px; }
 .mavka-activite-preview__label { font-weight: 700; font-size: 13.5px; color: var(--mavka-color-text-muted); margin-bottom: 8px; }
