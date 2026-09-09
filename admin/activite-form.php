@@ -82,9 +82,10 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
 <h1><?= $id ? "Modifier l'activité" : 'Nouvelle activité' ?></h1>
 <?php if ($error): ?><?php flash('err', $error); ?><?php endif; ?>
 
+<div class="mavka-activite-layout">
 <form method="post" enctype="multipart/form-data" class="mavka-form mavka-card" style="max-width:640px;">
   <label>Titre</label>
-  <input type="text" name="titre" value="<?= htmlspecialchars($a['titre']) ?>" required>
+  <input type="text" id="f_titre" name="titre" value="<?= htmlspecialchars($a['titre']) ?>" required>
 
   <div class="row">
     <div>
@@ -123,30 +124,30 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
   </div>
 
   <label>Description</label>
-  <textarea name="description"><?= htmlspecialchars($a['description']) ?></textarea>
+  <textarea id="f_description" name="description"><?= htmlspecialchars($a['description']) ?></textarea>
 
   <div class="row">
     <div>
       <label>Date (si événement ponctuel)</label>
-      <input type="date" name="date_debut" value="<?= htmlspecialchars($a['date_debut'] ?? '') ?>">
+      <input type="date" id="f_date_debut" name="date_debut" value="<?= htmlspecialchars($a['date_debut'] ?? '') ?>">
     </div>
     <div>
       <label>Heure</label>
-      <input type="text" name="heure" placeholder="18:00" value="<?= htmlspecialchars($a['heure']) ?>">
+      <input type="text" id="f_heure" name="heure" placeholder="18:00" value="<?= htmlspecialchars($a['heure']) ?>">
     </div>
   </div>
 
   <label>Récurrence (si activité régulière, ex. "Le jeudi")</label>
-  <input type="text" name="recurrence" value="<?= htmlspecialchars($a['recurrence']) ?>">
+  <input type="text" id="f_recurrence" name="recurrence" value="<?= htmlspecialchars($a['recurrence']) ?>">
 
   <div class="row">
     <div>
       <label>Lieu</label>
-      <input type="text" name="lieu" value="<?= htmlspecialchars($a['lieu']) ?>">
+      <input type="text" id="f_lieu" name="lieu" value="<?= htmlspecialchars($a['lieu']) ?>">
     </div>
     <div>
       <label>Ville</label>
-      <input type="text" name="ville" value="<?= htmlspecialchars($a['ville']) ?>">
+      <input type="text" id="f_ville" name="ville" value="<?= htmlspecialchars($a['ville']) ?>">
     </div>
   </div>
 
@@ -175,7 +176,7 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
             array_unshift($boutons, $a['texte_bouton']); // garde l'ancienne valeur personnalisée si elle ne fait pas partie de la liste
         }
       ?>
-      <select name="texte_bouton">
+      <select id="f_texte_bouton" name="texte_bouton">
         <?php foreach ($boutons as $b): ?>
         <option value="<?= htmlspecialchars($b) ?>" <?= $a['texte_bouton'] === $b ? 'selected' : '' ?>><?= htmlspecialchars($b) ?></option>
         <?php endforeach; ?>
@@ -191,7 +192,7 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
   <?php if (!empty($a['photo'])): ?>
     <img src="/assets/uploads/activites/<?= htmlspecialchars($a['photo']) ?>" alt="" style="width:120px; border-radius:10px; margin-bottom:8px; display:block;">
   <?php endif; ?>
-  <input type="file" name="photo" accept="image/png,image/jpeg,image/webp">
+  <input type="file" id="f_photo" name="photo" accept="image/png,image/jpeg,image/webp">
 
   <div class="row">
     <div>
@@ -226,4 +227,108 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
   <button type="submit" class="mavka-btn mavka-btn--primary" style="margin-top:22px;">Enregistrer</button>
   <a href="/admin/activites.php" class="mavka-btn" style="margin-top:22px;">Annuler</a>
 </form>
+
+<aside class="mavka-activite-preview">
+  <div class="mavka-activite-preview__label">Aperçu de la carte publique</div>
+  <div class="mavka-activite-preview__card">
+    <img id="pv_photo" class="mavka-activite-preview__photo" alt=""
+         <?= !empty($a['photo']) ? 'src="/assets/uploads/activites/' . htmlspecialchars($a['photo']) . '"' : 'hidden' ?>>
+    <h3 id="pv_titre" class="mavka-activite-preview__titre"></h3>
+    <div class="mavka-activite-preview__meta">
+      <div class="mavka-activite-preview__meta-line mavka-activite-preview__meta-line--date">
+        <span>📅</span> <span id="pv_date"></span>
+      </div>
+      <div id="pv_lieu" class="mavka-activite-preview__meta-line"></div>
+    </div>
+    <p id="pv_description" class="mavka-activite-preview__desc"></p>
+    <div id="pv_bouton" class="mavka-activite-preview__btn"></div>
+  </div>
+</aside>
+</div>
+
+<style>
+.mavka-activite-layout { display: flex; align-items: flex-start; gap: 24px; flex-wrap: wrap; }
+.mavka-activite-preview { width: 300px; flex-shrink: 0; position: sticky; top: 24px; }
+.mavka-activite-preview__label { font-weight: 700; font-size: 13.5px; color: var(--mavka-color-text-muted); margin-bottom: 8px; }
+.mavka-activite-preview__card {
+  background: #fff; border: 2px solid var(--mavka-color-teal); border-radius: var(--mavka-radius-card);
+  padding: 18px; overflow: hidden;
+}
+.mavka-activite-preview__photo { width: 100%; aspect-ratio: 16/10; object-fit: cover; border-radius: 10px; margin-bottom: 12px; }
+.mavka-activite-preview__titre {
+  font-family: var(--mavka-font-display); font-style: italic; font-weight: 400; font-size: 19px;
+  line-height: 1.25; color: var(--mavka-color-ink); margin: 0 0 12px;
+}
+.mavka-activite-preview__titre:empty::before { content: "Titre de l'activité"; opacity: .45; font-style: italic; }
+.mavka-activite-preview__meta {
+  border: 1.5px solid var(--mavka-color-orange); border-radius: 10px; padding: 8px 12px; margin-bottom: 12px;
+}
+.mavka-activite-preview__meta-line { font-size: 13.5px; color: var(--mavka-color-text); }
+.mavka-activite-preview__meta-line--date { font-weight: 700; margin-bottom: 2px; }
+.mavka-activite-preview__meta-line:empty { display: none; }
+.mavka-activite-preview__desc { font-size: 13.5px; color: var(--mavka-color-text-muted); line-height: 1.5; margin: 0 0 14px; }
+.mavka-activite-preview__desc:empty { display: none; }
+.mavka-activite-preview__btn {
+  background: var(--mavka-color-purple); color: #fff; text-align: center; font-weight: 700; font-size: 14px;
+  border-radius: var(--mavka-radius-pill); padding: 11px 18px;
+}
+</style>
+
+<script>
+(function () {
+  function $(id) { return document.getElementById(id); }
+
+  function formatDate(iso) {
+    if (!iso) return '';
+    var parts = iso.split('-');
+    if (parts.length !== 3) return iso;
+    return parts[2] + '/' + parts[1] + '/' + parts[0];
+  }
+
+  function updatePreview() {
+    $('pv_titre').textContent = $('f_titre').value.trim();
+
+    var dateVal = formatDate($('f_date_debut').value);
+    var heureVal = $('f_heure').value.trim();
+    var recurrenceVal = $('f_recurrence').value.trim();
+    var dateLine = '';
+    if (dateVal) {
+      dateLine = dateVal + (heureVal ? ' · ' + heureVal : '');
+    } else if (recurrenceVal) {
+      dateLine = recurrenceVal + (heureVal ? ' · ' + heureVal : '');
+    } else if (heureVal) {
+      dateLine = heureVal;
+    }
+    $('pv_date').textContent = dateLine;
+
+    var lieuVal = $('f_lieu').value.trim();
+    var villeVal = $('f_ville').value.trim();
+    $('pv_lieu').textContent = [lieuVal, villeVal].filter(Boolean).join(', ');
+
+    $('pv_description').textContent = $('f_description').value.trim();
+
+    var boutonSelect = $('f_texte_bouton');
+    $('pv_bouton').textContent = boutonSelect.value || 'Préinscription gratuite';
+  }
+
+  ['f_titre', 'f_date_debut', 'f_heure', 'f_recurrence', 'f_lieu', 'f_ville', 'f_description'].forEach(function (id) {
+    $(id).addEventListener('input', updatePreview);
+  });
+  $('f_texte_bouton').addEventListener('change', updatePreview);
+
+  $('f_photo').addEventListener('change', function (e) {
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function (ev) {
+      var img = $('pv_photo');
+      img.src = ev.target.result;
+      img.hidden = false;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  updatePreview();
+})();
+</script>
 <?php admin_footer(); ?>
