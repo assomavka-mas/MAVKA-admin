@@ -277,7 +277,7 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
     </summary>
     <div class="mavka-form-section__body">
     <label class="mavka-photo-edit" for="photo_input">
-      <span class="mavka-photo-edit__preview">
+      <span class="mavka-photo-edit__preview" id="photo_preview">
         <?php if ($u = $file_url('photo')): ?>
           <img src="<?= $u ?>" alt="">
         <?php else: ?>
@@ -440,6 +440,27 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
     var chip = btn.closest('.mavka-link-chip');
     if (chip) { chip.hidden = true; }
   });
+
+  // Aperçu immédiat de la photo choisie — sans ça, rien ne se voit avant l'enregistrement,
+  // ce qui pousse à recliquer sur la photo "pour vérifier" ; si ce second choix est annulé,
+  // le navigateur vide le champ fichier et la photo initialement choisie est perdue.
+  var photoInput = document.getElementById('photo_input');
+  var photoPreview = document.getElementById('photo_preview');
+  if (photoInput && photoPreview) {
+    photoInput.addEventListener('change', function () {
+      var file = photoInput.files && photoInput.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        photoPreview.innerHTML = '';
+        var img = document.createElement('img');
+        img.src = e.target.result;
+        img.alt = '';
+        photoPreview.appendChild(img);
+      };
+      reader.readAsDataURL(file);
+    });
+  }
 })();
 </script>
 <?php admin_footer(); ?>
