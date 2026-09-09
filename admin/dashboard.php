@@ -5,6 +5,9 @@ require_once __DIR__ . '/../includes/layout.php';
 $user = auth_require();
 
 $voit_stats = in_array($user['role'], ['super_admin', 'mavka_admin', 'partenaire'], true);
+$intervenant_id = db()->prepare('SELECT intervenant_id FROM admins WHERE id = ?');
+$intervenant_id->execute([$user['id']]);
+$intervenant_id = $intervenant_id->fetchColumn();
 
 if ($voit_stats) {
     $count = db()->query('SELECT COUNT(*) c FROM activites WHERE statut = "publie"')->fetch()['c'];
@@ -12,15 +15,18 @@ if ($voit_stats) {
     if (peut_editer($user)) {
         $messages_non_lus = db()->query('SELECT COUNT(*) c FROM messages_contact WHERE lu = 0')->fetch()['c'];
     }
-} else {
+}
+
+// Affiché pour tout compte lié à un profil intervenant (super_admin, mavka_admin ou benevole
+// qui est aussi bénévole elle-même) — pas seulement pour le rôle "benevole".
+if ($intervenant_id) {
     $stmt = db()->prepare('
         SELECT a.* FROM activites a
         JOIN activite_intervenant ai ON ai.activite_id = a.id
-        JOIN admins ad ON ad.intervenant_id = ai.intervenant_id
-        WHERE ad.id = ?
+        WHERE ai.intervenant_id = ?
         ORDER BY a.date_debut ASC
     ');
-    $stmt->execute([$user['id']]);
+    $stmt->execute([$intervenant_id]);
     $mes_activites = $stmt->fetchAll();
 }
 
@@ -49,8 +55,11 @@ admin_header('Tableau de bord', $user, 'dashboard');
   <?php else: ?>
   <p style="margin-top:24px; color:var(--mavka-color-text-muted); font-size:13.5px;">Accès en lecture seule.</p>
   <?php endif; ?>
-<?php else: ?>
-  <p style="color:var(--mavka-color-text-muted);">Voici les activités où vous êtes intervenant·e.</p>
+<?php endif; ?>
+
+<?php if ($intervenant_id): ?>
+  <h2 style="margin-top:<?= $voit_stats ? '32px' : '20px' ?>;">Mes activités</h2>
+  <p style="color:var(--mavka-color-text-muted); font-size:13.5px;">Les activités où vous êtes intervenant·e.</p>
   <table class="mavka-table" style="margin-top:16px;">
     <tr><th>Titre</th><th>Date</th><th>Lieu</th><th>Statut</th></tr>
     <?php foreach ($mes_activites as $a): ?>
@@ -65,5 +74,7 @@ admin_header('Tableau de bord', $user, 'dashboard');
     <tr><td colspan="4" style="color:var(--mavka-color-text-muted);">Aucune activité pour l'instant.</td></tr>
     <?php endif; ?>
   </table>
+<?php elseif (!$voit_stats): ?>
+  <p style="color:var(--mavka-color-text-muted);">Aucun profil intervenant lié à ce compte pour l'instant.</p>
 <?php endif; ?>
 <?php admin_footer(); ?>

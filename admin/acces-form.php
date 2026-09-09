@@ -14,12 +14,17 @@ if ($id) {
     if (!$found || $found['role'] === 'benevole') { http_response_code(404); exit('Accès introuvable.'); }
     $compte = $found;
 }
+// Le rôle super_admin ne se distribue pas depuis ce formulaire (seul mavka_admin/partenaire) —
+// on le protège pour ne jamais l'écraser par erreur en éditant son propre compte.
+$est_super_admin = $compte['role'] === 'super_admin';
 
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $compte['nom'] = trim($_POST['nom'] ?? '');
     $compte['email'] = strtolower(trim($_POST['email'] ?? ''));
-    $compte['role'] = in_array($_POST['role'] ?? '', ['mavka_admin', 'partenaire']) ? $_POST['role'] : 'mavka_admin';
+    if (!$est_super_admin) {
+        $compte['role'] = in_array($_POST['role'] ?? '', ['mavka_admin', 'partenaire']) ? $_POST['role'] : 'mavka_admin';
+    }
     $compte['intervenant_id'] = $_POST['intervenant_id'] !== '' ? (int)$_POST['intervenant_id'] : null;
 
     if ($compte['email'] === '' || !filter_var($compte['email'], FILTER_VALIDATE_EMAIL)) {
@@ -52,12 +57,17 @@ admin_header($id ? "Modifier l'accès" : 'Nouvel accès', $user, 'acces');
   <input type="email" name="email" required value="<?= htmlspecialchars($compte['email']) ?>">
 
   <label>Rôle</label>
-  <select name="role">
-    <option value="mavka_admin" <?= $compte['role'] === 'mavka_admin' ? 'selected' : '' ?>>Mavka-admin (gère le contenu)</option>
-    <option value="partenaire" <?= $compte['role'] === 'partenaire' ? 'selected' : '' ?>>Partenaire (lecture seule)</option>
-  </select>
+  <?php if ($est_super_admin): ?>
+    <p style="margin:0; font-weight:600;">Super admin <span style="font-weight:400; color:var(--mavka-color-text-muted);">(non modifiable ici)</span></p>
+  <?php else: ?>
+    <select name="role">
+      <option value="mavka_admin" <?= $compte['role'] === 'mavka_admin' ? 'selected' : '' ?>>Mavka-admin (gère le contenu)</option>
+      <option value="partenaire" <?= $compte['role'] === 'partenaire' ? 'selected' : '' ?>>Partenaire (lecture seule)</option>
+    </select>
+  <?php endif; ?>
 
   <label>Lié à un profil intervenant·e (facultatif)</label>
+  <p style="font-size:12.5px; color:var(--mavka-color-text-muted); margin:0 0 6px;">Si cette personne est aussi bénévole/intervenant·e (comme toi, par exemple), lie son compte à son profil : elle verra ses propres Activités en plus de son rôle actuel, sans avoir besoin d'un deuxième compte.</p>
   <select name="intervenant_id">
     <option value="">— Aucun —</option>
     <?php foreach ($intervenants as $iv): ?>
