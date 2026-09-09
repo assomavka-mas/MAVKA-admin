@@ -87,42 +87,6 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
   <label>Titre</label>
   <input type="text" id="f_titre" name="titre" value="<?= htmlspecialchars($a['titre']) ?>" required>
 
-  <div class="row">
-    <div>
-      <label>Catégorie</label>
-      <select name="categorie">
-        <?php foreach (['Culture', 'Éducation', 'Bien-être', 'Développement personnel'] as $cat): ?>
-        <option value="<?= $cat ?>" <?= $a['categorie'] === $cat ? 'selected' : '' ?>><?= $cat ?></option>
-        <?php endforeach; ?>
-      </select>
-    </div>
-    <div>
-      <label>Sous-titre affiché (facultatif)</label>
-      <input type="text" name="categorie_display" placeholder="Bien-être · Art-thérapie" value="<?= htmlspecialchars($a['categorie_display'] ?? '') ?>">
-    </div>
-  </div>
-
-  <div class="row">
-    <div>
-      <label>Type d'activité</label>
-      <select name="format">
-        <option value="">—</option>
-        <?php foreach (['Collectif', 'Individuel', 'Événementiel'] as $f): ?>
-        <option value="<?= $f ?>" <?= $a['format'] === $f ? 'selected' : '' ?>><?= $f ?></option>
-        <?php endforeach; ?>
-      </select>
-    </div>
-    <div>
-      <label>Public</label>
-      <select name="public">
-        <option value="">—</option>
-        <?php foreach (['Enfant', 'Familial', 'Adultes'] as $p): ?>
-        <option value="<?= $p ?>" <?= $a['public'] === $p ? 'selected' : '' ?>><?= $p ?></option>
-        <?php endforeach; ?>
-      </select>
-    </div>
-  </div>
-
   <label>Description</label>
   <textarea id="f_description" name="description"><?= htmlspecialchars($a['description']) ?></textarea>
 
@@ -151,42 +115,18 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
     </div>
   </div>
 
-  <div class="row">
-    <div>
-      <label>Nombre de places (vide = illimité)</label>
-      <input type="number" min="0" name="nombre_places" value="<?= htmlspecialchars((string)($a['nombre_places'] ?? '')) ?>">
-    </div>
-    <div>
-      <label>Statut de l'activité</label>
-      <select name="statut_activite">
-        <?php $statuts = ['ouvert' => 'Ouvert', 'complet' => 'Complet', 'annule' => 'Annulé', 'termine' => 'Terminé']; ?>
-        <?php foreach ($statuts as $val => $label): ?>
-        <option value="<?= $val ?>" <?= $a['statut_activite'] === $val ? 'selected' : '' ?>><?= $label ?></option>
-        <?php endforeach; ?>
-      </select>
-    </div>
-  </div>
-
-  <div class="row">
-    <div>
-      <label>Texte du bouton</label>
-      <?php
-        $boutons = ['Préinscription gratuite', 'Préinscription', 'Gratuit', 'Événement régulier', 'En savoir plus', 'Voir sa page', 'Payer la participation'];
-        if ($a['texte_bouton'] && !in_array($a['texte_bouton'], $boutons)) {
-            array_unshift($boutons, $a['texte_bouton']); // garde l'ancienne valeur personnalisée si elle ne fait pas partie de la liste
-        }
-      ?>
-      <select id="f_texte_bouton" name="texte_bouton">
-        <?php foreach ($boutons as $b): ?>
-        <option value="<?= htmlspecialchars($b) ?>" <?= $a['texte_bouton'] === $b ? 'selected' : '' ?>><?= htmlspecialchars($b) ?></option>
-        <?php endforeach; ?>
-      </select>
-    </div>
-    <div>
-      <label>Lien d'inscription</label>
-      <input type="url" name="lien_inscription" placeholder="https://helloasso.com/..." value="<?= htmlspecialchars($a['lien_inscription']) ?>">
-    </div>
-  </div>
+  <label>Texte du bouton</label>
+  <?php
+    $boutons = ['Préinscription gratuite', 'Préinscription', 'Gratuit', 'Événement régulier', 'En savoir plus', 'Voir sa page', 'Payer la participation'];
+    if ($a['texte_bouton'] && !in_array($a['texte_bouton'], $boutons)) {
+        array_unshift($boutons, $a['texte_bouton']); // garde l'ancienne valeur personnalisée si elle ne fait pas partie de la liste
+    }
+  ?>
+  <select id="f_texte_bouton" name="texte_bouton">
+    <?php foreach ($boutons as $b): ?>
+    <option value="<?= htmlspecialchars($b) ?>" <?= $a['texte_bouton'] === $b ? 'selected' : '' ?>><?= htmlspecialchars($b) ?></option>
+    <?php endforeach; ?>
+  </select>
 
   <label>Photo</label>
   <?php if (!empty($a['photo'])): ?>
@@ -194,35 +134,100 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
   <?php endif; ?>
   <input type="file" id="f_photo" name="photo" accept="image/png,image/jpeg,image/webp">
 
-  <div class="row">
-    <div>
-      <label>Statut de publication</label>
-      <select name="statut">
-        <option value="publie" <?= $a['statut'] === 'publie' ? 'selected' : '' ?>>Publié</option>
-        <option value="brouillon" <?= $a['statut'] === 'brouillon' ? 'selected' : '' ?>>Brouillon</option>
-      </select>
-    </div>
-    <div>
-      <label>Ordre d'affichage (0 = premier)</label>
-      <input type="number" name="ordre" value="<?= (int)$a['ordre'] ?>">
-    </div>
-  </div>
+  <details class="mavka-form-section mavka-form-section--interne" style="margin-top:22px;">
+    <summary class="mavka-form-section__header" style="cursor:pointer;">
+      <h3 class="mavka-form-section__title">⚙️ Détails supplémentaires</h3>
+      <svg class="mavka-form-section__chevron" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </summary>
+    <div class="mavka-form-section__body">
+    <p class="mavka-form-section__hint">Classement, capacité, inscription — n'apparaissent pas dans l'aperçu de la carte.</p>
 
-  <label>Intervenant·e·s</label>
-  <div class="mavka-picklist">
-    <?php if (!$intervenants): ?>
-    <div style="padding:10px 12px; color:var(--mavka-color-text-muted); font-size:13.5px;">
-      Aucun intervenant enregistré — <a href="/admin/intervenants.php">en ajouter un</a>.
+    <div class="row">
+      <div>
+        <label>Catégorie</label>
+        <select name="categorie">
+          <?php foreach (['Culture', 'Éducation', 'Bien-être', 'Développement personnel'] as $cat): ?>
+          <option value="<?= $cat ?>" <?= $a['categorie'] === $cat ? 'selected' : '' ?>><?= $cat ?></option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+      <div>
+        <label>Sous-titre affiché (facultatif)</label>
+        <input type="text" name="categorie_display" placeholder="Bien-être · Art-thérapie" value="<?= htmlspecialchars($a['categorie_display'] ?? '') ?>">
+      </div>
     </div>
-    <?php endif; ?>
-    <?php foreach ($intervenants as $iv): ?>
-    <label class="mavka-picklist__item">
-      <input type="checkbox" name="intervenants[]" value="<?= $iv['id'] ?>"
-        <?= in_array($iv['id'], $selected_intervenants) ? 'checked' : '' ?>>
-      <span><?= htmlspecialchars($iv['nom']) ?><?= $iv['role_titre'] ? ' — ' . htmlspecialchars($iv['role_titre']) : '' ?></span>
-    </label>
-    <?php endforeach; ?>
-  </div>
+
+    <div class="row">
+      <div>
+        <label>Type d'activité</label>
+        <select name="format">
+          <option value="">—</option>
+          <?php foreach (['Collectif', 'Individuel', 'Événementiel'] as $f): ?>
+          <option value="<?= $f ?>" <?= $a['format'] === $f ? 'selected' : '' ?>><?= $f ?></option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+      <div>
+        <label>Public</label>
+        <select name="public">
+          <option value="">—</option>
+          <?php foreach (['Enfant', 'Familial', 'Adultes'] as $p): ?>
+          <option value="<?= $p ?>" <?= $a['public'] === $p ? 'selected' : '' ?>><?= $p ?></option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label>Nombre de places (vide = illimité)</label>
+        <input type="number" min="0" name="nombre_places" value="<?= htmlspecialchars((string)($a['nombre_places'] ?? '')) ?>">
+      </div>
+      <div>
+        <label>Statut de l'activité</label>
+        <select name="statut_activite">
+          <?php $statuts = ['ouvert' => 'Ouvert', 'complet' => 'Complet', 'annule' => 'Annulé', 'termine' => 'Terminé']; ?>
+          <?php foreach ($statuts as $val => $label): ?>
+          <option value="<?= $val ?>" <?= $a['statut_activite'] === $val ? 'selected' : '' ?>><?= $label ?></option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label>Lien d'inscription</label>
+        <input type="url" name="lien_inscription" placeholder="https://helloasso.com/..." value="<?= htmlspecialchars($a['lien_inscription']) ?>">
+      </div>
+      <div>
+        <label>Statut de publication</label>
+        <select name="statut">
+          <option value="publie" <?= $a['statut'] === 'publie' ? 'selected' : '' ?>>Publié</option>
+          <option value="brouillon" <?= $a['statut'] === 'brouillon' ? 'selected' : '' ?>>Brouillon</option>
+        </select>
+      </div>
+    </div>
+
+    <label>Ordre d'affichage (0 = premier)</label>
+    <input type="number" name="ordre" value="<?= (int)$a['ordre'] ?>">
+
+    <label>Intervenant·e·s</label>
+    <div class="mavka-picklist">
+      <?php if (!$intervenants): ?>
+      <div style="padding:10px 12px; color:var(--mavka-color-text-muted); font-size:13.5px;">
+        Aucun intervenant enregistré — <a href="/admin/intervenants.php">en ajouter un</a>.
+      </div>
+      <?php endif; ?>
+      <?php foreach ($intervenants as $iv): ?>
+      <label class="mavka-picklist__item">
+        <input type="checkbox" name="intervenants[]" value="<?= $iv['id'] ?>"
+          <?= in_array($iv['id'], $selected_intervenants) ? 'checked' : '' ?>>
+        <span><?= htmlspecialchars($iv['nom']) ?><?= $iv['role_titre'] ? ' — ' . htmlspecialchars($iv['role_titre']) : '' ?></span>
+      </label>
+      <?php endforeach; ?>
+    </div>
+    </div>
+  </details>
 
   <button type="submit" class="mavka-btn mavka-btn--primary" style="margin-top:22px;">Enregistrer</button>
   <a href="/admin/activites.php" class="mavka-btn" style="margin-top:22px;">Annuler</a>
