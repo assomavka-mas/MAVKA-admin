@@ -314,7 +314,7 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
 .mavka-activite-preview__card .mavka-activite-preview__field-default.mavka-activite-preview__titre {
   font-family: var(--mavka-font-display); font-style: italic; font-weight: 400; font-size: 19px;
   line-height: 1.25; color: var(--mavka-color-ink); margin: 0 0 12px; display: block; padding: 4px 6px;
-  resize: none; overflow: hidden;
+  resize: none; overflow: hidden; min-height: 0;
 }
 .mavka-activite-preview__meta {
   border: 1.5px solid var(--mavka-color-orange); border-radius: 10px; padding: 8px 12px; margin-bottom: 12px;
@@ -326,7 +326,7 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
 .mavka-activite-preview__card .mavka-activite-preview__field-default { font-size: 13px; padding: 6px 8px; }
 .mavka-activite-preview__card #f_recurrence.mavka-activite-preview__field-default { margin-top: 6px; }
 .mavka-activite-preview__card .mavka-activite-preview__field-default.mavka-activite-preview__desc {
-  font-size: 13.5px; line-height: 1.5; margin: 0 0 14px; min-height: 130px; resize: vertical;
+  font-size: 13.5px; line-height: 1.5; margin: 0 0 14px; min-height: 220px; resize: vertical;
 }
 .mavka-activite-preview__card .mavka-activite-preview__btn {
   width: 100%; appearance: none; background: var(--mavka-color-purple); color: #fff; text-align: center;
