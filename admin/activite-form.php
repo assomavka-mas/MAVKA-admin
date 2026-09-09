@@ -111,7 +111,7 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
     <div class="row">
       <div>
         <label>Catégorie</label>
-        <select name="categorie">
+        <select id="f_categorie" name="categorie">
           <?php foreach (['Culture', 'Éducation', 'Bien-être', 'Développement personnel'] as $cat): ?>
           <option value="<?= $cat ?>" <?= $a['categorie'] === $cat ? 'selected' : '' ?>><?= $cat ?></option>
           <?php endforeach; ?>
@@ -119,7 +119,7 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
       </div>
       <div>
         <label>Sous-titre affiché (facultatif)</label>
-        <input type="text" name="categorie_display" placeholder="Bien-être · Art-thérapie" value="<?= htmlspecialchars($a['categorie_display'] ?? '') ?>">
+        <input type="text" id="f_categorie_display" name="categorie_display" placeholder="Bien-être · Art-thérapie" value="<?= htmlspecialchars($a['categorie_display'] ?? '') ?>">
       </div>
     </div>
 
@@ -212,6 +212,7 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
           <img id="pv_photo" class="mavka-activite-preview__photo" alt=""
                <?= !empty($a['photo']) ? 'src="/assets/uploads/activites/' . htmlspecialchars($a['photo']) . '"' : 'hidden' ?>>
         </div>
+        <span id="pv_badge_categorie" class="mavka-activite-preview__badge" title="Provisoire — sera intégré à la carte lors de la maquette finale"></span>
         <span class="mavka-activite-preview__photo-pencil" title="Changer la photo">✎</span>
       </label>
       <input type="file" id="f_photo" name="photo" accept="image/png,image/jpeg,image/webp" hidden>
@@ -309,6 +310,16 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
   font-size: 13px; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(36,27,40,.2);
 }
 .mavka-activite-preview__photo-wrap:hover .mavka-activite-preview__photo-pencil { background: var(--mavka-color-teal-dark, #276A62); }
+/* Provisoire : juste pour que la catégorie soit visible quelque part avant la maquette
+   finale des pages publiques — couleur volontairement hors palette pour rester repérable
+   comme "à refaire". */
+.mavka-activite-preview__badge {
+  position: absolute; top: 8px; left: 8px; max-width: calc(100% - 46px);
+  background: #FFD54D; color: #4A3B00; font-size: 11.5px; font-weight: 700;
+  padding: 4px 9px; border-radius: 6px; box-shadow: 0 1px 3px rgba(36,27,40,.25);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.mavka-activite-preview__badge:empty { display: none; }
 
 .mavka-activite-preview__card .mavka-activite-preview__titre {
   font-family: var(--mavka-font-display); font-style: italic; font-weight: 400; font-size: 19px;
@@ -381,6 +392,16 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
     };
     reader.readAsDataURL(file);
   });
+
+  // Plashka provisoire sur la photo — reprend le sous-titre affiché, sinon la catégorie.
+  var badgeCategorie = $('pv_badge_categorie');
+  function updateBadgeCategorie() {
+    var sousTitre = $('f_categorie_display').value.trim();
+    badgeCategorie.textContent = sousTitre || $('f_categorie').value;
+  }
+  $('f_categorie').addEventListener('change', updateBadgeCategorie);
+  $('f_categorie_display').addEventListener('input', updateBadgeCategorie);
+  updateBadgeCategorie();
 })();
 </script>
 <?php admin_footer(); ?>
