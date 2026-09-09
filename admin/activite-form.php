@@ -35,15 +35,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $a['description'] = trim($_POST['description'] ?? '');
     $a['date_debut'] = $_POST['date_debut'] ?: null;
     $a['heure'] = trim($_POST['heure'] ?? '');
-    // Une activité a soit une date précise, soit une récurrence — jamais les deux
-    // en même temps dans la carte publique (voir la logique d'affichage de la date).
-    // On force l'exclusivité ici pour ne pas garder en base une valeur fantôme
-    // qui resurgirait si l'autre champ était vidé plus tard.
-    $a['recurrence'] = $a['date_debut'] ? '' : trim($_POST['recurrence'] ?? '');
     $a['lieu'] = trim($_POST['lieu'] ?? '');
     $a['nombre_places'] = $_POST['nombre_places'] !== '' ? (int)$_POST['nombre_places'] : null;
     $a['ville'] = trim($_POST['ville'] ?? '');
     $a['texte_bouton'] = trim($_POST['texte_bouton'] ?? '') ?: 'Préinscription gratuite';
+    // La récurrence n'a de sens que pour un "Événement régulier" — pour tout autre
+    // texte de bouton le champ est masqué côté formulaire, donc on ignore aussi
+    // toute valeur envoyée pour ne pas garder une récurrence fantôme en base.
+    $a['recurrence'] = $a['texte_bouton'] === 'Événement régulier' ? trim($_POST['recurrence'] ?? '') : '';
     $a['lien_inscription'] = trim($_POST['lien_inscription'] ?? '');
     $a['statut'] = $_POST['statut'] === 'brouillon' ? 'brouillon' : 'publie';
     $a['statut_activite'] = in_array($_POST['statut_activite'] ?? '', ['ouvert', 'complet', 'annule', 'termine'])
@@ -89,7 +88,7 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
 <div class="mavka-activite-layout">
 <form method="post" enctype="multipart/form-data" class="mavka-form" style="display:contents;">
 
-  <details class="mavka-form-section mavka-form-section--interne" open style="max-width:640px; flex:1 1 380px; margin-bottom:0;">
+  <details class="mavka-form-section mavka-form-section--parametres" open style="max-width:640px; flex:1 1 380px; margin-bottom:0;">
     <summary class="mavka-form-section__header" style="cursor:pointer;">
       <h3 class="mavka-form-section__title">⚙️ Détails supplémentaires</h3>
       <svg class="mavka-form-section__chevron" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -188,9 +187,11 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
     <div class="mavka-activite-preview__label">Carte publique — modifiable directement ici</div>
     <div class="mavka-activite-preview__card">
       <label for="f_photo" class="mavka-activite-preview__photo-wrap">
-        <img id="pv_photo" class="mavka-activite-preview__photo" alt=""
-             <?= !empty($a['photo']) ? 'src="/assets/uploads/activites/' . htmlspecialchars($a['photo']) . '"' : 'hidden' ?>>
-        <span id="pv_photo_hint" class="mavka-activite-preview__photo-hint" <?= !empty($a['photo']) ? 'hidden' : '' ?>>+ Ajouter une photo</span>
+        <div class="mavka-activite-preview__photo-box">
+          <img id="pv_photo" class="mavka-activite-preview__photo" alt=""
+               <?= !empty($a['photo']) ? 'src="/assets/uploads/activites/' . htmlspecialchars($a['photo']) . '"' : 'hidden' ?>>
+        </div>
+        <span class="mavka-activite-preview__photo-pencil" title="Changer la photo">✎</span>
       </label>
       <input type="file" id="f_photo" name="photo" accept="image/png,image/jpeg,image/webp" hidden>
 
@@ -199,14 +200,10 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
       <div class="mavka-activite-preview__meta">
         <div class="mavka-activite-preview__meta-row">
           <span>📅</span>
-          <input type="date" id="f_date_debut" name="date_debut" value="<?= htmlspecialchars($a['date_debut'] ?? '') ?>">
-          <input type="text" id="f_heure" name="heure" placeholder="18:00" value="<?= htmlspecialchars($a['heure']) ?>">
+          <input type="date" id="f_date_debut" name="date_debut" class="mavka-activite-preview__field-default" value="<?= htmlspecialchars($a['date_debut'] ?? '') ?>">
+          <input type="text" id="f_heure" name="heure" class="mavka-activite-preview__field-default" placeholder="18:00" value="<?= htmlspecialchars($a['heure']) ?>">
         </div>
-        <input type="text" id="f_recurrence" name="recurrence" placeholder='Récurrence, ex. "Le jeudi"' value="<?= htmlspecialchars($a['recurrence']) ?>" hidden>
-        <label class="mavka-activite-preview__toggle">
-          <input type="checkbox" id="f_recurrent_toggle" <?= $a['recurrence'] ? 'checked' : '' ?>>
-          Pas de date fixe (activité récurrente)
-        </label>
+        <input type="text" id="f_recurrence" name="recurrence" class="mavka-activite-preview__field-default" placeholder='Récurrence, ex. "Le jeudi"' value="<?= htmlspecialchars($a['recurrence']) ?>" <?= $a['texte_bouton'] === 'Événement régulier' ? '' : 'hidden' ?>>
         <div class="mavka-activite-preview__meta-row">
           <input type="text" id="f_lieu" name="lieu" placeholder="Lieu" value="<?= htmlspecialchars($a['lieu']) ?>">
           <input type="text" id="f_ville" name="ville" placeholder="Ville" value="<?= htmlspecialchars($a['ville']) ?>">
@@ -240,6 +237,7 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
 <style>
 .mavka-activite-layout { display: flex; align-items: flex-start; gap: 24px; flex-wrap: wrap; }
 .mavka-activite-actions { flex-basis: 100%; }
+.mavka-form-section--parametres { --section-color: var(--mavka-color-purple-dark); }
 .mavka-activite-preview { width: 300px; flex-shrink: 0; position: sticky; top: 24px; }
 .mavka-activite-preview__label { font-weight: 700; font-size: 13.5px; color: var(--mavka-color-text-muted); margin-bottom: 8px; }
 .mavka-activite-preview__card {
@@ -248,18 +246,19 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
 }
 
 /* Champs "invisibles" tant qu'on n'interagit pas avec eux — la carte doit se lire
-   comme la carte publique, pas comme un formulaire, jusqu'à ce qu'on clique dedans. */
-.mavka-activite-preview__card input:not([type="checkbox"]),
+   comme la carte publique, pas comme un formulaire, jusqu'à ce qu'on clique dedans.
+   Date/Heure/Récurrence gardent leur apparence de champ normale (.mavka-form input). */
+.mavka-activite-preview__card input:not([type="checkbox"]):not(.mavka-activite-preview__field-default),
 .mavka-activite-preview__card textarea {
   width: 100%; border: 1.5px dashed transparent; border-radius: 6px; background: transparent;
   font-family: inherit; color: inherit; padding: 2px 4px; margin: -2px -4px;
   transition: border-color .15s, background-color .15s;
 }
-.mavka-activite-preview__card input:not([type="checkbox"]):hover,
+.mavka-activite-preview__card input:not([type="checkbox"]):not(.mavka-activite-preview__field-default):hover,
 .mavka-activite-preview__card textarea:hover {
   border-color: var(--mavka-color-teal-light);
 }
-.mavka-activite-preview__card input:not([type="checkbox"]):focus,
+.mavka-activite-preview__card input:not([type="checkbox"]):not(.mavka-activite-preview__field-default):focus,
 .mavka-activite-preview__card textarea:focus {
   outline: none; border-color: var(--mavka-color-teal); background: var(--mavka-color-cream-soft);
 }
@@ -269,12 +268,17 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
 .mavka-activite-preview__photo-wrap {
   display: block; cursor: pointer; position: relative; margin-bottom: 12px;
 }
-.mavka-activite-preview__photo { width: 100%; aspect-ratio: 16/10; object-fit: cover; border-radius: 10px; display: block; }
-.mavka-activite-preview__photo-hint {
-  display: flex; align-items: center; justify-content: center; aspect-ratio: 16/10; border-radius: 10px;
-  border: 1.5px dashed var(--mavka-color-teal-light); color: var(--mavka-color-text-muted); font-size: 13px;
+.mavka-activite-preview__photo-box {
+  width: 100%; aspect-ratio: 16/10; border-radius: 10px; overflow: hidden;
+  background: var(--mavka-color-teal-light);
 }
-.mavka-activite-preview__photo-wrap:hover .mavka-activite-preview__photo-hint { border-color: var(--mavka-color-teal); }
+.mavka-activite-preview__photo { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mavka-activite-preview__photo-pencil {
+  position: absolute; right: 8px; bottom: 8px; width: 30px; height: 30px; border-radius: 50%;
+  background: var(--mavka-color-teal); color: #fff; display: flex; align-items: center; justify-content: center;
+  font-size: 13px; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(36,27,40,.2);
+}
+.mavka-activite-preview__photo-wrap:hover .mavka-activite-preview__photo-pencil { background: var(--mavka-color-teal-dark, #276A62); }
 
 .mavka-activite-preview__card .mavka-activite-preview__titre {
   font-family: var(--mavka-font-display); font-style: italic; font-weight: 400; font-size: 19px;
@@ -283,15 +287,12 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
 .mavka-activite-preview__meta {
   border: 1.5px solid var(--mavka-color-orange); border-radius: 10px; padding: 8px 12px; margin-bottom: 12px;
 }
-.mavka-activite-preview__meta-row { display: flex; gap: 6px; font-size: 13.5px; font-weight: 700; }
-.mavka-activite-preview__meta-row:last-child { font-weight: 400; margin-top: 4px; }
+.mavka-activite-preview__meta-row { display: flex; gap: 6px; }
+.mavka-activite-preview__meta-row + .mavka-activite-preview__meta-row { margin-top: 6px; }
 .mavka-activite-preview__meta-row input[type="date"] { flex: 1.4; }
 .mavka-activite-preview__meta-row input[type="text"] { flex: 1; }
-.mavka-activite-preview__toggle {
-  display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 400;
-  color: var(--mavka-color-text-muted); margin-top: 6px; cursor: pointer;
-}
-.mavka-activite-preview__toggle input { margin: 0; }
+.mavka-activite-preview__card .mavka-activite-preview__field-default { font-size: 13px; padding: 6px 8px; }
+.mavka-activite-preview__card #f_recurrence.mavka-activite-preview__field-default { margin-top: 6px; }
 .mavka-activite-preview__card .mavka-activite-preview__desc {
   font-size: 13.5px; line-height: 1.5; margin: 0 0 14px; min-height: 54px; resize: vertical;
 }
@@ -308,23 +309,19 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
 (function () {
   function $(id) { return document.getElementById(id); }
 
-  // Une activité a soit une date précise, soit une récurrence (ex. "Le jeudi") —
-  // jamais les deux : la carte publique n'affiche qu'une seule ligne de date.
-  // La case à cocher bascule visuellement entre les deux; le champ caché n'est
-  // pas soumis (attribut disabled) pour ne jamais écraser l'autre valeur en base.
-  var dateRow = $('f_date_debut').closest('.mavka-activite-preview__meta-row');
+  // Récurrence n'a de sens que pour le bouton "Événement régulier" — le champ
+  // n'apparaît que dans ce cas, et n'est pas soumis (disabled) sinon pour ne
+  // jamais laisser traîner une valeur qui ne correspond plus au bouton choisi.
   var recurrenceInput = $('f_recurrence');
-  var toggle = $('f_recurrent_toggle');
+  var boutonSelect = $('f_texte_bouton');
 
-  function applyRecurrentMode(recurrent) {
-    dateRow.hidden = recurrent;
-    $('f_date_debut').disabled = recurrent;
-    recurrenceInput.hidden = !recurrent;
-    recurrenceInput.disabled = !recurrent;
-    if (recurrent) recurrenceInput.focus();
+  function applyRecurrenceVisibility() {
+    var estRegulier = boutonSelect.value === 'Événement régulier';
+    recurrenceInput.hidden = !estRegulier;
+    recurrenceInput.disabled = !estRegulier;
   }
-  toggle.addEventListener('change', function () { applyRecurrentMode(toggle.checked); });
-  applyRecurrentMode(toggle.checked);
+  boutonSelect.addEventListener('change', applyRecurrenceVisibility);
+  applyRecurrenceVisibility();
 
   $('f_photo').addEventListener('change', function (e) {
     var file = e.target.files && e.target.files[0];
@@ -333,7 +330,6 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
     reader.onload = function (ev) {
       $('pv_photo').src = ev.target.result;
       $('pv_photo').hidden = false;
-      $('pv_photo_hint').hidden = true;
     };
     reader.readAsDataURL(file);
   });
