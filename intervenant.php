@@ -16,6 +16,15 @@ $ateliers = $iv ? site_intervenant_ateliers($iv['id']) : [];
 $photoUrl = ($iv && $iv['photo'] && $iv['dossier'])
     ? '/assets/uploads/intervenants/' . rawurlencode($iv['dossier']) . '/' . rawurlencode($iv['photo'])
     : '/assets/site-img/img-01-017fac3c9d.webp';
+
+// Comparaison temporaire de 3 façons de présenter Présentation / Parcours / Ma vision (A, B, C) —
+// à retirer une fois qu'un style est choisi, cf. render_iv_demo_switch() ci-dessous.
+$sections = [];
+if ($iv) {
+    if ($iv['bio']) $sections[] = ['key' => 'presentation', 'label' => 'Présentation', 'title' => 'Qui est ' . $iv['nom'], 'text' => $iv['bio']];
+    if ($iv['parcours_personnel']) $sections[] = ['key' => 'parcours', 'label' => 'Parcours', 'title' => 'Son parcours', 'text' => $iv['parcours_personnel']];
+    if ($iv['vision']) $sections[] = ['key' => 'vision', 'label' => 'Ma vision', 'title' => 'Sa vision', 'text' => $iv['vision']];
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -39,6 +48,25 @@ $photoUrl = ($iv && $iv['photo'] && $iv['dossier'])
 .iv-atelier{padding:22px;border-radius:var(--r);background:var(--card);border:2px solid var(--mint)}
 .iv-atelier p{margin-top:8px;font-size:.96rem}
 .back{display:inline-flex;gap:6px;color:var(--ink-2);font-weight:600;font-size:.92rem;margin-bottom:8px}
+
+.top-row{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.demo-switch{display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--mint)}
+.demo-switch button{border:0;background:transparent;border-radius:999px;padding:8px 16px;font:inherit;font-size:.85rem;font-weight:700;color:var(--ink-2);cursor:pointer}
+.demo-switch button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.demo-note{font-size:.76rem;color:var(--ink-3);margin-top:6px;text-align:right}
+
+.tabpanel h2{margin-bottom:14px}
+
+.tabs-pill{display:inline-flex;gap:2px;padding:4px;border-radius:999px;background:var(--card);border:2px solid var(--mint);margin-bottom:28px}
+.tabs-pill button{border:0;background:transparent;border-radius:999px;padding:10px 22px;font:inherit;font-family:var(--display);font-weight:700;font-size:.95rem;color:var(--ink-2);cursor:pointer}
+.tabs-pill button[aria-selected="true"]{background:var(--teal);color:#fff}
+
+.tabs-underline{display:flex;gap:28px;border-bottom:2px solid var(--line);margin-bottom:28px}
+.tabs-underline button{border:0;background:none;padding:0 0 14px;font:inherit;font-family:var(--display);font-weight:600;font-size:1.05rem;color:var(--ink-3);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px}
+.tabs-underline button[aria-selected="true"]{color:var(--teal-deep);border-color:var(--teal)}
+
+.iv-accordion{max-width:52em}
+.iv-accordion summary{font-size:1.25rem}
 </style>
 </head>
 <body>
@@ -76,7 +104,19 @@ $photoUrl = ($iv && $iv['photo'] && $iv['dossier'])
       <div class="iv-hero">
         <img src="<?= htmlspecialchars($photoUrl) ?>" alt="<?= htmlspecialchars($iv['nom']) ?>">
         <div>
-          <span class="eyebrow"><?= htmlspecialchars($iv['role_titre'] ?: 'Bénévole') ?></span>
+          <div class="top-row">
+            <span class="eyebrow"><?= htmlspecialchars($iv['role_titre'] ?: 'Bénévole') ?></span>
+            <?php if ($sections): ?>
+            <div>
+              <div class="demo-switch" id="demoSwitch" role="group" aria-label="Comparer les styles de présentation">
+                <button type="button" data-demo="a" aria-pressed="true">A · Pilule</button>
+                <button type="button" data-demo="b" aria-pressed="false">B · Soulignés</button>
+                <button type="button" data-demo="c" aria-pressed="false">C · Accordéon</button>
+              </div>
+              <p class="demo-note">Comparaison temporaire</p>
+            </div>
+            <?php endif; ?>
+          </div>
           <h1 style="margin-top:12px"><?= htmlspecialchars($iv['nom']) ?></h1>
           <?php if ($iv['resume']): ?><p class="lede" style="margin-top:12px"><?= htmlspecialchars($iv['resume']) ?></p><?php endif; ?>
           <?php if ($iv['domaine']): ?><p style="margin-top:10px;color:var(--ink-3);font-size:.92rem"><?= htmlspecialchars($iv['domaine']) ?></p><?php endif; ?>
@@ -85,31 +125,53 @@ $photoUrl = ($iv && $iv['photo'] && $iv['dossier'])
     </div>
   </section>
 
+  <?php if ($sections): ?>
   <section class="sand">
-    <div class="wrap iv-sections">
-      <?php if ($iv['bio']): ?>
-      <div class="iv-section">
-        <span class="eyebrow">Présentation</span>
-        <h2 style="margin-top:10px">Qui est <?= htmlspecialchars($iv['nom']) ?></h2>
-        <p><?= htmlspecialchars($iv['bio']) ?></p>
+    <!-- A · Pilule -->
+    <div class="wrap" id="demo-a">
+      <div class="tabset">
+        <div class="tabs-pill" role="tablist" data-tablist aria-label="Sections du profil">
+          <?php foreach ($sections as $i => $s): ?>
+          <button type="button" role="tab" data-tab="<?= $s['key'] ?>" aria-selected="<?= $i === 0 ? 'true' : 'false' ?>"><?= htmlspecialchars($s['label']) ?></button>
+          <?php endforeach; ?>
+        </div>
+        <?php foreach ($sections as $i => $s): ?>
+        <div class="tabpanel" data-panel="<?= $s['key'] ?>"<?= $i === 0 ? '' : ' hidden' ?>>
+          <h2><?= htmlspecialchars($s['title']) ?></h2>
+          <p><?= htmlspecialchars($s['text']) ?></p>
+        </div>
+        <?php endforeach; ?>
       </div>
-      <?php endif; ?>
-      <?php if ($iv['parcours_personnel']): ?>
-      <div class="iv-section">
-        <span class="eyebrow">Parcours</span>
-        <h2 style="margin-top:10px">Son parcours</h2>
-        <p><?= htmlspecialchars($iv['parcours_personnel']) ?></p>
+    </div>
+
+    <!-- B · Soulignés -->
+    <div class="wrap" id="demo-b" hidden>
+      <div class="tabset">
+        <div class="tabs-underline" role="tablist" data-tablist aria-label="Sections du profil">
+          <?php foreach ($sections as $i => $s): ?>
+          <button type="button" role="tab" data-tab="<?= $s['key'] ?>" aria-selected="<?= $i === 0 ? 'true' : 'false' ?>"><?= htmlspecialchars($s['label']) ?></button>
+          <?php endforeach; ?>
+        </div>
+        <?php foreach ($sections as $i => $s): ?>
+        <div class="tabpanel" data-panel="<?= $s['key'] ?>"<?= $i === 0 ? '' : ' hidden' ?>>
+          <h2><?= htmlspecialchars($s['title']) ?></h2>
+          <p><?= htmlspecialchars($s['text']) ?></p>
+        </div>
+        <?php endforeach; ?>
       </div>
-      <?php endif; ?>
-      <?php if ($iv['vision']): ?>
-      <div class="iv-section">
-        <span class="eyebrow">Ma vision</span>
-        <h2 style="margin-top:10px">Sa vision</h2>
-        <p><?= htmlspecialchars($iv['vision']) ?></p>
-      </div>
-      <?php endif; ?>
+    </div>
+
+    <!-- C · Accordéon -->
+    <div class="wrap iv-accordion" id="demo-c" hidden>
+      <?php foreach ($sections as $i => $s): ?>
+      <details<?= $i === 0 ? ' open' : '' ?>>
+        <summary><?= htmlspecialchars($s['label']) ?></summary>
+        <p><?= htmlspecialchars($s['text']) ?></p>
+      </details>
+      <?php endforeach; ?>
     </div>
   </section>
+  <?php endif; ?>
 
   <?php if ($ateliers): ?>
   <section>
@@ -167,5 +229,32 @@ $photoUrl = ($iv && $iv['photo'] && $iv['dossier'])
   <symbol id="m-stand" viewBox="0 0 310 769"><image href="/assets/site-img/img-02-33b2e93d45.webp" width="310" height="769"/></symbol>
 </svg>
 
+<script>
+(function(){
+  // A/B/C comparaison temporaire — voir le commentaire PHP en haut du fichier
+  var wraps = { a: document.getElementById('demo-a'), b: document.getElementById('demo-b'), c: document.getElementById('demo-c') };
+  var switcher = document.getElementById('demoSwitch');
+  if (switcher) {
+    var show = function(key){
+      Object.keys(wraps).forEach(function(k){ if (wraps[k]) wraps[k].hidden = (k !== key); });
+      switcher.querySelectorAll('button').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.demo === key)); });
+    };
+    switcher.addEventListener('click', function(e){
+      var b = e.target.closest('button[data-demo]');
+      if (b) show(b.dataset.demo);
+    });
+    show('a');
+  }
+  document.querySelectorAll('[data-tablist]').forEach(function(list){
+    list.addEventListener('click', function(e){
+      var btn = e.target.closest('[role="tab"]');
+      if (!btn) return;
+      var panels = list.closest('.tabset').querySelectorAll('.tabpanel');
+      list.querySelectorAll('[role="tab"]').forEach(function(t){ t.setAttribute('aria-selected', String(t === btn)); });
+      panels.forEach(function(p){ p.hidden = (p.dataset.panel !== btn.dataset.tab); });
+    });
+  });
+})();
+</script>
 </body>
 </html>
