@@ -22,8 +22,11 @@ CREATE TABLE IF NOT EXISTS intervenants (
   date_signee DATE NULL,
   cv_lien VARCHAR(500) NULL,                   -- lien Google Drive
   cv_fichier VARCHAR(255) NULL,
-  documents_pro_lien VARCHAR(500) NULL,        -- lien Google Drive
-  documents_pro_fichier VARCHAR(255) NULL,
+  rib_lien VARCHAR(500) NULL,                  -- lien Google Drive : RIB (coordonnées bancaires)
+  rib_fichier VARCHAR(255) NULL,
+  assurance_lien VARCHAR(500) NULL,            -- lien Google Drive : assurance professionnelle
+  assurance_fichier VARCHAR(255) NULL,
+  assurance_date DATE NULL,                    -- informatif, peut se renouveler automatiquement
   projet_developpement VARCHAR(500) NULL,        -- interne, lien Google Drive : suivi de Larysa pour la mairie
   projet_developpement_fichier VARCHAR(255) NULL, -- interne, fichier téléversé
   objectifs_mavka TEXT NULL,             -- interne : idem

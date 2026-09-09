@@ -54,3 +54,31 @@ function handle_upload(string $field, string $subdir): ?string {
     move_uploaded_file($_FILES[$field]['tmp_name'], $dir . $filename);
     return $filename;
 }
+
+// Bloc "lien + fichier" pour un document (Charte, CV, RIB...) : aperçu image, badge pour les PDF,
+// bouton crayon pour remplacer un fichier existant, zone en pointillés si vide.
+function champ_document(string $label, string $lien_field, string $fichier_field, array $iv, ?string $file_url, string $accept = 'image/png,image/jpeg,image/webp,application/pdf'): void {
+    $input_id = 'fichier_' . $fichier_field;
+    $ext = $iv[$fichier_field] ? strtolower(pathinfo($iv[$fichier_field], PATHINFO_EXTENSION)) : null;
+    $is_image = in_array($ext, ['jpg', 'jpeg', 'png', 'webp'], true);
+    ?>
+    <label><?= htmlspecialchars($label) ?></label>
+    <input type="url" name="<?= htmlspecialchars($lien_field) ?>" placeholder="Lien Google Drive (facultatif)" value="<?= htmlspecialchars($iv[$lien_field] ?? '') ?>">
+    <div class="mavka-file-slot">
+      <?php if ($file_url): ?>
+        <a href="<?= htmlspecialchars($file_url) ?>" target="_blank" class="mavka-file-slot__preview">
+          <?php if ($is_image): ?>
+            <img src="<?= htmlspecialchars($file_url) ?>" alt="">
+          <?php else: ?>
+            <span class="mavka-file-slot__badge"><?= htmlspecialchars(strtoupper($ext ?: '?')) ?></span>
+          <?php endif; ?>
+          <span class="mavka-file-slot__label">Voir le fichier</span>
+        </a>
+        <label class="mavka-file-slot__replace" for="<?= $input_id ?>" title="Remplacer le fichier">✎</label>
+      <?php else: ?>
+        <label class="mavka-file-slot__empty" for="<?= $input_id ?>">+ Ajouter un fichier</label>
+      <?php endif; ?>
+      <input type="file" id="<?= $input_id ?>" name="<?= htmlspecialchars($fichier_field) ?>" accept="<?= htmlspecialchars($accept) ?>" hidden>
+    </div>
+    <?php
+}
