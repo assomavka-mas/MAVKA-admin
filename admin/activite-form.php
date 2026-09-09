@@ -146,10 +146,6 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
 
     <div class="row">
       <div>
-        <label>Nombre de places (vide = illimité)</label>
-        <input type="number" min="0" name="nombre_places" value="<?= htmlspecialchars((string)($a['nombre_places'] ?? '')) ?>">
-      </div>
-      <div>
         <label>Statut de l'activité</label>
         <select name="statut_activite">
           <?php $statuts = ['ouvert' => 'Ouvert', 'complet' => 'Complet', 'annule' => 'Annulé', 'termine' => 'Terminé']; ?>
@@ -157,19 +153,6 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
           <option value="<?= $val ?>" <?= $a['statut_activite'] === $val ? 'selected' : '' ?>><?= $label ?></option>
           <?php endforeach; ?>
         </select>
-      </div>
-    </div>
-
-    <div class="row">
-      <div>
-        <div id="f_lien_inscription_wrap">
-          <label>Lien d'inscription</label>
-          <input type="url" id="f_lien_inscription" name="lien_inscription" placeholder="https://helloasso.com/..." value="<?= htmlspecialchars($a['lien_inscription']) ?>">
-        </div>
-        <div id="f_lien_equipe_hint" class="mavka-form-section__hint" style="margin:14px 0 0; display:none;">
-          <label>Lien d'inscription</label>
-          Généré automatiquement — page "Notre équipe" de la première personne cochée ci-dessous.
-        </div>
       </div>
       <div>
         <label>Statut de publication</label>
@@ -180,8 +163,28 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
       </div>
     </div>
 
-    <label>Ordre d'affichage (0 = premier)</label>
-    <input type="number" name="ordre" value="<?= (int)$a['ordre'] ?>">
+    <div class="row mavka-row--nombres">
+      <div>
+        <label>Nombre de places <span class="mavka-form-section__hint" style="margin:0; font-weight:400;">(vide = illimité)</span></label>
+        <input type="number" min="0" class="mavka-input-court" name="nombre_places" value="<?= htmlspecialchars((string)($a['nombre_places'] ?? '')) ?>">
+      </div>
+      <div>
+        <label>Ordre d'affichage <span class="mavka-form-section__hint" style="margin:0; font-weight:400;">(0 = premier)</span></label>
+        <input type="number" class="mavka-input-court" name="ordre" value="<?= (int)$a['ordre'] ?>">
+      </div>
+    </div>
+    <p class="mavka-form-section__hint">L'ordre détermine qui apparaît en premier sur le site (0, puis 1, 2...) ; à ordre égal, la date la plus proche passe devant. Aucun calcul automatique — c'est une priorité manuelle.</p>
+
+    <div>
+      <div id="f_lien_inscription_wrap">
+        <label>Lien d'inscription</label>
+        <input type="url" id="f_lien_inscription" name="lien_inscription" placeholder="https://helloasso.com/..." value="<?= htmlspecialchars($a['lien_inscription']) ?>">
+      </div>
+      <div id="f_lien_equipe_hint" class="mavka-form-section__hint" style="margin:14px 0 0; display:none;">
+        <label>Lien d'inscription</label>
+        Généré automatiquement — page "Notre équipe" de la première personne cochée ci-dessous.
+      </div>
+    </div>
 
     <label>Intervenant·e·s</label>
     <div class="mavka-picklist">
@@ -223,8 +226,8 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
         </div>
         <input type="text" id="f_recurrence" name="recurrence" class="mavka-activite-preview__field-default" placeholder='Récurrence, ex. "Le jeudi"' value="<?= htmlspecialchars($a['recurrence']) ?>" <?= $a['texte_bouton'] === 'Événement régulier' ? '' : 'hidden' ?>>
         <div class="mavka-activite-preview__meta-row">
-          <input type="text" id="f_lieu" name="lieu" placeholder="Lieu" value="<?= htmlspecialchars($a['lieu']) ?>">
-          <input type="text" id="f_ville" name="ville" placeholder="Ville" value="<?= htmlspecialchars($a['ville']) ?>">
+          <input type="text" id="f_lieu" name="lieu" class="mavka-activite-preview__field-default" placeholder="Lieu" value="<?= htmlspecialchars($a['lieu']) ?>">
+          <input type="text" id="f_ville" name="ville" class="mavka-activite-preview__field-default" placeholder="Ville" value="<?= htmlspecialchars($a['ville']) ?>">
         </div>
       </div>
 
@@ -262,6 +265,7 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
 
 <style>
 .mavka-activite-layout { display: flex; align-items: flex-start; gap: 24px; flex-wrap: wrap; }
+.mavka-input-court { max-width: 90px; }
 .mavka-activite-actions { flex-basis: 100%; }
 .mavka-form-section--parametres { --section-color: var(--mavka-color-purple-dark); }
 .mavka-activite-preview { width: 300px; flex-shrink: 0; position: sticky; top: 24px; }
