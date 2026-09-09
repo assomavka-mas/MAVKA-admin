@@ -421,6 +421,16 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
       localStorage.setItem(ORDER_KEY, JSON.stringify(keys));
     } catch (e) {}
   });
+
+  // Clic sur le crayon d'un lien Google Drive : révèle le champ pour le modifier
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('.mavka-link-chip__edit');
+    if (!btn) return;
+    var input = document.getElementById(btn.dataset.toggle);
+    if (input) { input.hidden = false; input.focus(); input.select(); }
+    var chip = btn.closest('.mavka-link-chip');
+    if (chip) { chip.hidden = true; }
+  });
 })();
 </script>
 <?php admin_footer(); ?>
