@@ -219,20 +219,20 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
       </label>
       <input type="file" id="f_photo" name="photo" accept="image/png,image/jpeg,image/webp" hidden>
 
-      <input type="text" id="f_titre" name="titre" class="mavka-activite-preview__field-default mavka-activite-preview__titre" placeholder="Titre de l'activité" value="<?= htmlspecialchars($a['titre']) ?>" required>
+      <textarea id="f_titre" name="titre" rows="1" class="mavka-activite-preview__field-default mavka-activite-preview__titre" placeholder="Titre de l'activité" required><?= htmlspecialchars($a['titre']) ?></textarea>
 
       <div class="mavka-activite-preview__meta">
         <div class="mavka-activite-preview__meta-row">
           <span>📅</span>
           <input type="date" id="f_date_debut" name="date_debut" class="mavka-activite-preview__field-default" value="<?= htmlspecialchars($a['date_debut'] ?? '') ?>">
           <input type="text" id="f_heure" name="heure" class="mavka-activite-preview__field-default" placeholder="18:00" value="<?= htmlspecialchars($a['heure']) ?>">
-          <span id="pv_badge_places" class="mavka-activite-preview__badge" title="Provisoire — sera intégré à la carte lors de la maquette finale"></span>
         </div>
         <input type="text" id="f_recurrence" name="recurrence" class="mavka-activite-preview__field-default" placeholder='Récurrence, ex. "Le jeudi"' value="<?= htmlspecialchars($a['recurrence']) ?>" <?= $a['texte_bouton'] === 'Événement régulier' ? '' : 'hidden' ?>>
         <div class="mavka-activite-preview__meta-row">
           <input type="text" id="f_lieu" name="lieu" class="mavka-activite-preview__field-default" placeholder="Lieu" value="<?= htmlspecialchars($a['lieu']) ?>">
           <input type="text" id="f_ville" name="ville" class="mavka-activite-preview__field-default" placeholder="Ville" value="<?= htmlspecialchars($a['ville']) ?>">
         </div>
+        <span id="pv_badge_places" class="mavka-activite-preview__badge" style="margin-top:6px;" title="Provisoire — sera intégré à la carte lors de la maquette finale"></span>
       </div>
 
       <textarea id="f_description" name="description" class="mavka-activite-preview__field-default mavka-activite-preview__desc" placeholder="Description de l'activité"><?= htmlspecialchars($a['description']) ?></textarea>
@@ -314,6 +314,7 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
 .mavka-activite-preview__card .mavka-activite-preview__field-default.mavka-activite-preview__titre {
   font-family: var(--mavka-font-display); font-style: italic; font-weight: 400; font-size: 19px;
   line-height: 1.25; color: var(--mavka-color-ink); margin: 0 0 12px; display: block; padding: 4px 6px;
+  resize: none; overflow: hidden;
 }
 .mavka-activite-preview__meta {
   border: 1.5px solid var(--mavka-color-orange); border-radius: 10px; padding: 8px 12px; margin-bottom: 12px;
@@ -339,6 +340,20 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
 <script>
 (function () {
   function $(id) { return document.getElementById(id); }
+
+  // Le titre est un <textarea> (pas <input>) pour pouvoir s'afficher sur 2 lignes comme sur
+  // la vraie carte publique — sa hauteur suit le texte tapé, et Entrée valide plutôt que
+  // d'insérer un retour à la ligne (le titre reste une seule ligne logique, juste enroulée).
+  var titreInput = $('f_titre');
+  function autoGrowTitre() {
+    titreInput.style.height = 'auto';
+    titreInput.style.height = titreInput.scrollHeight + 'px';
+  }
+  titreInput.addEventListener('input', autoGrowTitre);
+  titreInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') e.preventDefault();
+  });
+  autoGrowTitre();
 
   // Récurrence n'a de sens que pour le bouton "Événement régulier" — le champ
   // n'apparaît que dans ce cas, et n'est pas soumis (disabled) sinon pour ne
