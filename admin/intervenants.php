@@ -24,7 +24,7 @@ admin_header('Intervenants', $user, 'intervenants');
 <?php if (isset($_GET['ok'])): ?><?php flash('ok', 'Enregistré avec succès.'); ?><?php endif; ?>
 
 <table class="mavka-table" style="margin-top:16px;">
-  <tr><th></th><th>Nom</th><th>Rôle</th><th>Statut</th><th>Spécialité</th><th>Email</th><th></th></tr>
+  <tr><th></th><th>Nom</th><th>Rôle</th><th>Statut</th><th>Résumé</th><th>Email</th><th></th></tr>
   <?php foreach ($intervenants as $iv): ?>
   <tr>
     <td>
@@ -35,7 +35,7 @@ admin_header('Intervenants', $user, 'intervenants');
     <td><?= htmlspecialchars($iv['nom']) ?></td>
     <td><?= htmlspecialchars($iv['role_titre']) ?></td>
     <td><?= implode(' + ', intervenant_statuts($iv)) ?></td>
-    <td><?= htmlspecialchars($iv['specialite']) ?></td>
+    <td><?= htmlspecialchars($iv['resume'] ?? '') ?></td>
     <td><?= htmlspecialchars($iv['email']) ?></td>
     <td style="white-space:nowrap;">
       <?php if (peut_editer($user)): ?>

@@ -8,7 +8,7 @@ $user = auth_require(['super_admin', 'mavka_admin']);
 $id = isset($_GET['id']) ? (int)$_GET['id'] : null;
 $iv = [
     'nom' => '', 'dossier' => '', 'role_titre' => '', 'resume' => '', 'domaine' => '', 'adresse' => '',
-    'specialite' => '', 'bio' => '', 'parcours_personnel' => '', 'vision' => '',
+    'bio' => '', 'parcours_personnel' => '', 'vision' => '',
     'charte_benevolat_lien' => '', 'charte_benevolat_fichier' => null,
     'contrat_intervention_lien' => '', 'contrat_intervention_fichier' => null,
     'date_signee' => '',
@@ -40,7 +40,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'save') === 's
     $iv['resume'] = trim($_POST['resume'] ?? '');
     $iv['domaine'] = implode(',', array_map('trim', $_POST['domaine'] ?? [])) ?: null;
     $iv['adresse'] = trim($_POST['adresse'] ?? '');
-    $iv['specialite'] = trim($_POST['specialite'] ?? '');
     $iv['bio'] = trim($_POST['bio'] ?? '');
     $iv['parcours_personnel'] = trim($_POST['parcours_personnel'] ?? '');
     $iv['vision'] = trim($_POST['vision'] ?? '');
@@ -61,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'save') === 's
         $error = 'Le nom est obligatoire.';
     } else {
         $fields = [
-            'nom', 'dossier', 'role_titre', 'resume', 'domaine', 'adresse', 'specialite',
+            'nom', 'dossier', 'role_titre', 'resume', 'domaine', 'adresse',
             'bio', 'parcours_personnel', 'vision',
             'charte_benevolat_lien', 'charte_benevolat_fichier', 'contrat_intervention_lien', 'contrat_intervention_fichier',
             'date_signee', 'cv_lien', 'cv_fichier', 'rib_lien', 'rib_fichier',
@@ -220,10 +219,6 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
 
     <label>Adresse</label>
     <input type="text" name="adresse" placeholder="16000 Angoulême" value="<?= htmlspecialchars($iv['adresse'] ?? '') ?>">
-
-    <label>Spécialité</label>
-    <input type="text" name="specialite" placeholder="Musique, art-thérapie..." value="<?= htmlspecialchars($iv['specialite'] ?? '') ?>">
-    <p class="mavka-form-section__hint">Son savoir-faire concret, en quelques mots — sert à le/la décrire sur sa fiche.</p>
 
     <label style="margin-top:16px;"><input type="checkbox" name="actif" <?= $iv['actif'] ? 'checked' : '' ?> style="width:auto;"> Actif (visible dans les listes)</label>
     </div>
