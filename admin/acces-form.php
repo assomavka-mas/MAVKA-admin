@@ -64,6 +64,7 @@ admin_header($id ? "Modifier l'accès" : 'Nouvel accès', $user, 'acces');
       <option value="mavka_admin" <?= $compte['role'] === 'mavka_admin' ? 'selected' : '' ?>>Mavka-admin (gère le contenu)</option>
       <option value="partenaire" <?= $compte['role'] === 'partenaire' ? 'selected' : '' ?>>Partenaire (lecture seule)</option>
     </select>
+    <p class="mavka-form-section__hint" style="margin:6px 0 0;">Tu cherches à donner accès à un·e <strong>bénévole</strong> ? Ça ne se fait pas ici — ouvre sa fiche dans <a href="/admin/intervenants.php">Intervenants</a> et remplis "Accès espace bénévole".</p>
   <?php endif; ?>
 
   <label>Lié à un profil intervenant·e (facultatif)</label>
