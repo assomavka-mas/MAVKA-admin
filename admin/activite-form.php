@@ -213,6 +213,14 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
       <textarea id="f_description" name="description" class="mavka-activite-preview__desc" placeholder="Description de l'activité"><?= htmlspecialchars($a['description']) ?></textarea>
 
       <?php
+        // Préinscription gratuite : date libre, sert à constituer une liste pour la mairie
+        //   (typiquement 2 séances test).
+        // Préinscription : date fixée, places limitées — on compte les inscrits (payant ou
+        //   gratuit selon la description/HelloAsso).
+        // Gratuit : entrée libre, grandes salles / événements ouverts, pas de liste à tenir.
+        // Événement régulier : pas de date unique (ex. "1er et 3e mercredi du mois") — voir Récurrence.
+        // En savoir plus : partenaires / événements ouverts qui intéressent l'association.
+        // Voir sa page : renvoie vers la page du volontaire/intervenant·e plutôt que vers une inscription.
         $boutons = ['Préinscription gratuite', 'Préinscription', 'Gratuit', 'Événement régulier', 'En savoir plus', 'Voir sa page'];
         if ($a['texte_bouton'] && !in_array($a['texte_bouton'], $boutons)) {
             array_unshift($boutons, $a['texte_bouton']); // garde l'ancienne valeur personnalisée si elle ne fait pas partie de la liste
