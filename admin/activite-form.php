@@ -100,7 +100,63 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
 <div class="mavka-activite-layout">
 <form method="post" enctype="multipart/form-data" class="mavka-form" style="display:contents;">
 
-  <details class="mavka-form-section mavka-form-section--parametres" open style="max-width:640px; flex:1 1 380px; margin-bottom:0;">
+  <div class="mavka-activite-col mavka-activite-col--card">
+  <aside class="mavka-activite-preview">
+    <div class="mavka-activite-preview__label">Carte publique — modifiable directement ici</div>
+    <div class="mavka-activite-preview__card">
+      <label for="f_photo" class="mavka-activite-preview__photo-wrap">
+        <div class="mavka-activite-preview__photo-box">
+          <img id="pv_photo" class="mavka-activite-preview__photo" alt=""
+               <?= !empty($a['photo']) ? 'src="/assets/uploads/activites/' . htmlspecialchars($a['photo']) . '"' : 'hidden' ?>>
+        </div>
+        <span id="pv_badge_categorie" class="mavka-activite-preview__badge mavka-activite-preview__badge--photo mavka-activite-preview__badge--tl" title="Provisoire — sera intégré à la carte lors de la maquette finale"></span>
+        <span id="pv_badge_format" class="mavka-activite-preview__badge mavka-activite-preview__badge--photo mavka-activite-preview__badge--tr" title="Provisoire — sera intégré à la carte lors de la maquette finale"></span>
+        <span id="pv_badge_public" class="mavka-activite-preview__badge mavka-activite-preview__badge--photo mavka-activite-preview__badge--bl" title="Provisoire — sera intégré à la carte lors de la maquette finale"></span>
+        <span class="mavka-activite-preview__photo-pencil" title="Changer la photo">✎</span>
+      </label>
+      <input type="file" id="f_photo" name="photo" accept="image/png,image/jpeg,image/webp" hidden>
+
+      <textarea id="f_titre" name="titre" rows="1" class="mavka-activite-preview__field-default mavka-activite-preview__titre" placeholder="Titre de l'activité" required><?= htmlspecialchars($a['titre']) ?></textarea>
+
+      <div class="mavka-activite-preview__meta">
+        <div class="mavka-activite-preview__meta-row">
+          <span>📅</span>
+          <input type="date" id="f_date_debut" name="date_debut" class="mavka-activite-preview__field-default" value="<?= htmlspecialchars($a['date_debut'] ?? '') ?>">
+          <input type="text" id="f_heure" name="heure" class="mavka-activite-preview__field-default" placeholder="18:00" value="<?= htmlspecialchars($a['heure']) ?>">
+        </div>
+        <input type="text" id="f_recurrence" name="recurrence" class="mavka-activite-preview__field-default" placeholder='Récurrence, ex. "Le jeudi"' value="<?= htmlspecialchars($a['recurrence']) ?>" <?= $a['texte_bouton'] === 'Événement régulier' ? '' : 'hidden' ?>>
+        <div class="mavka-activite-preview__meta-row">
+          <input type="text" id="f_lieu" name="lieu" class="mavka-activite-preview__field-default" placeholder="Lieu" value="<?= htmlspecialchars($a['lieu']) ?>">
+          <input type="text" id="f_ville" name="ville" class="mavka-activite-preview__field-default" placeholder="Ville" value="<?= htmlspecialchars($a['ville']) ?>">
+        </div>
+        <span id="pv_badge_places" class="mavka-activite-preview__badge" style="margin-top:6px;" title="Provisoire — sera intégré à la carte lors de la maquette finale"></span>
+      </div>
+
+      <textarea id="f_description" name="description" class="mavka-activite-preview__field-default mavka-activite-preview__desc" placeholder="Description de l'activité"><?= htmlspecialchars($a['description']) ?></textarea>
+
+      <?php
+        $boutons = ['Préinscription gratuite', 'Préinscription', 'Gratuit', 'Événement régulier', 'En savoir plus', 'Voir sa page'];
+        if ($a['texte_bouton'] && !in_array($a['texte_bouton'], $boutons)) {
+            array_unshift($boutons, $a['texte_bouton']); // garde l'ancienne valeur personnalisée si elle ne fait pas partie de la liste
+        }
+      ?>
+      <label class="mavka-activite-preview__btn-label">Texte du bouton<sup class="mavka-footnote-ref">2</sup></label>
+      <select id="f_texte_bouton" name="texte_bouton" class="mavka-activite-preview__btn">
+        <?php foreach ($boutons as $b): ?>
+        <option value="<?= htmlspecialchars($b) ?>" <?= $a['texte_bouton'] === $b ? 'selected' : '' ?>><?= htmlspecialchars($b) ?></option>
+        <?php endforeach; ?>
+      </select>
+    </div>
+  </aside>
+
+  <div class="mavka-activite-actions">
+    <button type="submit" class="mavka-btn mavka-btn--primary">Enregistrer</button>
+    <a href="/admin/activites.php" class="mavka-btn">Annuler</a>
+  </div>
+  </div>
+
+  <div class="mavka-activite-col mavka-activite-col--details">
+  <details class="mavka-form-section mavka-form-section--parametres" open>
     <summary class="mavka-form-section__header" style="cursor:pointer;">
       <h3 class="mavka-form-section__title">⚙️ Détails supplémentaires</h3>
       <svg class="mavka-form-section__chevron" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -203,59 +259,6 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
     </div>
   </details>
 
-  <aside class="mavka-activite-preview">
-    <div class="mavka-activite-preview__label">Carte publique — modifiable directement ici</div>
-    <div class="mavka-activite-preview__card">
-      <label for="f_photo" class="mavka-activite-preview__photo-wrap">
-        <div class="mavka-activite-preview__photo-box">
-          <img id="pv_photo" class="mavka-activite-preview__photo" alt=""
-               <?= !empty($a['photo']) ? 'src="/assets/uploads/activites/' . htmlspecialchars($a['photo']) . '"' : 'hidden' ?>>
-        </div>
-        <span id="pv_badge_categorie" class="mavka-activite-preview__badge mavka-activite-preview__badge--photo mavka-activite-preview__badge--tl" title="Provisoire — sera intégré à la carte lors de la maquette finale"></span>
-        <span id="pv_badge_format" class="mavka-activite-preview__badge mavka-activite-preview__badge--photo mavka-activite-preview__badge--tr" title="Provisoire — sera intégré à la carte lors de la maquette finale"></span>
-        <span id="pv_badge_public" class="mavka-activite-preview__badge mavka-activite-preview__badge--photo mavka-activite-preview__badge--bl" title="Provisoire — sera intégré à la carte lors de la maquette finale"></span>
-        <span class="mavka-activite-preview__photo-pencil" title="Changer la photo">✎</span>
-      </label>
-      <input type="file" id="f_photo" name="photo" accept="image/png,image/jpeg,image/webp" hidden>
-
-      <textarea id="f_titre" name="titre" rows="1" class="mavka-activite-preview__field-default mavka-activite-preview__titre" placeholder="Titre de l'activité" required><?= htmlspecialchars($a['titre']) ?></textarea>
-
-      <div class="mavka-activite-preview__meta">
-        <div class="mavka-activite-preview__meta-row">
-          <span>📅</span>
-          <input type="date" id="f_date_debut" name="date_debut" class="mavka-activite-preview__field-default" value="<?= htmlspecialchars($a['date_debut'] ?? '') ?>">
-          <input type="text" id="f_heure" name="heure" class="mavka-activite-preview__field-default" placeholder="18:00" value="<?= htmlspecialchars($a['heure']) ?>">
-        </div>
-        <input type="text" id="f_recurrence" name="recurrence" class="mavka-activite-preview__field-default" placeholder='Récurrence, ex. "Le jeudi"' value="<?= htmlspecialchars($a['recurrence']) ?>" <?= $a['texte_bouton'] === 'Événement régulier' ? '' : 'hidden' ?>>
-        <div class="mavka-activite-preview__meta-row">
-          <input type="text" id="f_lieu" name="lieu" class="mavka-activite-preview__field-default" placeholder="Lieu" value="<?= htmlspecialchars($a['lieu']) ?>">
-          <input type="text" id="f_ville" name="ville" class="mavka-activite-preview__field-default" placeholder="Ville" value="<?= htmlspecialchars($a['ville']) ?>">
-        </div>
-        <span id="pv_badge_places" class="mavka-activite-preview__badge" style="margin-top:6px;" title="Provisoire — sera intégré à la carte lors de la maquette finale"></span>
-      </div>
-
-      <textarea id="f_description" name="description" class="mavka-activite-preview__field-default mavka-activite-preview__desc" placeholder="Description de l'activité"><?= htmlspecialchars($a['description']) ?></textarea>
-
-      <?php
-        $boutons = ['Préinscription gratuite', 'Préinscription', 'Gratuit', 'Événement régulier', 'En savoir plus', 'Voir sa page'];
-        if ($a['texte_bouton'] && !in_array($a['texte_bouton'], $boutons)) {
-            array_unshift($boutons, $a['texte_bouton']); // garde l'ancienne valeur personnalisée si elle ne fait pas partie de la liste
-        }
-      ?>
-      <label class="mavka-activite-preview__btn-label">Texte du bouton<sup class="mavka-footnote-ref">2</sup></label>
-      <select id="f_texte_bouton" name="texte_bouton" class="mavka-activite-preview__btn">
-        <?php foreach ($boutons as $b): ?>
-        <option value="<?= htmlspecialchars($b) ?>" <?= $a['texte_bouton'] === $b ? 'selected' : '' ?>><?= htmlspecialchars($b) ?></option>
-        <?php endforeach; ?>
-      </select>
-    </div>
-  </aside>
-
-  <div class="mavka-activite-actions">
-    <button type="submit" class="mavka-btn mavka-btn--primary">Enregistrer</button>
-    <a href="/admin/activites.php" class="mavka-btn">Annuler</a>
-  </div>
-
   <div class="mavka-activite-footnotes">
     <p><sup class="mavka-footnote-ref">1</sup> L'ordre détermine qui apparaît en premier sur le site (0, puis 1, 2...) ; à ordre égal, la date la plus proche passe devant. Aucun calcul automatique — c'est une priorité manuelle.</p>
     <p><sup class="mavka-footnote-ref">2</sup> Critère de choix du texte du bouton :</p>
@@ -268,6 +271,7 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
       <li><strong>Voir sa page</strong> — renvoie vers la page du volontaire/intervenant·e plutôt que vers une inscription.</li>
     </ul>
   </div>
+  </div>
 
 </form>
 </div>
@@ -275,11 +279,15 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
 <style>
 .mavka-activite-layout { display: flex; align-items: flex-start; gap: 24px; flex-wrap: wrap; }
 .mavka-input-court { max-width: 90px; }
-.mavka-activite-actions { flex-basis: 100%; }
+.mavka-activite-col { display: flex; flex-direction: column; gap: 20px; }
+.mavka-activite-col--card { width: 560px; flex-shrink: 0; }
+.mavka-activite-col--details { flex: 1 1 380px; max-width: 640px; }
+.mavka-activite-col--details .mavka-form-section { margin-bottom: 0; }
+.mavka-activite-actions { display: flex; gap: 10px; }
 .mavka-footnote-ref { color: var(--mavka-color-danger-text); font-weight: 700; margin-left: 1px; }
 .mavka-activite-footnotes {
-  flex-basis: 100%; font-size: 12.5px; color: var(--mavka-color-text-muted); line-height: 1.6;
-  border-top: 1.5px solid var(--mavka-color-cream-soft); padding-top: 14px; margin-top: 4px;
+  font-size: 12.5px; color: var(--mavka-color-text-muted); line-height: 1.6;
+  border-top: 1.5px solid var(--mavka-color-cream-soft); padding-top: 14px;
 }
 .mavka-activite-footnotes p { margin: 0 0 6px; }
 .mavka-activite-footnotes ul { margin: 0; padding-left: 20px; }
@@ -289,7 +297,7 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
   display: block; font-size: 12.5px; font-weight: 700; color: var(--mavka-color-text-muted); margin: 0 0 6px;
 }
 .mavka-form-section--parametres { --section-color: var(--mavka-color-purple-dark); }
-.mavka-activite-preview { width: 560px; flex-shrink: 0; position: sticky; top: 24px; }
+.mavka-activite-preview { width: 100%; }
 .mavka-activite-preview__label { font-weight: 700; font-size: 13.5px; color: var(--mavka-color-text-muted); margin-bottom: 8px; }
 .mavka-activite-preview__card {
   background: #fff; border: 2px solid var(--mavka-color-teal); border-radius: var(--mavka-radius-card);
