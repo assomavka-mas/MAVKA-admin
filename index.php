@@ -1,3 +1,15 @@
+<?php
+require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/site_functions.php';
+
+$site_intervenants = site_intervenants_actifs();
+$site_agenda_teaser = site_activites_a_venir(3);
+$site_agenda_toutes = site_activites_a_venir();
+$site_activites_culture = site_activites_par_categorie('Culture');
+$site_activites_education = site_activites_par_categorie('Éducation');
+$site_activites_bienetre = site_activites_par_categorie('Bien-être');
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -7,293 +19,7 @@
 <title>MAVKA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Figtree:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap">
-<style>
-:root{
-  --ground:#FFFFFF; --mint:#E6F6F0; --cream:#FFF6D6; --lilac:#F1E9FA; --card:#FFFFFF; --line:#D9EFE8;
-  --ink:#1E2A3A; --ink-2:#4B5A68; --ink-3:#7C8994;
-  --teal:#1FAE93; --teal-deep:#158A74; --teal-tint:#D6F2EA;
-  --violet:#7B4FB5; --violet-tint:#EBDFF7;
-  --sun:#FFD84D; --sun-deep:#F2B900;
-  --on-teal:#FFFFFF; --press:4px;
-  --shadow:0 2px 0 rgba(30,42,58,.04),0 16px 40px -18px rgba(31,174,147,.35);
-  --r:22px;
-  --display:"Bricolage Grotesque","Avenir Next",Avenir,"Helvetica Neue",Arial,sans-serif;
-  --body:Figtree,"Helvetica Neue",Arial,sans-serif;
-}
-
-/* ---- Theme: Forêt (pastel, nature) ---- */
-:root[data-style="foret"]{
-  --ground:#FBFAF6; --mint:#E9EFE4; --cream:#F6EFE3; --lilac:#EFE8EE; --card:#FFFFFF; --line:#E1E7DB;
-  --ink:#2B3430; --ink-2:#5B655F; --ink-3:#8A938D;
-  --teal:#5E8C6A; --teal-deep:#47705A; --teal-tint:#E3ECDF;
-  --violet:#8C6B8F; --violet-tint:#EFE6EE;
-  --sun:#F2D5AC; --sun-deep:#D9B98A;
-  --on-teal:#FFFFFF; --press:2px;
-  --shadow:0 2px 0 rgba(43,52,48,.03),0 16px 40px -20px rgba(71,112,90,.35);
-}
-/* ---- Theme: Lin (neutral, calm) ---- */
-:root[data-style="lin"]{
-  --ground:#F7F5F0; --mint:#ECE9E2; --cream:#F2EEE5; --lilac:#EBE9E7; --card:#FFFDF9; --line:#E3DFD6;
-  --ink:#26292B; --ink-2:#5A5F5F; --ink-3:#8B908E;
-  --teal:#6B8F7B; --teal-deep:#53745F; --teal-tint:#E6EBE4;
-  --violet:#77738A; --violet-tint:#ECEAF0;
-  --sun:#EADFC8; --sun-deep:#D2C3A2;
-  --on-teal:#FFFFFF; --press:2px;
-  --shadow:0 2px 0 rgba(38,41,43,.03),0 16px 40px -20px rgba(83,116,95,.3);
-  --display:Fraunces,Georgia,"Times New Roman",serif;
-}
-:root[data-style="lin"] h1,:root[data-style="lin"] h2{font-weight:600;letter-spacing:-.01em}
-:root[data-style="lin"] .brand b{font-family:var(--body)}
-:root[data-style="lin"] .date b{font-weight:600}
-:root[data-style="foret"] h1{font-weight:700}
-:root[data-style="foret"] header,:root[data-style="lin"] header{background:color-mix(in srgb,var(--ground) 92%,transparent)}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
-img{max-width:100%;display:block}
-a{color:var(--teal-deep);text-decoration:none}
-a:hover{text-decoration:underline;text-underline-offset:3px}
-h1,h2,h3,h4{font-family:var(--display);font-weight:600;line-height:1.08;letter-spacing:-.015em;margin:0;text-wrap:balance}
-h1{font-size:clamp(2.5rem,5.4vw,4.3rem);font-weight:800;letter-spacing:-.02em}
-h2{font-size:clamp(1.85rem,3.4vw,2.7rem);font-weight:700}
-h3{font-size:1.3rem}
-p{margin:0}
-.lede{font-size:1.15rem;color:var(--ink-2);max-width:36em}
-.eyebrow{display:inline-block;justify-self:start;font-family:var(--body);font-weight:700;font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;color:var(--teal-deep);background:var(--teal-tint);padding:6px 12px;border-radius:999px}
-.wrap{width:min(1120px,calc(100% - 48px));margin:0 auto}
-:focus-visible{outline:3px solid var(--teal);outline-offset:3px;border-radius:4px}
-
-/* header */
-header{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--ground) 90%,transparent);backdrop-filter:blur(12px);border-bottom:2px solid var(--mint)}
-.bar{display:flex;align-items:center;justify-content:space-between;gap:14px;height:72px}
-.bar .brand{margin-right:auto}
-.brand{display:flex;align-items:center;gap:12px;color:var(--ink)}
-.brand:hover{text-decoration:none}
-.brand img{width:40px;height:40px;border-radius:50%;background:var(--card)}
-.brand b{font-family:var(--display);font-weight:700;font-size:1.35rem;letter-spacing:.06em}
-nav{display:flex;gap:4px;align-items:center}
-nav a{padding:8px 10px;border-radius:999px;color:var(--ink-2);font-weight:500;font-size:.92rem;white-space:nowrap}
-nav a:hover{text-decoration:none;background:var(--mint);color:var(--teal-deep)}
-nav a[aria-current="page"]{color:var(--teal-deep);background:var(--mint)}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:999px;font-weight:700;font-size:.98rem;border:1.5px solid transparent;cursor:pointer;font-family:var(--body);line-height:1.2;white-space:nowrap}
-.btn:hover{text-decoration:none}
-.btn-primary{background:var(--teal);color:var(--on-teal);border-color:var(--teal);box-shadow:0 var(--press) 0 var(--teal-deep)}
-.btn-primary:hover{transform:translateY(1px);box-shadow:0 calc(var(--press) - 1px) 0 var(--teal-deep)}
-
-
-
-.btn-ghost{background:var(--sun);color:var(--ink);border-color:var(--sun);box-shadow:0 var(--press) 0 var(--sun-deep)}
-.btn-ghost:hover{transform:translateY(1px);box-shadow:0 calc(var(--press) - 1px) 0 var(--sun-deep)}
-.btn-sm{padding:9px 16px;font-size:.9rem}
-.styles{display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--mint)}
-.styles button{border:0;background:transparent;border-radius:999px;padding:5px 10px;font:inherit;font-size:.78rem;font-weight:700;color:var(--ink-2);cursor:pointer}
-.styles button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
-.styles button i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:-1px}
-@media (max-width:1200px){.styles button{padding:6px 7px;font-size:0}.styles button i{margin:0;width:12px;height:12px}}
-.lang{background:var(--ground);border:2px solid var(--mint);border-radius:999px;padding:7px 12px;font:inherit;font-weight:700;font-size:.85rem;color:var(--teal-deep);cursor:pointer}
-.lang:hover{background:var(--mint)}
-.menu-btn{display:none;background:var(--mint);border:1.5px solid var(--mint);font-weight:700;border-radius:999px;padding:8px 14px;font:inherit;color:var(--ink);cursor:pointer}
-@media (max-width:900px){
-  nav{display:none;position:absolute;left:0;right:0;top:72px;flex-direction:column;align-items:stretch;background:var(--ground);border-bottom:1px solid var(--line);padding:12px 24px 20px}
-  nav.open{display:flex}
-  nav a{padding:12px 10px;font-size:1.05rem}
-  .menu-btn{display:block}
-  .bar .btn{display:none}
-}
-
-/* pages */
-.page{display:none}
-.page.active{display:block}
-section{padding:72px 0}
-section.tight{padding:44px 0}
-.sand{background:var(--mint)}
-.violet{background:var(--lilac)}
-.cream{background:var(--cream)}
-.head{display:grid;gap:12px;max-width:44em;margin-bottom:40px}
-
-/* hero */
-.hero{padding:40px 0 0}
-.hero .wrap{background:var(--mint);border-radius:36px;padding:56px 56px 0;overflow:hidden}
-@media (max-width:820px){.hero .wrap{padding:36px 24px 0;border-radius:28px}}
-.hero .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:32px;align-items:end}
-.hero-copy{display:grid;gap:22px;padding-bottom:56px;align-self:center}
-.hero .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
-.hero-art{position:relative;display:flex;justify-content:center}
-.hero-art img{width:min(100%,400px);position:relative;z-index:1}
-.hero-art::before{content:"";position:absolute;width:88%;aspect-ratio:1;left:6%;bottom:-18%;border-radius:50%;background:var(--sun);z-index:0}
-@media (max-width:820px){.hero .grid{grid-template-columns:1fr}.hero-art{order:-1}.hero-art img{width:min(70%,260px)}.hero-copy{padding-bottom:40px}}
-.sprout{display:inline-block;width:1em;height:1em;vertical-align:-.1em}
-
-/* trust band */
-.trust{padding:26px 0 0}
-.trust .row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px 28px}
-.facts{display:flex;flex-wrap:wrap;gap:8px 22px;color:var(--ink-2);font-size:.95rem}
-.facts span{display:inline-flex;align-items:center;gap:8px}
-.facts i{width:10px;height:10px;border-radius:50%;background:var(--sun);border:2px solid var(--teal);display:inline-block}
-.logos{display:flex;flex-wrap:wrap;gap:22px;align-items:center}
-.logos img{height:30px;width:auto;mix-blend-mode:multiply}
-
-
-
-/* doors */
-.doors{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-.door{display:grid;gap:12px;padding:26px 26px 24px;border-radius:var(--r);background:var(--card);border:2px solid var(--mint);color:var(--ink);transition:transform .2s,box-shadow .2s}
-.door:hover{text-decoration:none;transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--teal)}
-.door .who{font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;color:var(--violet);font-weight:700}
-.door p{color:var(--ink-2)}
-.door .go{color:var(--teal-deep);font-weight:600;margin-top:6px}
-@media (max-width:820px){.doors{grid-template-columns:1fr}}
-
-/* events */
-.events{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
-.events.three{grid-template-columns:repeat(3,1fr)}
-@media (max-width:1000px){.events.three{grid-template-columns:repeat(2,1fr)}}
-.event{display:grid;grid-template-rows:auto 1fr;border-radius:var(--r);background:var(--card);border:2px solid var(--mint);overflow:hidden}
-.cover{position:relative;aspect-ratio:16/9;background:var(--mint);overflow:hidden}
-.cover.sun{background:var(--cream)} .cover.lilac{background:var(--lilac)} .cover.mint{background:var(--teal-tint)}
-.cover .ic{position:absolute;left:6%;top:9%;width:17%;height:auto;color:var(--teal-deep);opacity:.9}
-.cover.sun .ic{color:var(--sun-deep)} .cover.lilac .ic{color:var(--violet)}
-.cover .mascot{position:absolute;right:8%;bottom:-6%;height:104%;width:auto}
-.cover .date{position:absolute;left:14px;bottom:14px;z-index:2;box-shadow:0 4px 0 rgba(0,0,0,.08)}
-.event-row{display:grid;gap:8px;align-content:start;padding:22px}
-.date{display:grid;align-content:start;gap:2px;min-width:80px;font-family:var(--display);line-height:1;text-align:center;padding:10px 10px;border-radius:14px;background:var(--sun);color:var(--ink);font-variant-numeric:tabular-nums}
-.date b{font-size:1.6rem;font-weight:800}
-.date span{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700}
-.date small{font-size:.76rem;color:var(--ink-2);margin-top:4px;font-family:var(--body);font-weight:600}
-.date.weekly{background:var(--violet-tint);color:var(--violet)}
-.date.weekly b{font-size:.95rem;padding:4px 2px;line-height:1.15}
-.event-body{display:grid;gap:8px;align-content:start}
-.event-body .meta{font-size:.9rem;color:var(--ink-3)}
-.event-body p{color:var(--ink-2);font-size:.97rem}
-.event-body .btn{justify-self:start;margin-top:8px}
-.tag{display:inline-block;justify-self:start;font-size:.74rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:4px 10px;border-radius:999px;background:var(--lilac);color:var(--violet)}
-@media (max-width:820px){.events,.events.three{grid-template-columns:1fr}}
-
-/* directions */
-.dir-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
-.dirs{display:grid;gap:0}
-.dir{display:grid;grid-template-columns:44px 1fr;gap:16px;padding:20px 0;border-top:1px solid var(--line)}
-.dir:last-child{border-bottom:1px solid var(--line)}
-.dir .ic{width:44px;height:44px;border-radius:14px;background:var(--sun);display:grid;place-items:center;color:var(--ink)}
-.dir p{color:var(--ink-2);font-size:.98rem;margin-top:4px}
-.dir-art{display:flex;justify-content:center}
-.dir-art img,.dir-art .mascot{width:min(100%,340px);height:auto}
-@media (max-width:820px){.dir-grid{grid-template-columns:1fr}.dir-art img,.dir-art .mascot{width:200px}}
-
-/* story */
-.story{display:grid;grid-template-columns:160px 1fr;gap:36px;align-items:center}
-.story img{width:160px;height:160px;border-radius:50%;background:var(--card);object-fit:cover}
-.story p{color:var(--ink-2);max-width:40em}
-@media (max-width:640px){.story{grid-template-columns:1fr;justify-items:start}}
-
-/* team */
-.team{display:grid;grid-template-columns:repeat(4,1fr);gap:22px 18px}
-.person{display:grid;gap:8px}
-.person img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:var(--r);background:var(--mint)}
-.person b{font-family:var(--display);font-weight:600;font-size:1.05rem}
-.person span{color:var(--ink-2);font-size:.92rem;line-height:1.4}
-.person .role{color:var(--teal-deep);font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
-.faces{display:flex;align-items:center}
-.faces img{width:56px;height:56px;border-radius:50%;object-fit:cover;border:3px solid var(--ground);margin-left:-12px;background:var(--mint)}
-.faces img:first-child{margin-left:0}
-.team-preview{display:flex;align-items:center;gap:28px;flex-wrap:wrap;justify-content:space-between}
-@media (max-width:820px){.team{grid-template-columns:repeat(2,1fr)}}
-
-/* steps */
-.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;counter-reset:step}
-.step{display:grid;gap:10px;padding:24px;border-radius:var(--r);background:var(--card);border:2px solid var(--mint);position:relative}
-.step::before{counter-increment:step;content:counter(step);width:40px;height:40px;border-radius:50%;background:var(--violet);color:#fff;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:1.1rem}
-.step p{color:var(--ink-2);font-size:.97rem}
-@media (max-width:900px){.steps{grid-template-columns:repeat(2,1fr)}}
-@media (max-width:560px){.steps{grid-template-columns:1fr}}
-.split{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
-@media (max-width:820px){.split{grid-template-columns:1fr}}
-.list{display:grid;gap:12px;padding:0;margin:0;list-style:none}
-.list li{display:grid;grid-template-columns:22px 1fr;gap:12px;color:var(--ink-2)}
-.list li::before{content:"";width:22px;height:22px;border-radius:50%;background:var(--teal-tint);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231E7A6B' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E");background-size:14px;background-position:center;background-repeat:no-repeat;margin-top:2px}
-details{border-top:1px solid var(--line);padding:18px 0}
-details:last-of-type{border-bottom:1px solid var(--line)}
-summary{cursor:pointer;font-family:var(--display);font-weight:600;font-size:1.1rem;list-style:none;display:flex;justify-content:space-between;gap:16px;align-items:center}
-summary::-webkit-details-marker{display:none}
-summary::after{content:"+";font-size:1.4rem;color:var(--teal-deep);flex:none;width:28px;text-align:center}
-details[open] summary::after{content:"−"}
-details p{color:var(--ink-2);margin-top:10px;max-width:40em}
-.cta-band{display:grid;grid-template-columns:1fr auto;gap:28px;align-items:center;padding:40px;border-radius:32px;background:var(--cream)}
-.cta-band h3{font-size:1.5rem}
-.cta-band p{color:var(--ink-2);margin-top:6px}
-.cta-band .mascot{height:190px;width:auto;max-width:180px}
-.cta-band .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
-@media (max-width:700px){.cta-band{grid-template-columns:1fr}.cta-band .mascot{height:130px}}
-
-/* photos */
-figure{margin:0}
-.photos{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:210px;gap:14px}
-.photo{position:relative;border-radius:var(--r);overflow:hidden;background:var(--mint)}
-.photo>img{width:100%;height:100%;object-fit:cover;display:block}
-.photo figcaption{position:absolute;left:12px;right:12px;bottom:12px;background:rgba(255,255,255,.92);border-radius:12px;padding:8px 10px;font-size:.82rem;line-height:1.3;color:var(--ink-2)}
-.photo figcaption b{display:block;color:var(--ink);font-size:.8rem}
-.photos .photo:first-child{grid-column:span 2;grid-row:span 2}
-@media (max-width:820px){.photos{grid-template-columns:repeat(2,1fr);grid-auto-rows:150px}.photos .photo:first-child{grid-column:span 2;grid-row:span 1;height:220px}}
-.cover.photo-cover>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-/* how-to */
-.howto{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;counter-reset:how}
-.how{display:grid;gap:10px;padding:26px;border-radius:var(--r);background:var(--card);border:2px solid var(--mint)}
-.how::before{counter-increment:how;content:counter(how);width:44px;height:44px;border-radius:50%;background:var(--sun);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:1.25rem}
-.how p{color:var(--ink-2);font-size:.98rem}
-@media (max-width:820px){.howto{grid-template-columns:1fr}}
-/* practical */
-.facts-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
-.fact{display:grid;gap:6px;padding:22px;border-radius:var(--r);background:var(--card);border:2px solid var(--mint)}
-.fact .k{font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--violet)}
-.fact b{font-family:var(--display);font-size:1.25rem;font-weight:700}
-.fact span{color:var(--ink-2);font-size:.95rem}
-@media (max-width:820px){.facts-grid{grid-template-columns:repeat(2,1fr)}}
-.person{padding:0}
-.person .meta{color:var(--ink-3);font-size:.85rem}
-.person a{font-weight:600;font-size:.9rem}
-/* docs */
-.docs{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:0;margin:0;list-style:none}
-.docs li{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-radius:10px;background:var(--card);border:2px solid var(--mint);font-size:.97rem}
-.docs .st{font-size:.74rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:4px 9px;border-radius:999px;background:var(--teal);color:#fff;white-space:nowrap}
-.docs .st.soon{background:var(--sun);color:var(--ink)}
-@media (max-width:640px){.docs{grid-template-columns:1fr}}
-.pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-.pillar{display:grid;gap:8px;padding:22px;border-radius:var(--r);background:var(--card);border:2px solid var(--mint)}
-.pillar p{color:var(--ink-2);font-size:.96rem}
-@media (max-width:820px){.pillars{grid-template-columns:1fr}}
-
-/* contact */
-.contact{display:grid;grid-template-columns:1fr 1.1fr;gap:48px;align-items:start}
-.contact-info{display:grid;gap:22px}
-.contact-info .mascot.tall{height:180px;width:auto;justify-self:start}
-.contact-info dl{display:grid;gap:14px;margin:0}
-.contact-info dt{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
-.contact-info dd{margin:2px 0 0;font-size:1.1rem}
-form{display:grid;gap:14px;padding:28px;border-radius:var(--r);background:var(--card);border:2px solid var(--mint)}
-label{display:grid;gap:6px;font-size:.9rem;font-weight:600}
-input,textarea,select{font:inherit;padding:12px 14px;border-radius:14px;border:2px solid var(--mint);background:var(--ground);color:var(--ink);width:100%}
-input:focus,textarea:focus,select:focus{outline:none;border-color:var(--teal)}
-textarea{min-height:130px;resize:vertical}
-.consent{display:flex;gap:10px;align-items:start;font-weight:400;font-size:.88rem;color:var(--ink-2)}
-.consent input{width:auto;margin-top:4px}
-.note{font-size:.85rem;color:var(--ink-3)}
-@media (max-width:820px){.contact{grid-template-columns:1fr}}
-
-/* footer */
-footer{background:var(--mint);padding:48px 0 36px;color:var(--ink-2);font-size:.92rem;margin-top:24px}
-footer .row{display:flex;flex-wrap:wrap;justify-content:space-between;gap:20px 40px;align-items:start}
-footer .cols{display:flex;gap:40px;flex-wrap:wrap}
-footer .col{display:grid;gap:8px}
-footer .col b{color:var(--ink);font-family:var(--display)}
-footer a{color:var(--ink-2)}
-.social{display:flex;gap:10px}
-.social a{width:36px;height:36px;border-radius:50%;border:2px solid var(--mint);display:grid;place-items:center;color:var(--ink-2)}
-.social a:hover{border-color:var(--teal);color:var(--teal-deep);text-decoration:none}
-.legal{margin-top:28px;padding-top:20px;border-top:2px solid rgba(31,174,147,.2);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.85rem;color:var(--ink-3)}
-
-@media (max-width:900px){.bar{gap:10px}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
-</style>
+<link rel="stylesheet" href="/assets/site.css">
 </head>
 <body>
 
@@ -341,7 +67,7 @@ footer a{color:var(--ink-2)}
     <div class="wrap row">
       <div class="facts">
         <span><i></i>7 communes</span>
-        <span><i></i>11 intervenants bénévoles</span>
+        <span><i></i><?= count($site_intervenants) ?> intervenants bénévoles</span>
         <span><i></i>Association déclarée (RNA, JOAFE)</span>
         <span><i></i>Assurée MAIF</span>
       </div>
@@ -361,7 +87,7 @@ footer a{color:var(--ink-2)}
         <h2>Prochaines dates</h2>
         <p class="lede">Trois rendez-vous à venir. La préinscription est gratuite et sans engagement.</p>
       </div>
-      <div class="events three"><div class="event"><div class="cover photo-cover"><img src="/assets/site-img/img-12-dfccff8e69.webp" alt=""><div class="date"><b>26</b><span>sept</span><small>14h00</small></div></div><div class="event-row"><div class="event-body"><span class="tag">Événement · Tout public</span><h3>Festival du jeu de Garat</h3><span class="meta">Salle de l'Atrium, 16410 Garat · Entrée libre</span><p>Jeux de société, jeux géants en extérieur, espace tout-petits, jeux vidéo et démonstrations d'impression 3D. Un « passeport des aventuriers » pour les plus audacieux, et une buvette.</p><a class="btn btn-primary btn-sm" href="https://www.brinsdejeux.fr/programme-festival-du-jeu-garat">En savoir plus</a></div></div></div><div class="event"><div class="cover lilac"><svg class="ic" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 8C18 8 8 18 8 31c0 9 6 12 12 12h3a6 6 0 0 1 6 6c0 4 3 7 7 7 13 0 20-9 20-24C56 18 46 8 32 8z"/><circle cx="22" cy="26" r="3" fill="currentColor"/><circle cx="32" cy="19" r="3" fill="currentColor"/><circle cx="43" cy="26" r="3" fill="currentColor"/></svg><svg class="mascot" viewBox="0 0 549 767" style="aspect-ratio:549/767"><use href="#m-read"/></svg><div class="date"><b>01</b><span>oct</span><small>18h00</small></div></div><div class="event-row"><div class="event-body"><span class="tag">Bien-être · Art-thérapie</span><h3>Art-Thérapie Évolutive, séance d'initiation</h3><span class="meta">William Aubert · Salle de temps libre, 16410 Garat</span><p>Une première expérience créative ouverte à tous, dans un cadre bienveillant. Aucun talent artistique n'est nécessaire.</p><a class="btn btn-primary btn-sm" href="https://www.helloasso.com/associations/mavka/evenements/decouvrez-l-art-therapie-evolutive">Préinscription gratuite</a></div></div></div><div class="event"><div class="cover photo-cover"><img src="/assets/site-img/img-13-d6e281d921.webp" alt=""><div class="date weekly"><b>jeu. 9h30</b><small>hebdo</small></div></div><div class="event-row"><div class="event-body"><span class="tag">Bien-être · Gymnastique</span><h3>Gymnastique articulaire, le jeudi matin</h3><span class="meta">Hanna Sokha · Salle de l'Atrium, 16410 Garat</span><p>Intéressé(e) ? Cette préinscription gratuite nous permet de compter les personnes motivées et d'étudier avec la mairie la mise en place des séances.</p><a class="btn btn-primary btn-sm" href="https://www.helloasso.com/associations/mavka/evenements/yoga-2026-09-17">Je suis intéressé(e)</a></div></div></div></div>
+      <?= render_events_grid($site_agenda_teaser, 'three') ?>
       <p style="margin-top:22px"><a class="btn btn-ghost" href="#agenda">Voir tout l'agenda</a></p>
     </div>
   </section>
@@ -444,10 +170,12 @@ footer a{color:var(--ink-2)}
       <div>
         <span class="eyebrow">L'équipe</span>
         <h2 style="margin-top:8px">Des ateliers animés par des gens qui ont vraiment une pratique</h2>
-        <p class="lede" style="margin-top:10px">Musiciennes, peintres, calligraphe, professeure de gymnastique, art-thérapeute. Onze bénévoles, chacun avec un vrai métier ou un vrai savoir-faire derrière lui.</p>
+        <p class="lede" style="margin-top:10px">Musiciennes, peintres, calligraphe, professeure de gymnastique, art-thérapeute. <?= count($site_intervenants) ?> bénévoles, chacun avec un vrai métier ou un vrai savoir-faire derrière lui.</p>
         <p style="margin-top:16px"><a class="btn btn-ghost" href="#equipe">Rencontrer l'équipe</a></p>
       </div>
-      <div class="faces"><img src="/assets/site-img/img-17-c43ee8d484.webp" alt="Larysa Mas"><img src="/assets/site-img/img-18-e9465eda8d.webp" alt="William Aubert"><img src="/assets/site-img/img-19-4deead6d91.webp" alt="Haiyan Huang"><img src="/assets/site-img/img-20-463a62303f.webp" alt="Olha Hapiienko"><img src="/assets/site-img/img-21-87a780597b.webp" alt="Snizhana Zhuravlova"><img src="/assets/site-img/img-22-d37a4bca48.webp" alt="Nadiia Denysenko"></div>
+      <div class="faces"><?php foreach (array_slice($site_intervenants, 0, 6) as $iv):
+        $photoUrl = ($iv['photo'] && $iv['dossier']) ? '/assets/uploads/intervenants/' . rawurlencode($iv['dossier']) . '/' . rawurlencode($iv['photo']) : '/assets/site-img/img-01-017fac3c9d.webp';
+      ?><img src="<?= htmlspecialchars($photoUrl) ?>" alt="<?= htmlspecialchars($iv['nom']) ?>"><?php endforeach; ?></div>
     </div>
   </section>
 
@@ -486,7 +214,7 @@ footer a{color:var(--ink-2)}
         <h1 style="font-size:clamp(2rem,4vw,3.2rem)">Toutes les prochaines dates</h1>
         <p class="lede">Chaque rendez-vous indique la commune, la salle et pour qui il est fait. La préinscription est gratuite et sans engagement.</p>
       </div>
-      <div class="events"><div class="event"><div class="cover photo-cover"><img src="/assets/site-img/img-12-dfccff8e69.webp" alt=""><div class="date"><b>26</b><span>sept</span><small>14h00</small></div></div><div class="event-row"><div class="event-body"><span class="tag">Événement · Tout public</span><h3>Festival du jeu de Garat</h3><span class="meta">Salle de l'Atrium, 16410 Garat · Entrée libre</span><p>Jeux de société, jeux géants en extérieur, espace tout-petits, jeux vidéo et démonstrations d'impression 3D. Un « passeport des aventuriers » pour les plus audacieux, et une buvette.</p><a class="btn btn-primary btn-sm" href="https://www.brinsdejeux.fr/programme-festival-du-jeu-garat">En savoir plus</a></div></div></div><div class="event"><div class="cover lilac"><svg class="ic" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 8C18 8 8 18 8 31c0 9 6 12 12 12h3a6 6 0 0 1 6 6c0 4 3 7 7 7 13 0 20-9 20-24C56 18 46 8 32 8z"/><circle cx="22" cy="26" r="3" fill="currentColor"/><circle cx="32" cy="19" r="3" fill="currentColor"/><circle cx="43" cy="26" r="3" fill="currentColor"/></svg><svg class="mascot" viewBox="0 0 549 767" style="aspect-ratio:549/767"><use href="#m-read"/></svg><div class="date"><b>01</b><span>oct</span><small>18h00</small></div></div><div class="event-row"><div class="event-body"><span class="tag">Bien-être · Art-thérapie</span><h3>Art-Thérapie Évolutive, séance d'initiation</h3><span class="meta">William Aubert · Salle de temps libre, 16410 Garat</span><p>Une première expérience créative ouverte à tous, dans un cadre bienveillant. Aucun talent artistique n'est nécessaire.</p><a class="btn btn-primary btn-sm" href="https://www.helloasso.com/associations/mavka/evenements/decouvrez-l-art-therapie-evolutive">Préinscription gratuite</a></div></div></div><div class="event"><div class="cover photo-cover"><img src="/assets/site-img/img-13-d6e281d921.webp" alt=""><div class="date weekly"><b>jeu. 9h30</b><small>hebdo</small></div></div><div class="event-row"><div class="event-body"><span class="tag">Bien-être · Gymnastique</span><h3>Gymnastique articulaire, le jeudi matin</h3><span class="meta">Hanna Sokha · Salle de l'Atrium, 16410 Garat</span><p>Intéressé(e) ? Cette préinscription gratuite nous permet de compter les personnes motivées et d'étudier avec la mairie la mise en place des séances.</p><a class="btn btn-primary btn-sm" href="https://www.helloasso.com/associations/mavka/evenements/yoga-2026-09-17">Je suis intéressé(e)</a></div></div></div><div class="event"><div class="cover photo-cover"><img src="/assets/site-img/img-15-1b7f74c811.webp" alt=""><div class="date weekly"><b>Régulier</b><small>Grand Angoulême</small></div></div><div class="event-row"><div class="event-body"><span class="tag">Éducation · Musique</span><h3>Violon, piano, chant et formation musicale</h3><span class="meta">Snizhana Zhuravlova · enfants et adultes</span><p>Apprendre, reprendre un instrument ou jouer avec d'autres. Débutants ou musiciens confirmés.</p><a class="btn btn-primary btn-sm" href="https://mavka16.fr/notre-equipe/snizhana-zhuravlova/">Voir sa page</a></div></div></div></div>
+      <?= render_events_grid($site_agenda_toutes) ?>
     </div>
   </section>
   <section class="sand">
@@ -528,21 +256,21 @@ footer a{color:var(--ink-2)}
   <section class="sand">
     <div class="wrap">
       <div class="head"><span class="eyebrow">Culture</span><h2>Créer de ses mains, découvrir une tradition</h2></div>
-      <div class="events"><div class="event"><div class="cover photo-cover"><img src="/assets/site-img/img-14-c7c993d250.webp" alt=""><div class="date weekly"><b>Sur demande</b><small>1 à 2 h</small></div></div><div class="event-row"><div class="event-body"><span class="tag">Culture · Enfants et adultes</span><h3>Peinture de Petrykivka</h3><span class="meta">Olha Hapiienko</span><p>La peinture décorative ukrainienne aux motifs floraux, transmise de génération en génération.</p><a class="btn btn-ghost btn-sm" href="#contact">Demander une date</a></div></div></div><div class="event"><div class="cover photo-cover"><img src="/assets/site-img/img-16-e387b6953f.webp" alt=""><div class="date weekly"><b>Sur demande</b><small>1 à 2 h</small></div></div><div class="event-row"><div class="event-body"><span class="tag">Culture · Enfants et adultes</span><h3>Calligraphie chinoise, origami, langue chinoise</h3><span class="meta">Haiyan Huang</span><p>Une initiation à l'écriture au pinceau, au pliage et aux premiers mots de chinois.</p><a class="btn btn-ghost btn-sm" href="#contact">Demander une date</a></div></div></div><div class="event"><div class="cover lilac"><svg class="ic" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 8C18 8 8 18 8 31c0 9 6 12 12 12h3a6 6 0 0 1 6 6c0 4 3 7 7 7 13 0 20-9 20-24C56 18 46 8 32 8z"/><circle cx="22" cy="26" r="3" fill="currentColor"/><circle cx="32" cy="19" r="3" fill="currentColor"/><circle cx="43" cy="26" r="3" fill="currentColor"/></svg><svg class="mascot" viewBox="0 0 552 756" style="aspect-ratio:552/756"><use href="#m-magnify"/></svg><div class="date weekly"><b>Sur demande</b><small>1 à 2 h</small></div></div><div class="event-row"><div class="event-body"><span class="tag">Culture · Familles</span><h3>Créations artisanales</h3><span class="meta">Nataliia Kolesnikova</span><p>Couronnes décoratives et objets faits main, à emporter chez soi.</p><a class="btn btn-ghost btn-sm" href="#contact">Demander une date</a></div></div></div></div>
+      <?= render_events_grid($site_activites_culture) ?>
     </div>
   </section>
 
   <section>
     <div class="wrap">
       <div class="head"><span class="eyebrow">Éducation</span><h2>Apprendre un savoir-faire concret</h2></div>
-      <div class="events"><div class="event"><div class="cover photo-cover"><img src="/assets/site-img/img-15-1b7f74c811.webp" alt=""><div class="date weekly"><b>Régulier</b><small>Grand Angoulême</small></div></div><div class="event-row"><div class="event-body"><span class="tag">Éducation · Musique</span><h3>Violon, piano, chant et formation musicale</h3><span class="meta">Snizhana Zhuravlova · enfants et adultes</span><p>Apprendre, reprendre un instrument ou jouer avec d'autres. Débutants ou musiciens confirmés.</p><a class="btn btn-primary btn-sm" href="https://mavka16.fr/notre-equipe/snizhana-zhuravlova/">Voir sa page</a></div></div></div><div class="event"><div class="cover sun"><svg class="ic" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M24 46V16l28-6v30"/><circle cx="17" cy="46" r="7"/><circle cx="45" cy="40" r="7"/></svg><svg class="mascot" viewBox="0 0 549 767" style="aspect-ratio:549/767"><use href="#m-read"/></svg><div class="date weekly"><b>Régulier</b><small>Sur demande</small></div></div><div class="event-row"><div class="event-body"><span class="tag">Éducation · Musique</span><h3>Ateliers de musique</h3><span class="meta">Nadiia Denysenko · Nataliia Veremeienko</span><p>Découvrir un instrument, progresser à son rythme ou simplement partager le plaisir de jouer.</p><a class="btn btn-ghost btn-sm" href="#contact">Demander une date</a></div></div></div><div class="event"><div class="cover sun"><svg class="ic" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M24 46V16l28-6v30"/><circle cx="17" cy="46" r="7"/><circle cx="45" cy="40" r="7"/></svg><svg class="mascot" viewBox="0 0 549 767" style="aspect-ratio:549/767"><use href="#m-read"/></svg><div class="date weekly"><b>Bientôt</b><small>En préparation</small></div></div><div class="event-row"><div class="event-body"><span class="tag">Éducation</span><h3>Anglais du quotidien, impression 3D</h3><span class="meta">William Aubert et de nouveaux intervenants</span><p>Deux formats en construction. Laissez vos coordonnées pour être prévenu au lancement.</p><a class="btn btn-ghost btn-sm" href="#contact">Être prévenu</a></div></div></div></div>
+      <?= render_events_grid($site_activites_education) ?>
     </div>
   </section>
 
   <section class="sand">
     <div class="wrap">
       <div class="head"><span class="eyebrow">Bien-être</span><h2>Prendre soin de soi, simplement</h2></div>
-      <div class="events"><div class="event"><div class="cover photo-cover"><img src="/assets/site-img/img-13-d6e281d921.webp" alt=""><div class="date weekly"><b>jeu. 9h30</b><small>hebdo</small></div></div><div class="event-row"><div class="event-body"><span class="tag">Bien-être · Gymnastique</span><h3>Gymnastique articulaire, le jeudi matin</h3><span class="meta">Hanna Sokha · Salle de l'Atrium, 16410 Garat</span><p>Intéressé(e) ? Cette préinscription gratuite nous permet de compter les personnes motivées et d'étudier avec la mairie la mise en place des séances.</p><a class="btn btn-primary btn-sm" href="https://www.helloasso.com/associations/mavka/evenements/yoga-2026-09-17">Je suis intéressé(e)</a></div></div></div><div class="event"><div class="cover mint"><svg class="ic" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 54S10 40 10 25a11 11 0 0 1 22-3 11 11 0 0 1 22 3c0 15-22 29-22 29z"/></svg><svg class="mascot" viewBox="0 0 310 769" style="aspect-ratio:310/769"><use href="#m-stand"/></svg><div class="date weekly"><b>Sur demande</b><small>Adultes</small></div></div><div class="event-row"><div class="event-body"><span class="tag">Bien-être</span><h3>Yoga, mobilité, gestion du stress, espaces de parole</h3><span class="meta">L'équipe Bien-être</span><p>Des outils simples pour retrouver son équilibre. Prévention et bien-être, sans remplacer un suivi médical.</p><a class="btn btn-ghost btn-sm" href="#contact">Demander une date</a></div></div></div><div class="event"><div class="cover lilac"><svg class="ic" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 8C18 8 8 18 8 31c0 9 6 12 12 12h3a6 6 0 0 1 6 6c0 4 3 7 7 7 13 0 20-9 20-24C56 18 46 8 32 8z"/><circle cx="22" cy="26" r="3" fill="currentColor"/><circle cx="32" cy="19" r="3" fill="currentColor"/><circle cx="43" cy="26" r="3" fill="currentColor"/></svg><svg class="mascot" viewBox="0 0 549 767" style="aspect-ratio:549/767"><use href="#m-read"/></svg><div class="date"><b>01</b><span>oct</span><small>18h00</small></div></div><div class="event-row"><div class="event-body"><span class="tag">Bien-être · Art-thérapie</span><h3>Art-Thérapie Évolutive, séance d'initiation</h3><span class="meta">William Aubert · Salle de temps libre, 16410 Garat</span><p>Une première expérience créative ouverte à tous, dans un cadre bienveillant. Aucun talent artistique n'est nécessaire.</p><a class="btn btn-primary btn-sm" href="https://www.helloasso.com/associations/mavka/evenements/decouvrez-l-art-therapie-evolutive">Préinscription gratuite</a></div></div></div></div>
+      <?= render_events_grid($site_activites_bienetre) ?>
     </div>
   </section>
 
@@ -717,7 +445,7 @@ footer a{color:var(--ink-2)}
         <h1 style="font-size:clamp(2rem,4vw,3.2rem)">Les ateliers, ce sont d'abord des personnes.</h1>
         <p class="lede">Chaque atelier MAVKA est animé par quelqu'un qui a un vrai métier ou un vrai savoir-faire derrière lui : musiciennes de formation, peintre de Petrykivka, calligraphe, professeure de gymnastique, art-thérapeute. Beaucoup sont arrivés en France récemment et rebâtissent ici leur pratique et leur public.</p>
       </div>
-      <div class="team"><div class="person"><img src="/assets/site-img/img-17-c43ee8d484.webp" alt="Larysa Mas"><b>Larysa Mas</b><span class="role">Présidente</span><span>Développement personnel, accompagnement des intervenants, Parcours MAVKA</span><span class="meta">Développement personnel</span><a href="https://sites.google.com/view/mavka16/fr/larysa-mas">Voir sa page →</a></div><div class="person"><img src="/assets/site-img/img-18-e9465eda8d.webp" alt="William Aubert"><b>William Aubert</b><span class="role">Bénévole</span><span>Art-thérapie évolutive, impression 3D</span><span class="meta">Bien-être · Éducation</span><a href="https://mavka16.fr/william-aubert">Voir sa page →</a></div><div class="person"><img src="/assets/site-img/img-19-4deead6d91.webp" alt="Haiyan Huang"><b>Haiyan Huang</b><span class="role">Bénévole</span><span>Calligraphie chinoise, origami, langue chinoise</span><span class="meta">Culture</span><a href="https://mavka16.fr/notre-equipe/haiyan-huang">Voir sa page →</a></div><div class="person"><img src="/assets/site-img/img-20-463a62303f.webp" alt="Olha Hapiienko"><b>Olha Hapiienko</b><span class="role">Bénévole</span><span>Peinture décorative ukrainienne de Petrykivka</span><span class="meta">Culture</span><a href="https://mavka16.fr/olha-hapiienko">Voir sa page →</a></div><div class="person"><img src="/assets/site-img/img-21-87a780597b.webp" alt="Snizhana Zhuravlova"><b>Snizhana Zhuravlova</b><span class="role">Bénévole</span><span>Violon, piano, chant, formation musicale, musique d'ensemble</span><span class="meta">Éducation · Grand Angoulême</span><a href="https://mavka16.fr/notre-equipe/snizhana-zhuravlova/">Voir sa page →</a></div><div class="person"><img src="/assets/site-img/img-22-d37a4bca48.webp" alt="Nadiia Denysenko"><b>Nadiia Denysenko</b><span class="role">Bénévole</span><span>Musique</span><span class="meta">Éducation</span><a href="https://mavka16.fr/notre-equipe/nadiia-denysenko/">Voir sa page →</a></div><div class="person"><img src="/assets/site-img/img-25-b280bc62ab.webp" alt="Nataliia Veremeienko"><b>Nataliia Veremeienko</b><span class="role">Bénévole</span><span>Musique</span><span class="meta">Éducation</span><a href="https://mavka16.fr/notre-equipe/nataliia-veremeienko/">Voir sa page →</a></div><div class="person"><img src="/assets/site-img/img-26-e5ac137ce7.webp" alt="Nataliia Kolesnikova"><b>Nataliia Kolesnikova</b><span class="role">Bénévole</span><span>Créations artisanales, couronnes décoratives, objets faits main</span><span class="meta">Culture</span><a href="https://mavka16.fr/nataliia-kolesnikova">Voir sa page →</a></div><div class="person"><img src="/assets/site-img/img-27-ec6d653758.webp" alt="Hanna Sokha"><b>Hanna Sokha</b><span class="role">Bénévole</span><span>Gymnastique articulaire, bien-être</span><span class="meta">Bien-être · Garat</span><a href="https://mavka16.fr/notre-equipe/hanna-sokha">Voir sa page →</a></div><div class="person"><img src="/assets/site-img/img-28-670ca0e974.webp" alt="Dmytro Gorbatko"><b>Dmytro Gorbatko</b><span class="role">Bénévole</span><span>Membre de l'équipe</span><a href="https://mavka16.fr/notre-equipe/dmytro-gorbatko/">Voir sa page →</a></div><div class="person"><img src="/assets/site-img/img-29-724861fb7a.webp" alt="Olena Maksymova"><b>Olena Maksymova</b><span class="role">Bénévole</span><span>Membre de l'équipe</span><a href="https://mavka16.fr/notre-equipe/olena-maksymova">Voir sa page →</a></div></div>
+      <div class="team"><?php foreach ($site_intervenants as $iv) { echo render_person_card($iv); } ?></div>
     </div>
   </section>
   <section class="sand">

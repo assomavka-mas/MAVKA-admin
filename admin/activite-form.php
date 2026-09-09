@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         foreach ($intervenants as $iv) {
             if (in_array($iv['id'], $posted_intervenants, true)) { $premier_intervenant = $iv; break; }
         }
-        $a['lien_inscription'] = $premier_intervenant ? intervenant_page_url($premier_intervenant['nom']) : '';
+        $a['lien_inscription'] = $premier_intervenant ? intervenant_page_url((int)$premier_intervenant['id']) : '';
     } else {
         $a['lien_inscription'] = trim($_POST['lien_inscription'] ?? '');
     }
