@@ -272,7 +272,7 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
 .mavka-input-court { max-width: 90px; }
 .mavka-activite-actions { flex-basis: 100%; }
 .mavka-form-section--parametres { --section-color: var(--mavka-color-purple-dark); }
-.mavka-activite-preview { width: 300px; flex-shrink: 0; position: sticky; top: 24px; }
+.mavka-activite-preview { width: 560px; flex-shrink: 0; position: sticky; top: 24px; }
 .mavka-activite-preview__label { font-weight: 700; font-size: 13.5px; color: var(--mavka-color-text-muted); margin-bottom: 8px; }
 .mavka-activite-preview__card {
   background: #fff; border: 2px solid var(--mavka-color-teal); border-radius: var(--mavka-radius-card);
