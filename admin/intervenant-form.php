@@ -83,10 +83,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'save') === 's
         }
         $subdir = 'intervenants/' . $iv['dossier'];
 
-        foreach (['photo', 'charte_benevolat_fichier', 'contrat_intervention_fichier', 'cv_fichier', 'rib_fichier', 'assurance_fichier', 'projet_developpement_fichier'] as $f) {
+        $champs_documents = ['charte_benevolat_fichier', 'contrat_intervention_fichier', 'cv_fichier', 'rib_fichier', 'assurance_fichier', 'projet_developpement_fichier'];
+        $ins_version = db()->prepare('INSERT INTO intervenant_document_versions (intervenant_id, champ, fichier) VALUES (?,?,?)');
+        foreach ([...$champs_documents, 'photo'] as $f) {
             $uploaded = handle_upload($f, $subdir);
             if ($uploaded) {
                 $iv[$f] = $uploaded;
+                // La photo de profil n'a pas besoin d'historique, seulement les documents administratifs.
+                if (in_array($f, $champs_documents, true)) {
+                    $ins_version->execute([$id, $f, $uploaded]);
+                }
             }
         }
 
@@ -133,13 +139,21 @@ if (isset($_GET['delete_atelier']) && $id) {
 }
 
 $ateliers = [];
+$historique_par_champ = [];
 if ($id) {
     $stmt = db()->prepare('SELECT * FROM intervenant_ateliers WHERE intervenant_id = ? ORDER BY ordre ASC, id ASC');
     $stmt->execute([$id]);
     $ateliers = $stmt->fetchAll();
+
+    $stmt = db()->prepare('SELECT * FROM intervenant_document_versions WHERE intervenant_id = ? ORDER BY created_at DESC');
+    $stmt->execute([$id]);
+    foreach ($stmt->fetchAll() as $v) {
+        $historique_par_champ[$v['champ']][] = $v;
+    }
 }
 
 $file_url = fn($f) => !empty($iv[$f]) ? '/assets/uploads/intervenants/' . $iv['dossier'] . '/' . $iv[$f] : null;
+$hist = fn($f) => $historique_par_champ[$f] ?? [];
 
 admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $user, 'intervenants');
 ?>
@@ -243,18 +257,18 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
     <div class="mavka-form-section__body">
     <p class="mavka-form-section__hint">Pour chaque document : un lien Google Drive, un fichier téléversé ici, ou les deux.</p>
 
-    <?php champ_document('Charte du bénévolat', 'charte_benevolat_lien', 'charte_benevolat_fichier', $iv, $file_url('charte_benevolat_fichier')); ?>
-    <div style="margin-top:18px;"><?php champ_document("Contrat d'intervention", 'contrat_intervention_lien', 'contrat_intervention_fichier', $iv, $file_url('contrat_intervention_fichier')); ?></div>
+    <?php champ_document('Charte du bénévolat', 'charte_benevolat_lien', 'charte_benevolat_fichier', $iv, $file_url('charte_benevolat_fichier'), $iv['dossier'] ?? null, $hist('charte_benevolat_fichier')); ?>
+    <div style="margin-top:18px;"><?php champ_document("Contrat d'intervention", 'contrat_intervention_lien', 'contrat_intervention_fichier', $iv, $file_url('contrat_intervention_fichier'), $iv['dossier'] ?? null, $hist('contrat_intervention_fichier')); ?></div>
 
     <label style="margin-top:18px;">Date signée</label>
     <div class="mavka-date-field"><input type="date" name="date_signee" value="<?= htmlspecialchars($iv['date_signee'] ?? '') ?>"></div>
 
-    <div style="margin-top:18px;"><?php champ_document('CV', 'cv_lien', 'cv_fichier', $iv, $file_url('cv_fichier')); ?></div>
+    <div style="margin-top:18px;"><?php champ_document('CV', 'cv_lien', 'cv_fichier', $iv, $file_url('cv_fichier'), $iv['dossier'] ?? null, $hist('cv_fichier')); ?></div>
 
-    <div style="margin-top:18px;"><?php champ_document('RIB (coordonnées bancaires)', 'rib_lien', 'rib_fichier', $iv, $file_url('rib_fichier')); ?></div>
+    <div style="margin-top:18px;"><?php champ_document('RIB (coordonnées bancaires)', 'rib_lien', 'rib_fichier', $iv, $file_url('rib_fichier'), $iv['dossier'] ?? null, $hist('rib_fichier')); ?></div>
     <p class="mavka-form-section__hint">Pour verser les remboursements/rémunérations.</p>
 
-    <div style="margin-top:18px;"><?php champ_document('Assurance professionnelle', 'assurance_lien', 'assurance_fichier', $iv, $file_url('assurance_fichier')); ?></div>
+    <div style="margin-top:18px;"><?php champ_document('Assurance professionnelle', 'assurance_lien', 'assurance_fichier', $iv, $file_url('assurance_fichier'), $iv['dossier'] ?? null, $hist('assurance_fichier')); ?></div>
     <label style="margin-top:10px;">Date d'échéance <span style="font-weight:400; color:var(--mavka-color-text-muted);">(facultatif — laisse vide si elle se renouvelle automatiquement)</span></label>
     <div class="mavka-date-field"><input type="date" name="assurance_date" value="<?= htmlspecialchars($iv['assurance_date'] ?? '') ?>"></div>
     </div>
@@ -290,7 +304,7 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
     </summary>
     <div class="mavka-form-section__body">
     <p class="mavka-form-section__hint">Pour toi et la mairie — jamais affiché sur le site.</p>
-    <?php champ_document('Mon projet de développement', 'projet_developpement', 'projet_developpement_fichier', $iv, $file_url('projet_developpement_fichier')); ?>
+    <?php champ_document('Mon projet de développement', 'projet_developpement', 'projet_developpement_fichier', $iv, $file_url('projet_developpement_fichier'), $iv['dossier'] ?? null, $hist('projet_developpement_fichier')); ?>
     <label style="margin-top:16px;">Mes objectifs avec MAVKA</label>
     <textarea name="objectifs_mavka"><?= htmlspecialchars($iv['objectifs_mavka'] ?? '') ?></textarea>
     </div>
@@ -309,48 +323,48 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
     </div>
   </details>
 
+  <?php if ($id): ?>
+  <details class="mavka-form-section mavka-form-section--ateliers" data-section="ateliers" open>
+    <summary class="mavka-form-section__header">
+      <span class="mavka-form-section__grip">⠿⠿</span>
+      <h3 class="mavka-form-section__title">🎨 Ce que je propose</h3>
+      <svg class="mavka-form-section__chevron" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </summary>
+    <div class="mavka-form-section__body">
+    <p class="mavka-form-section__hint">Liste des ateliers possibles (pas forcément programmés) — écrite une fois, rarement modifiée. Différent des Activités réelles avec une date, gérées dans "Activités".</p>
+
+    <div style="display:flex; flex-direction:column; gap:10px; margin:10px 0 20px;">
+      <?php foreach ($ateliers as $at): ?>
+      <div class="mavka-card" style="padding:14px 18px; display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+        <div>
+          <div style="font-weight:700;"><?= htmlspecialchars($at['titre']) ?></div>
+          <?php if ($at['description']): ?><div style="font-size:13.5px; color:var(--mavka-color-text-muted); margin-top:4px;"><?= htmlspecialchars($at['description']) ?></div><?php endif; ?>
+        </div>
+        <a href="/admin/intervenant-form.php?id=<?= $id ?>&delete_atelier=<?= $at['id'] ?>" class="mavka-btn mavka-btn--sm mavka-btn--danger"
+           onclick="return confirm('Supprimer ?');">Supprimer</a>
+      </div>
+      <?php endforeach; ?>
+      <?php if (!$ateliers): ?>
+      <p style="color:var(--mavka-color-text-muted); font-size:13.5px;">Aucun atelier proposé pour l'instant.</p>
+      <?php endif; ?>
+    </div>
+
+    <label>Titre de l'atelier</label>
+    <input type="text" name="atelier_titre" form="atelier-form" required>
+    <label>Description</label>
+    <textarea name="atelier_description" form="atelier-form"></textarea>
+    <button type="submit" form="atelier-form" class="mavka-btn mavka-btn--primary" style="margin-top:16px;">Ajouter</button>
+    </div>
+  </details>
+  <?php endif; ?>
+
   </div>
 
   <button type="submit" class="mavka-btn mavka-btn--primary" style="margin-top:8px;">Enregistrer</button>
   <a href="/admin/intervenants.php" class="mavka-btn" style="margin-top:8px;">Annuler</a>
 </form>
-
 <?php if ($id): ?>
-<details class="mavka-form-section mavka-form-section--ateliers" data-section="ateliers" open style="max-width:720px; margin-top:18px;">
-  <summary class="mavka-form-section__header">
-    <span class="mavka-form-section__grip">⠿⠿</span>
-    <h3 class="mavka-form-section__title">🎨 Ce que je propose</h3>
-    <svg class="mavka-form-section__chevron" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-  </summary>
-  <div class="mavka-form-section__body">
-  <p class="mavka-form-section__hint">Liste des ateliers possibles (pas forcément programmés) — écrite une fois, rarement modifiée. Différent des Activités réelles avec une date, gérées dans "Activités".</p>
-
-  <div style="display:flex; flex-direction:column; gap:10px; margin:10px 0 20px;">
-    <?php foreach ($ateliers as $at): ?>
-    <div class="mavka-card" style="padding:14px 18px; display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
-      <div>
-        <div style="font-weight:700;"><?= htmlspecialchars($at['titre']) ?></div>
-        <?php if ($at['description']): ?><div style="font-size:13.5px; color:var(--mavka-color-text-muted); margin-top:4px;"><?= htmlspecialchars($at['description']) ?></div><?php endif; ?>
-      </div>
-      <a href="/admin/intervenant-form.php?id=<?= $id ?>&delete_atelier=<?= $at['id'] ?>" class="mavka-btn mavka-btn--sm mavka-btn--danger"
-         onclick="return confirm('Supprimer ?');">Supprimer</a>
-    </div>
-    <?php endforeach; ?>
-    <?php if (!$ateliers): ?>
-    <p style="color:var(--mavka-color-text-muted); font-size:13.5px;">Aucun atelier proposé pour l'instant.</p>
-    <?php endif; ?>
-  </div>
-
-  <form method="post" class="mavka-form">
-    <input type="hidden" name="action" value="add_atelier">
-    <label>Titre de l'atelier</label>
-    <input type="text" name="atelier_titre" required>
-    <label>Description</label>
-    <textarea name="atelier_description"></textarea>
-    <button type="submit" class="mavka-btn mavka-btn--primary" style="margin-top:16px;">Ajouter</button>
-  </form>
-  </div>
-</details>
+<form method="post" id="atelier-form"><input type="hidden" name="action" value="add_atelier"></form>
 <?php endif; ?>
 
 <script>

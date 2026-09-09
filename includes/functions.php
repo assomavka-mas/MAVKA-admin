@@ -57,11 +57,15 @@ function handle_upload(string $field, string $subdir): ?string {
 
 // Bloc "lien + fichier" pour un document (Charte, CV, RIB...) tenu sur une seule ligne compacte :
 // puce verte "Lien" (avec crayon pour l'éditer) + aperçu/badge de fichier (avec crayon pour le remplacer).
-function champ_document(string $label, string $lien_field, string $fichier_field, array $iv, ?string $file_url, string $accept = 'image/png,image/jpeg,image/webp,application/pdf'): void {
+// $historique : lignes de intervenant_document_versions pour ce champ (les plus récentes d'abord),
+// pour retrouver un ancien fichier après remplacement — rien n'est perdu, juste plus "actuel".
+function champ_document(string $label, string $lien_field, string $fichier_field, array $iv, ?string $file_url, ?string $dossier = null, array $historique = [], string $accept = 'image/png,image/jpeg,image/webp,application/pdf'): void {
     $lien_id = 'lien_' . $lien_field;
     $fichier_id = 'fichier_' . $fichier_field;
     $ext = $iv[$fichier_field] ? strtolower(pathinfo($iv[$fichier_field], PATHINFO_EXTENSION)) : null;
     $is_image = in_array($ext, ['jpg', 'jpeg', 'png', 'webp'], true);
+    // Les anciennes versions = tout l'historique sauf le fichier actuellement actif
+    $anciennes = array_filter($historique, fn($v) => $v['fichier'] !== $iv[$fichier_field]);
     ?>
     <label><?= htmlspecialchars($label) ?></label>
     <div class="mavka-doc-row">
@@ -91,5 +95,18 @@ function champ_document(string $label, string $lien_field, string $fichier_field
       <?php endif; ?>
       <input type="file" id="<?= $fichier_id ?>" name="<?= htmlspecialchars($fichier_field) ?>" accept="<?= htmlspecialchars($accept) ?>" hidden>
     </div>
+    <?php if ($anciennes && $dossier): ?>
+    <details class="mavka-doc-historique">
+      <summary>Historique (<?= count($anciennes) ?>)</summary>
+      <ul>
+        <?php foreach ($anciennes as $v): ?>
+        <li>
+          <a href="/assets/uploads/intervenants/<?= htmlspecialchars($dossier) ?>/<?= htmlspecialchars($v['fichier']) ?>" target="_blank">Voir</a>
+          — <?= htmlspecialchars(date('d/m/Y H:i', strtotime($v['created_at']))) ?>
+        </li>
+        <?php endforeach; ?>
+      </ul>
+    </details>
+    <?php endif; ?>
     <?php
 }

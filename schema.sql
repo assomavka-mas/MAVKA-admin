@@ -45,6 +45,15 @@ CREATE TABLE IF NOT EXISTS intervenant_documents (
   FOREIGN KEY (intervenant_id) REFERENCES intervenants(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS intervenant_document_versions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  intervenant_id INT NOT NULL,
+  champ VARCHAR(50) NOT NULL,            -- напр. "cv_fichier", "rib_fichier"
+  fichier VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (intervenant_id) REFERENCES intervenants(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS intervenant_ateliers (
   id INT AUTO_INCREMENT PRIMARY KEY,
   intervenant_id INT NOT NULL,
