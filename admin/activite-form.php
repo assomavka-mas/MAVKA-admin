@@ -213,7 +213,7 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
       <textarea id="f_description" name="description" class="mavka-activite-preview__desc" placeholder="Description de l'activité"><?= htmlspecialchars($a['description']) ?></textarea>
 
       <?php
-        $boutons = ['Préinscription gratuite', 'Préinscription', 'Gratuit', 'Événement régulier', 'En savoir plus', 'Voir sa page', 'Payer la participation'];
+        $boutons = ['Préinscription gratuite', 'Préinscription', 'Gratuit', 'Événement régulier', 'En savoir plus', 'Voir sa page'];
         if ($a['texte_bouton'] && !in_array($a['texte_bouton'], $boutons)) {
             array_unshift($boutons, $a['texte_bouton']); // garde l'ancienne valeur personnalisée si elle ne fait pas partie de la liste
         }
