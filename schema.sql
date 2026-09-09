@@ -86,8 +86,9 @@ CREATE TABLE IF NOT EXISTS activite_intervenant (
 CREATE TABLE IF NOT EXISTS admins (
   id INT AUTO_INCREMENT PRIMARY KEY,
   email VARCHAR(255) NOT NULL UNIQUE,
+  nom VARCHAR(255) NULL,                 -- pour l'afficher dans la liste des accès (surtout si pas lié à un intervenant)
   password_hash VARCHAR(255) NULL,       -- non utilisé : connexion via Google
-  role ENUM('admin','benevole') NOT NULL DEFAULT 'benevole',
+  role ENUM('super_admin','mavka_admin','benevole','partenaire') NOT NULL DEFAULT 'benevole',
   intervenant_id INT NULL,               -- прив'язка до свого профілю в intervenants, якщо benevole
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (intervenant_id) REFERENCES intervenants(id) ON DELETE SET NULL

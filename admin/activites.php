@@ -2,14 +2,16 @@
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/layout.php';
 
-$user = auth_require('admin');
+$user = auth_require(['super_admin', 'mavka_admin', 'partenaire']);
 $activites = db()->query('SELECT * FROM activites ORDER BY ordre ASC, date_debut ASC')->fetchAll();
 
 admin_header('Activités', $user, 'activites');
 ?>
 <div style="display:flex; justify-content:space-between; align-items:center;">
   <h1>Activités</h1>
+  <?php if (peut_editer($user)): ?>
   <a href="/admin/activite-form.php" class="mavka-btn mavka-btn--primary">+ Nouvelle activité</a>
+  <?php endif; ?>
 </div>
 
 <?php if (isset($_GET['ok'])): ?>
@@ -32,9 +34,11 @@ admin_header('Activités', $user, 'activites');
       <span class="mavka-badge mavka-badge--brouillon"><?= $a['statut_activite'] ?></span>
     </td>
     <td style="white-space:nowrap;">
+      <?php if (peut_editer($user)): ?>
       <a href="/admin/activite-form.php?id=<?= $a['id'] ?>" class="mavka-btn mavka-btn--sm">Modifier</a>
       <a href="/admin/activite-delete.php?id=<?= $a['id'] ?>" class="mavka-btn mavka-btn--sm mavka-btn--danger"
          onclick="return confirm('Supprimer cette activité ?');">Supprimer</a>
+      <?php endif; ?>
     </td>
   </tr>
   <?php endforeach; ?>

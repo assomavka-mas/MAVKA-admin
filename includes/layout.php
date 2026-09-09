@@ -13,10 +13,15 @@ function admin_header(string $title, array $user, string $active = ''): void {
   <div class="mavka-admin-sidebar">
     <div class="brand">MAVKA</div>
     <a href="/admin/dashboard.php" class="<?= $active === 'dashboard' ? 'active' : '' ?>">Tableau de bord</a>
+    <?php if (in_array($user['role'], ['super_admin', 'mavka_admin', 'partenaire'], true)): ?>
     <a href="/admin/activites.php" class="<?= $active === 'activites' ? 'active' : '' ?>">Activités</a>
-    <?php if ($user['role'] === 'admin'): ?>
     <a href="/admin/intervenants.php" class="<?= $active === 'intervenants' ? 'active' : '' ?>">Intervenants</a>
+    <?php endif; ?>
+    <?php if (in_array($user['role'], ['super_admin', 'mavka_admin'], true)): ?>
     <a href="/admin/messages.php" class="<?= $active === 'messages' ? 'active' : '' ?>">Messages</a>
+    <?php endif; ?>
+    <?php if ($user['role'] === 'super_admin'): ?>
+    <a href="/admin/acces.php" class="<?= $active === 'acces' ? 'active' : '' ?>">Accès</a>
     <?php endif; ?>
     <div style="flex-grow:1;"></div>
     <div style="font-size:12.5px; color:var(--mavka-color-text-muted); padding:10px 12px;"><?= htmlspecialchars($user['email']) ?></div>

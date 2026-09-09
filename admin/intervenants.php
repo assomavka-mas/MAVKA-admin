@@ -3,9 +3,9 @@ require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/functions.php';
 
-$user = auth_require('admin');
+$user = auth_require(['super_admin', 'mavka_admin', 'partenaire']);
 
-if (isset($_GET['delete'])) {
+if (isset($_GET['delete']) && peut_editer($user)) {
     db()->prepare('DELETE FROM intervenants WHERE id = ?')->execute([(int)$_GET['delete']]);
     header('Location: /admin/intervenants.php');
     exit;
@@ -17,7 +17,9 @@ admin_header('Intervenants', $user, 'intervenants');
 ?>
 <div style="display:flex; justify-content:space-between; align-items:center;">
   <h1>Intervenants / bénévoles</h1>
+  <?php if (peut_editer($user)): ?>
   <a href="/admin/intervenant-form.php" class="mavka-btn mavka-btn--primary">+ Nouvel intervenant</a>
+  <?php endif; ?>
 </div>
 <?php if (isset($_GET['ok'])): ?><?php flash('ok', 'Enregistré avec succès.'); ?><?php endif; ?>
 
@@ -36,9 +38,11 @@ admin_header('Intervenants', $user, 'intervenants');
     <td><?= htmlspecialchars($iv['specialite']) ?></td>
     <td><?= htmlspecialchars($iv['email']) ?></td>
     <td style="white-space:nowrap;">
+      <?php if (peut_editer($user)): ?>
       <a href="/admin/intervenant-form.php?id=<?= $iv['id'] ?>" class="mavka-btn mavka-btn--sm">Modifier</a>
       <a href="/admin/intervenants.php?delete=<?= $iv['id'] ?>" class="mavka-btn mavka-btn--sm mavka-btn--danger"
          onclick="return confirm('Supprimer ?');">Supprimer</a>
+      <?php endif; ?>
     </td>
   </tr>
   <?php endforeach; ?>

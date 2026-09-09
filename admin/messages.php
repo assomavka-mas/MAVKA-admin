@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/layout.php';
 
-$user = auth_require('admin');
+$user = auth_require(['super_admin', 'mavka_admin']);
 
 if (isset($_GET['lu'])) {
     db()->prepare('UPDATE messages_contact SET lu = 1 WHERE id = ?')->execute([(int)$_GET['lu']]);

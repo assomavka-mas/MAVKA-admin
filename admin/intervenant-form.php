@@ -3,7 +3,7 @@ require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/functions.php';
 
-$user = auth_require('admin');
+$user = auth_require(['super_admin', 'mavka_admin']);
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : null;
 $iv = [

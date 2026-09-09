@@ -13,8 +13,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'Adresse email invalide.';
     } else {
-        $stmt = db()->prepare('INSERT INTO admins (email, password_hash, role) VALUES (?, NULL, "admin")
-                                ON DUPLICATE KEY UPDATE role = "admin"');
+        $stmt = db()->prepare('INSERT INTO admins (email, password_hash, role) VALUES (?, NULL, "super_admin")
+                                ON DUPLICATE KEY UPDATE role = "super_admin"');
         $stmt->execute([$email]);
         $done = true;
     }

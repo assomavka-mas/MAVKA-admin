@@ -42,12 +42,18 @@ function auth_user(): ?array {
 }
 
 // Викликати на початку сторінки, яка вимагає входу.
-// $role: null (будь-хто залогинений) або 'admin' (тільки адмін).
-function auth_require(?string $role = null): array {
+// $roles: null (будь-хто залогинений), 'super_admin' (одна роль), або ['super_admin','mavka_admin'] (кілька).
+function auth_require(null|string|array $roles = null): array {
     $user = auth_user();
-    if (!$user || ($role !== null && $user['role'] !== $role)) {
+    $allowed = $roles === null ? null : (is_array($roles) ? $roles : [$roles]);
+    if (!$user || ($allowed !== null && !in_array($user['role'], $allowed, true))) {
         header('Location: /admin/login.php');
         exit;
     }
     return $user;
+}
+
+// Peut créer/modifier/supprimer du contenu (Activités, Intervenants, Messages).
+function peut_editer(array $user): bool {
+    return in_array($user['role'], ['super_admin', 'mavka_admin'], true);
 }
