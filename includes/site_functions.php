@@ -36,10 +36,13 @@ function site_intervenant_ateliers(int $intervenant_id): array {
 // passer par la vue). Sert par ex. à une proposition "à l'essai" pour sonder l'intérêt
 // avant d'en parler à une mairie, montrée sur la page du·de la volontaire concerné·e
 // sans encombrer l'accueil de plusieurs cartes par personne.
+// texte_bouton = 'Voir sa page' exclu : c'est justement la carte-vitrine dont le seul rôle
+// est de renvoyer vers CETTE page — l'y afficher aussi la rendrait auto-référentielle.
 function site_activites_intervenant(int $intervenant_id): array {
     $stmt = db()->prepare("SELECT a.* FROM activites a
         JOIN activite_intervenant ai ON ai.activite_id = a.id
         WHERE ai.intervenant_id = ? AND a.statut = 'publie' AND a.statut_activite NOT IN ('annule','termine')
+          AND a.texte_bouton != 'Voir sa page'
         ORDER BY (a.date_debut IS NULL) ASC, a.date_debut ASC, a.ordre ASC");
     $stmt->execute([$intervenant_id]);
     return $stmt->fetchAll();
