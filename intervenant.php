@@ -42,7 +42,7 @@ if ($iv) {
 .iv-ateliers{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
 @media (max-width:820px){.iv-ateliers{grid-template-columns:1fr}}
 .iv-atelier{padding:22px;border-radius:var(--r);background:var(--card);border:2px solid var(--mint)}
-.iv-atelier p{margin-top:8px;font-size:.96rem}
+.iv-atelier p{margin-top:8px;font-size:.96rem;white-space:pre-line}
 .back{display:inline-flex;gap:6px;color:var(--ink-2);font-weight:600;font-size:.92rem;margin-bottom:8px}
 
 .tabpanel h2{margin-bottom:14px}

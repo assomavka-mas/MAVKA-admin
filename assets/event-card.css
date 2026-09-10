@@ -65,7 +65,7 @@
 .event-row h3{font-family:var(--ec-display); font-weight:700; font-size:1.15rem; line-height:1.2; color:var(--ec-ink); margin:0}
 .event-body{display:grid; gap:8px; align-content:start}
 .event-body .meta{font-size:.9rem; color:var(--ec-ink-3); display:flex; align-items:center; gap:8px}
-.event-body p{color:var(--ec-ink-2); font-size:.95rem; line-height:1.5}
+.event-body p{color:var(--ec-ink-2); font-size:.95rem; line-height:1.5; white-space:pre-line}
 .event-body .btn{justify-self:start; margin-top:4px}
 
 .tag{
