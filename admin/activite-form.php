@@ -120,19 +120,20 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
       <input type="file" id="f_photo" name="photo" accept="image/png,image/jpeg,image/webp" hidden>
 
       <div class="strip">
-        <div class="strip__row">
+        <div id="pv_strip_badge" class="strip__badge">
           <span id="pv_strip_date" class="strip__date"></span>
           <span id="pv_strip_time" class="strip__time"></span>
         </div>
-        <div class="strip__row ap-strip__inputs">
-          <span>📅</span>
-          <input type="date" id="f_date_debut" name="date_debut" class="ap-input" value="<?= htmlspecialchars($a['date_debut'] ?? '') ?>">
-          <input type="text" id="f_heure" name="heure" class="ap-input ap-input--heure" placeholder="18:00" value="<?= htmlspecialchars($a['heure']) ?>">
-        </div>
-        <input type="text" id="f_recurrence" name="recurrence" class="ap-input" placeholder='Récurrence, ex. "Le jeudi"' value="<?= htmlspecialchars($a['recurrence']) ?>" <?= $a['texte_bouton'] === 'Événement régulier' ? '' : 'hidden' ?>>
-        <div class="strip__row">
-          <input type="text" id="f_lieu" name="lieu" class="ap-input ap-input--wide" placeholder="Lieu" value="<?= htmlspecialchars($a['lieu']) ?>">
-          <input type="text" id="f_ville" name="ville" class="ap-input" placeholder="Ville" value="<?= htmlspecialchars($a['ville']) ?>">
+        <div class="strip__loc ap-strip__fields">
+          <div class="ap-strip__inputs">
+            <input type="date" id="f_date_debut" name="date_debut" class="ap-input" value="<?= htmlspecialchars($a['date_debut'] ?? '') ?>">
+            <input type="text" id="f_heure" name="heure" class="ap-input ap-input--heure" placeholder="18:00" value="<?= htmlspecialchars($a['heure']) ?>">
+          </div>
+          <input type="text" id="f_recurrence" name="recurrence" class="ap-input" placeholder='Récurrence, ex. "Le jeudi"' value="<?= htmlspecialchars($a['recurrence']) ?>" <?= $a['texte_bouton'] === 'Événement régulier' ? '' : 'hidden' ?>>
+          <div class="ap-strip__inputs">
+            <input type="text" id="f_lieu" name="lieu" class="ap-input ap-input--wide" placeholder="Lieu" value="<?= htmlspecialchars($a['lieu']) ?>">
+            <input type="text" id="f_ville" name="ville" class="ap-input" placeholder="Ville" value="<?= htmlspecialchars($a['ville']) ?>">
+          </div>
         </div>
       </div>
 
@@ -339,19 +340,27 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
 /* Catégorie/Format/Public/Places restent des <span> vides tant que rien n'est saisi — .corner:empty
    (event-card.css) les masque automatiquement, donc rien à faire ici pour ce cas. */
 
-/* La ligne d'aperçu (grand format, cf. .strip__date/.strip__time) reste en lecture seule — les
-   vrais champs de saisie (date/heure/lieu/ville) vivent juste dessous, en plus petit, visiblement
-   éditables, plutôt que de essayer de "repeindre" un <input type=date> natif en gros chiffre. */
-.ap-strip__inputs { opacity: .8; font-size: .85rem; }
+/* Le pavé carré (grand format, cf. .strip__date/.strip__time) reste en lecture seule — les
+   vrais champs de saisie (date/heure/lieu/ville) vivent à côté sur le pâle, en plus petit,
+   visiblement éditables, plutôt que de essayer de "repeindre" un <input type=date> natif en
+   gros chiffre. .ap-strip__fields prend la place de .strip__loc (texte) côté site — même
+   emplacement, mais avec des champs dedans plutôt que du texte figé. */
+.mavka-activite-preview .ap-strip__fields { opacity: 1; gap: 6px; }
+.mavka-activite-preview .ap-strip__inputs { display: flex; align-items: center; gap: 6px; opacity: .85; font-size: .85rem; }
 .mavka-activite-preview .ap-input {
   font: inherit; border: none; border-radius: 6px; background: transparent; padding: 3px 5px; min-width: 0;
 }
 .mavka-activite-preview .ap-input:hover, .mavka-activite-preview .ap-input:focus { background: rgba(255,255,255,.55); outline: none; }
-.mavka-activite-preview .ap-input--heure { width: 64px; flex: none; }
-.mavka-activite-preview .ap-input--wide { flex: 1.6; width: auto; }
+/* Chaque champ de .ap-strip__inputs doit avoir SA PROPRE règle flex/width ici — sinon celui
+   qui n'en a pas hérite de ".mavka-form input{width:100%}" (admin.css), ce qui casse sa
+   flex-basis "auto" et écrase les champs voisins (déjà vu avec Lieu/Ville : Ville sans
+   modificateur prenait toute la largeur, réduisant Lieu à ~10px). */
+.mavka-activite-preview .ap-strip__inputs .ap-input { flex: 1; width: auto; min-width: 0; }
+.mavka-activite-preview .ap-strip__inputs .ap-input--heure { width: 64px; flex: none; }
+.mavka-activite-preview .ap-strip__inputs .ap-input--wide { flex: 1.6; width: auto; }
 .mavka-activite-preview textarea.ap-input:hover, .mavka-activite-preview textarea.ap-input:focus { background: var(--ec-mint, #E6F6F0); }
-.strip input[type="date"] { flex: 1.1; }
-.strip .ap-input[hidden] { display: none; }
+.mavka-activite-preview .ap-strip__inputs input[type="date"] { flex: 1.1; }
+.mavka-activite-preview .ap-input[hidden] { display: none; }
 
 .mavka-activite-preview .ap-titre { width: 100%; resize: none; overflow: hidden; min-height: 0; }
 .mavka-activite-preview .ap-desc { width: 100%; min-height: 130px; resize: vertical; }
@@ -453,9 +462,11 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
   $('f_nombre_places').addEventListener('input', updateBadgePlaces);
   updateBadgePlaces();
 
-  // Aperçu en gros dans le bandeau jaune : reproduit exactement render_event_strip() côté PHP
-  // (includes/site_functions.php), pour que ce qu'on voit ici soit ce que voit le public.
+  // Aperçu en gros dans le pavé carré : reproduit exactement render_event_strip() côté PHP
+  // (includes/site_functions.php), classes comprises, pour que ce qu'on voit ici soit ce que
+  // voit le public.
   var MOIS_FR = {1:'jan',2:'fév',3:'mars',4:'avr',5:'mai',6:'juin',7:'juil',8:'août',9:'sept',10:'oct',11:'nov',12:'déc'};
+  var stripBadge = $('pv_strip_badge');
   var stripDate = $('pv_strip_date');
   var stripTime = $('pv_strip_time');
   var dateDebutInput = $('f_date_debut');
@@ -466,9 +477,13 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
     if (dateDebut) {
       var parts = dateDebut.split('-');
       var mois = MOIS_FR[parseInt(parts[1], 10)] || '';
+      stripBadge.className = 'strip__badge';
+      stripDate.className = 'strip__date';
       stripDate.innerHTML = parts[2] + '<span class="strip__date-unit">' + mois + '</span>';
       stripTime.textContent = heure;
     } else {
+      stripBadge.className = 'strip__badge strip__badge--wide';
+      stripDate.className = 'strip__date strip__date--text';
       stripDate.textContent = recurrenceInput.value.trim() || 'Régulier';
       stripTime.textContent = heure;
     }

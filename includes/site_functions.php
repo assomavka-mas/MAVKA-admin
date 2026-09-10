@@ -44,25 +44,30 @@ function site_categorie_habillage(string $categorie): array {
 
 const SITE_MOIS_FR = [1=>'jan',2=>'fév',3=>'mars',4=>'avr',5=>'mai',6=>'juin',7=>'juil',8=>'août',9=>'sept',10=>'oct',11=>'nov',12=>'déc'];
 
-// Bandeau jaune (.strip, assets/event-card.css) : date/heure ou récurrence, puis lieu/ville.
-// Utilisé tel quel par le site ; l'admin réutilise les mêmes classes autour de champs modifiables.
+// Bandeau jaune pâle (.strip, assets/event-card.css) : pavé carré jaune vif (date/heure ou
+// récurrence), puis lieu/ville sur le pâle. Utilisé tel quel par le site ; l'admin réutilise
+// les mêmes classes autour de champs modifiables.
 function render_event_strip(array $a): string {
     if (!empty($a['date_debut'])) {
         $ts = strtotime($a['date_debut']);
         $jour = date('d', $ts);
         $mois = SITE_MOIS_FR[(int)date('n', $ts)];
         $heure = htmlspecialchars($a['heure'] ?? '');
-        $dateHtml = '<span class="strip__date">' . $jour . '<span class="strip__date-unit">' . $mois . '</span></span>'
-            . ($heure !== '' ? '<span class="strip__time">' . $heure . '</span>' : '');
+        $badge = '<div class="strip__badge">'
+            . '<span class="strip__date">' . $jour . '<span class="strip__date-unit">' . $mois . '</span></span>'
+            . ($heure !== '' ? '<span class="strip__time">' . $heure . '</span>' : '')
+            . '</div>';
     } else {
         $principal = htmlspecialchars($a['recurrence'] ?: 'Régulier');
         $secondaire = htmlspecialchars($a['heure'] ?: '');
-        $dateHtml = '<span class="strip__date">' . $principal . '</span>'
-            . ($secondaire !== '' ? '<span class="strip__time">' . $secondaire . '</span>' : '');
+        $badge = '<div class="strip__badge strip__badge--wide">'
+            . '<span class="strip__date strip__date--text">' . $principal . '</span>'
+            . ($secondaire !== '' ? '<span class="strip__time">' . $secondaire . '</span>' : '')
+            . '</div>';
     }
     $lieuVille = trim(($a['lieu'] ?? '') . ($a['ville'] ? ', ' . $a['ville'] : ''), ', ');
-    $loc = $lieuVille !== '' ? '<div class="strip__loc">' . htmlspecialchars($lieuVille) . '</div>' : '';
-    return '<div class="strip"><div class="strip__row">' . $dateHtml . '</div>' . $loc . '</div>';
+    $loc = $lieuVille !== '' ? '<div class="strip__loc">' . htmlspecialchars($lieuVille) . '</div>' : '<div class="strip__loc"></div>';
+    return '<div class="strip">' . $badge . $loc . '</div>';
 }
 
 function render_event_card(array $a): string {

@@ -9,7 +9,7 @@
   --ec-card:#fff; --ec-mint:#E6F6F0; --ec-line:#D9EFE8;
   --ec-ink:#1E2A3A; --ec-ink-2:#4B5A68; --ec-ink-3:#7C8994;
   --ec-teal:#1FAE93; --ec-teal-deep:#158A74;
-  --ec-sun:#FFD84D; --ec-violet:#7B4FB5; --ec-violet-tint:#EBDFF7;
+  --ec-sun:#FFD84D; --ec-sun-pale:#FFF6D6; --ec-violet:#7B4FB5; --ec-violet-tint:#EBDFF7;
   --ec-r:22px; --ec-display:"Bricolage Grotesque","Avenir Next",Avenir,"Helvetica Neue",Arial,sans-serif;
   --ec-body:Figtree,"Helvetica Neue",Arial,sans-serif;
 }
@@ -38,14 +38,21 @@
 .corner--br{right:10px; bottom:10px}
 .corner--br2{right:10px; bottom:38px}
 
-/* Bandeau jaune : date/heure (ou récurrence) + lieu/ville, toujours visible sous la photo —
-   sur le site c'est du texte, en admin ce sont les mêmes champs, modifiables sur place. */
-.strip{background:var(--ec-sun); padding:10px 16px; display:grid; gap:2px; color:var(--ec-ink)}
+/* Bandeau jaune pâle sous la photo : un pavé carré jaune vif (date/heure, ou récurrence) posé
+   dessus, puis lieu/ville juste à côté sur le pâle — toujours visible, sur le site comme en
+   admin (où ce sont les mêmes champs, modifiables sur place). */
+.strip{background:var(--ec-sun-pale); padding:12px 16px; display:flex; align-items:center; gap:14px; color:var(--ec-ink)}
 .strip__row{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap}
-.strip__date{font-family:var(--ec-display); font-weight:800; font-size:1.05rem; font-variant-numeric:tabular-nums}
-.strip__date-unit{font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; font-weight:700; margin-left:2px}
-.strip__time{font-family:var(--ec-body); font-weight:600; font-size:.92rem}
-.strip__loc{font-size:.92rem; color:var(--ec-ink); opacity:.85}
+.strip__badge{
+  background:var(--ec-sun); border-radius:14px; flex:none; width:58px; height:58px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; line-height:1.05;
+}
+.strip__badge--wide{width:auto; min-width:58px; padding:8px 10px}
+.strip__date{font-family:var(--ec-display); font-weight:800; font-size:1.3rem; font-variant-numeric:tabular-nums}
+.strip__date--text{font-size:.68rem; text-transform:uppercase; letter-spacing:.02em; max-width:92px; line-height:1.15}
+.strip__date-unit{display:block; font-size:.6rem; text-transform:uppercase; letter-spacing:.04em; font-weight:700; margin-top:-2px}
+.strip__time{font-family:var(--ec-body); font-weight:700; font-size:.68rem; margin-top:2px}
+.strip__loc{font-size:.92rem; color:var(--ec-ink); opacity:.85; display:flex; flex-direction:column; gap:2px; min-width:0}
 
 .event-row{display:grid; gap:8px; align-content:start; padding:22px}
 .event-title-row{display:flex; align-items:center; gap:8px}
