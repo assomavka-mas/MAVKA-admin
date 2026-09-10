@@ -15,7 +15,7 @@ $denied = isset($_GET['denied']);
 <head>
   <meta charset="utf-8">
   <title>Connexion — MAVKA</title>
-  <link rel="stylesheet" href="/assets/admin.css">
+  <link rel="stylesheet" href="/assets/admin.css?v=<?= @filemtime(__DIR__ . '/../assets/admin.css') ?: time() ?>">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>

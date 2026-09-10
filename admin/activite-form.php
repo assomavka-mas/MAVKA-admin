@@ -305,7 +305,7 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
    l'ignorent silencieusement (aucune erreur, aucune requête réseau) — donc ces deux imports
    viennent en tout premier, avant même les règles de mise en page ci-dessous. */
 @import url('https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&family=Nunito+Sans:wght@400;600;700&display=swap');
-@import url('/assets/event-card.css');
+@import url('/assets/event-card.css?v=<?= @filemtime(__DIR__ . '/../assets/event-card.css') ?: time() ?>');
 
 .mavka-activite-layout { display: flex; align-items: flex-start; gap: 24px; flex-wrap: wrap; }
 .mavka-input-court { max-width: 90px; }
