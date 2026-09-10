@@ -6,29 +6,31 @@ $user = auth_require(['super_admin', 'mavka_admin', 'partenaire']);
 $activites = db()->query('SELECT * FROM activites ORDER BY ordre ASC, date_debut ASC')->fetchAll();
 
 // Colonnes configurables : clé => [libellé, visible par défaut, type d'affichage, options].
-// type : text (lecture seule) · edit_text · edit_nombre · select (édition rapide) ·
-//        date_ou_recurrence · fill (aperçu d'un texte long) · photo · lien · date
+// type : text (lecture seule) · edit_text · edit_nombre · edit_date (date_debut) ·
+//        select (édition rapide, pastille colorée — Statut/État) ·
+//        select_plain (édition rapide, texte simple — Catégorie/Format/Public) ·
+//        fill (aperçu d'un texte long) · photo · lien · date
 $colonnes = [
-    'categorie'          => ['Catégorie', true, 'text', null],
-    'date'                => ['Date', true, 'date_ou_recurrence', null],
+    'categorie'          => ['Catégorie', true, 'select_plain', ['Culture' => 'Culture', 'Éducation' => 'Éducation', 'Bien-être' => 'Bien-être', 'Développement personnel' => 'Développement personnel']],
+    'date'                => ['Date', true, 'edit_date', null],
     'lieu'                => ['Lieu', true, 'edit_text', null],
     'nombre_places'       => ['Places', true, 'edit_nombre', null],
     'statut'              => ['Statut', true, 'select', ['publie' => 'Publié', 'brouillon' => 'Brouillon']],
     'statut_activite'     => ['État', true, 'select', ['ouvert' => 'Ouvert', 'complet' => 'Complet', 'annule' => 'Annulé', 'termine' => 'Terminé']],
     'categorie_display'  => ['Sous-catégorie', false, 'text', null],
-    'format'              => ['Format', false, 'text', null],
-    'public'              => ['Public', false, 'text', null],
+    'format'              => ['Format', false, 'select_plain', ['' => '—', 'Collectif' => 'Collectif', 'Individuel' => 'Individuel', 'Événementiel' => 'Événementiel']],
+    'public'              => ['Public', false, 'select_plain', ['' => '—', 'Enfant' => 'Enfant', 'Familial' => 'Familial', 'Adultes' => 'Adultes']],
     'ville'               => ['Ville', false, 'edit_text', null],
     'heure'               => ['Heure', false, 'edit_text', null],
-    'recurrence'          => ['Récurrence', false, 'text', null],
-    'texte_bouton'       => ['Texte du bouton', false, 'text', null],
+    'recurrence'          => ['Récurrence', false, 'edit_text', null],
+    'texte_bouton'       => ['Texte du bouton', false, 'edit_text', null],
     'lien_inscription'   => ['Lien', false, 'lien', null],
     'description'         => ['Description', false, 'fill', null],
     'ordre'               => ['Ordre', false, 'edit_nombre', null],
     'created_at'          => ['Créé le', false, 'date', null],
     'updated_at'          => ['Modifié le', false, 'date', null],
 ];
-$champs_editables = ['lieu', 'ville', 'heure', 'nombre_places', 'ordre', 'statut', 'statut_activite'];
+$champs_editables = ['categorie', 'date_debut', 'lieu', 'ville', 'heure', 'recurrence', 'texte_bouton', 'format', 'public', 'nombre_places', 'ordre', 'statut', 'statut_activite'];
 
 function act_apercu_texte(string $texte, int $max = 70): string {
     $texte = trim(preg_replace('/\s+/', ' ', $texte));
@@ -97,7 +99,7 @@ admin_header('Activités', $user, 'activites');
 <?php if (isset($_GET['ok'])): ?>
   <?php flash('ok', 'Enregistré avec succès.'); ?>
 <?php endif; ?>
-<p style="font-size:12.5px; color:var(--mavka-color-text-muted); margin:8px 0 0;">Clique un titre de colonne pour trier · clique une cellule (Lieu, Ville, Heure, Places, Ordre, Statut, État) pour la corriger directement ici.</p>
+<p style="font-size:12.5px; color:var(--mavka-color-text-muted); margin:8px 0 0;">Clique un titre de colonne pour trier · clique une cellule (Catégorie, Date, Format, Public, Récurrence, Texte du bouton, Lieu, Ville, Heure, Places, Ordre, Statut, État) pour la corriger directement ici.</p>
 
 <table class="mavka-table" style="margin-top:12px;">
   <tr>
@@ -114,8 +116,16 @@ admin_header('Activités', $user, 'activites');
     <td><?= htmlspecialchars($a['titre']) ?></td>
     <?php foreach ($colonnes as $cle => [$libelle, $defaut, $type, $options]): ?>
     <td data-col="<?= htmlspecialchars($cle) ?>">
-      <?php if ($type === 'date_ou_recurrence'): ?>
-        <?= htmlspecialchars($a['date_debut'] ? date('d/m/Y', strtotime($a['date_debut'])) : ($a['recurrence'] ?: '—')) ?>
+      <?php if ($type === 'edit_date'): ?>
+        <?php
+          $dateAffichee = $a['date_debut'] ? date('d/m/Y', strtotime($a['date_debut'])) : ($a['recurrence'] ?: '—');
+        ?>
+        <?php if (peut_editer($user)): ?>
+        <span class="mavka-editable" data-editable-date data-id="<?= $a['id'] ?>" data-field="date_debut"
+          data-value="<?= htmlspecialchars($a['date_debut'] ?? '') ?>" data-recurrence="<?= htmlspecialchars($a['recurrence'] ?? '') ?>"><?= htmlspecialchars($dateAffichee) ?></span>
+        <?php else: ?>
+        <?= htmlspecialchars($dateAffichee) ?>
+        <?php endif; ?>
       <?php elseif ($type === 'select'): ?>
         <?php if (peut_editer($user)): ?>
         <span class="mavka-editable" data-editable-select data-id="<?= $a['id'] ?>" data-field="<?= htmlspecialchars($cle) ?>"
@@ -124,6 +134,17 @@ admin_header('Activités', $user, 'activites');
         </span>
         <?php else: ?>
         <span class="mavka-badge mavka-badge--brouillon"><?= htmlspecialchars($options[$a[$cle]] ?? $a[$cle]) ?></span>
+        <?php endif; ?>
+      <?php elseif ($type === 'select_plain'): ?>
+        <?php
+          $valActuelle = (string)($a[$cle] ?? '');
+          $libelleActuel = $options[$valActuelle] ?? ($valActuelle !== '' ? $valActuelle : '—');
+        ?>
+        <?php if (peut_editer($user)): ?>
+        <span class="mavka-editable" data-editable-select-plain data-id="<?= $a['id'] ?>" data-field="<?= htmlspecialchars($cle) ?>"
+          data-value="<?= htmlspecialchars($valActuelle) ?>" data-options='<?= htmlspecialchars(json_encode($options, JSON_UNESCAPED_UNICODE)) ?>'><?= htmlspecialchars($libelleActuel) ?></span>
+        <?php else: ?>
+        <?= htmlspecialchars($libelleActuel) ?>
         <?php endif; ?>
       <?php elseif ($type === 'fill'): ?>
         <?= act_apercu_texte((string)($a[$cle] ?? '')) ?>
@@ -260,6 +281,81 @@ admin_header('Activités', $user, 'activites');
         });
       });
       select.addEventListener('blur', function(){ if (!enCours) span.innerHTML = badgeHtml; });
+    });
+  });
+
+  // Même principe que [data-editable-select], mais sans pastille colorée (Catégorie/Format/Public).
+  document.querySelectorAll('[data-editable-select-plain]').forEach(function(span){
+    span.addEventListener('click', function(){
+      if (span.querySelector('select')) return;
+      var original = span.dataset.value;
+      var texteOriginal = span.textContent;
+      var options = JSON.parse(span.dataset.options || 'null');
+      var enCours = false;
+      var select = document.createElement('select');
+      Object.keys(options).forEach(function(val){
+        var opt = document.createElement('option');
+        opt.value = val; opt.textContent = options[val];
+        if (val === original) opt.selected = true;
+        select.appendChild(opt);
+      });
+      span.textContent = '';
+      span.appendChild(select);
+      select.focus();
+
+      select.addEventListener('change', function(){
+        enCours = true;
+        var val = select.value;
+        if (val === original) { span.textContent = texteOriginal; return; }
+        if (!confirm('Enregistrer « ' + options[val] + ' » ?')) { span.textContent = texteOriginal; return; }
+        envoyer(span.dataset.id, span.dataset.field, val, function(){
+          span.dataset.value = val;
+          span.textContent = options[val];
+        }, function(err){
+          alert(err);
+          span.textContent = texteOriginal;
+        });
+      });
+      select.addEventListener('blur', function(){ if (!enCours) span.textContent = texteOriginal; });
+    });
+  });
+
+  // Date (date_debut) : input type=date ; vide = activité régulière, revient à afficher la Récurrence.
+  document.querySelectorAll('[data-editable-date]').forEach(function(span){
+    span.addEventListener('click', function(){
+      if (span.querySelector('input')) return;
+      var original = span.dataset.value;
+      var texteOriginal = span.textContent;
+      var input = document.createElement('input');
+      input.type = 'date';
+      input.value = original;
+      span.textContent = '';
+      span.appendChild(input);
+      input.focus();
+
+      function fermer(texte){ span.textContent = texte; }
+      function formaterDate(iso){
+        var p = iso.split('-');
+        return p[2] + '/' + p[1] + '/' + p[0];
+      }
+      function tenterEnregistrer(){
+        var val = input.value;
+        if (val === original) { fermer(texteOriginal); return; }
+        var libelle = val ? formaterDate(val) : (span.dataset.recurrence || '—');
+        if (!confirm('Enregistrer « ' + (val ? libelle : '(vide, activité régulière)') + ' » ?')) { fermer(texteOriginal); return; }
+        envoyer(span.dataset.id, span.dataset.field, val, function(saved){
+          span.dataset.value = saved || '';
+          fermer(saved ? formaterDate(saved) : (span.dataset.recurrence || '—'));
+        }, function(err){
+          alert(err);
+          fermer(texteOriginal);
+        });
+      }
+      input.addEventListener('keydown', function(e){
+        if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+        if (e.key === 'Escape') { input.value = original; input.blur(); }
+      });
+      input.addEventListener('blur', tenterEnregistrer);
     });
   });
 })();
