@@ -4,7 +4,7 @@ require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/site_functions.php';
 
 $site_intervenants = site_intervenants_actifs();
-$site_agenda_teaser = site_enrichir_avec_photo_intervenant(site_activites_a_venir(3));
+$site_agenda_teaser = site_enrichir_avec_photo_intervenant(site_activites_a_venir(3, ['Collectif', 'Événementiel']));
 $site_agenda_toutes = site_enrichir_avec_photo_intervenant(site_activites_a_venir());
 $site_activites_culture = site_enrichir_avec_photo_intervenant(site_activites_par_categorie('Culture'));
 $site_activites_education = site_enrichir_avec_photo_intervenant(site_activites_par_categorie('Éducation'));
@@ -124,36 +124,7 @@ $site_activites_bienetre = site_enrichir_avec_photo_intervenant(site_activites_p
     </div>
   </section>
 
-  <section class="sand">
-    <div class="wrap">
-      <div class="head">
-        <span class="eyebrow">Par où commencer</span>
-        <h2>MAVKA s'adresse à trois types de personnes. Laquelle êtes-vous ?</h2>
-      </div>
-      <div class="doors">
-        <a class="door" href="#activites">
-          <span class="who">Habitant, famille</span>
-          <h3>Je cherche une activité</h3>
-          <p>Musique, peinture, calligraphie, gymnastique douce, art-thérapie. Pour les enfants, les adultes, ou les deux ensemble.</p>
-          <span class="go">Voir les activités →</span>
-        </a>
-        <a class="door" href="#intervenants">
-          <span class="who">Enseignant, artiste, praticien</span>
-          <h3>Je veux transmettre ce que je sais</h3>
-          <p>Vous avez un savoir-faire et vous cherchez un cadre pour le partager. Le Parcours MAVKA vous accompagne en quatre étapes.</p>
-          <span class="go">Découvrir le Parcours →</span>
-        </a>
-        <a class="door" href="#collectivites">
-          <span class="who">Commune, collectivité</span>
-          <h3>Je représente une collectivité</h3>
-          <p>Un partenaire simple et progressif : une rencontre, un atelier pilote, puis une construction commune avec vos habitants.</p>
-          <span class="go">Travailler avec MAVKA →</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <section class="sand">
+  <section>
     <div class="wrap team-preview">
       <div>
         <span class="eyebrow">L'équipe</span>
@@ -164,17 +135,6 @@ $site_activites_bienetre = site_enrichir_avec_photo_intervenant(site_activites_p
       <div class="faces"><?php foreach (array_slice($site_intervenants, 0, 6) as $iv):
         $photoUrl = ($iv['photo'] && $iv['dossier']) ? '/assets/uploads/intervenants/' . rawurlencode($iv['dossier']) . '/' . rawurlencode($iv['photo']) : '/assets/site-img/img-01-017fac3c9d.webp';
       ?><img src="<?= htmlspecialchars($photoUrl) ?>" alt="<?= htmlspecialchars($iv['nom']) ?>"><?php endforeach; ?></div>
-    </div>
-  </section>
-
-  <section class="violet tight">
-    <div class="wrap story">
-      <img src="/assets/site-img/img-01-017fac3c9d.webp" alt="Portrait de Mavka">
-      <div>
-        <span class="eyebrow" style="color:var(--violet);background:var(--violet-tint)">Pourquoi « Mavka » ?</span>
-        <h3 style="margin:12px 0 10px">Dans le folklore ukrainien, la Mavka est l'esprit protecteur de la forêt.</h3>
-        <p>MAVKA est née de l'expérience de personnes arrivées en France avec un métier, un art ou un savoir-faire, et de l'envie de le partager avec leurs voisins. Une forêt est un bon modèle : chacun y pousse à son rythme, et tout le monde s'y entraide. La petite pousse sur sa tête, c'est vous.</p>
-      </div>
     </div>
   </section>
 

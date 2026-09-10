@@ -50,9 +50,10 @@
 :root[data-style="mapalette"] .hero{ --sun:#FFCB4D; --sun-deep:#E8A716; }
 
 /* Bloc "Prochaines dates" (accueil), même logique bloc-par-bloc sous Ma palette : fond
-   vert doux (--lilac), plashka de la carte Activité en jaune de Ta version plutôt que
-   l'orange de Ma palette, et bordure de carte plus fine (1px au lieu de 2px). */
-:root[data-style="mapalette"] .agenda-teaser{ background:var(--lilac); --sun:#FFCB4D; --sun-deep:#E8A716; }
+   --mint (repris du bloc "Par où commencer" supprimé), plashka de la carte Activité en
+   jaune de Ta version plutôt que l'orange de Ma palette, et bordure de carte plus fine
+   (1px au lieu de 2px). */
+:root[data-style="mapalette"] .agenda-teaser{ background:var(--mint); --sun:#FFCB4D; --sun-deep:#E8A716; }
 :root[data-style="mapalette"] .agenda-teaser .event{ border-width:1px; }
 
 *{box-sizing:border-box}

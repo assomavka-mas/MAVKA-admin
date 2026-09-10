@@ -2,12 +2,24 @@
 // Fonctions du site public — activités publiées et équipe active, lues depuis la même
 // base que l'admin (adresse le besoin : voir dans la vitrine ce qui a été saisi en admin).
 
-function site_activites_a_venir(?int $limit = null): array {
+// $formats restreint aux formats donnés (ex. teaser de l'accueil : Collectif + Événementiel,
+// pour ne pas y montrer les cours individuels) ; null = tous formats, comme sur la page Agenda.
+function site_activites_a_venir(?int $limit = null, ?array $formats = null): array {
     $sql = "SELECT * FROM activites_publiques
-            WHERE statut_activite NOT IN ('annule','termine')
-            ORDER BY (date_debut IS NULL) ASC, date_debut ASC, ordre ASC";
+            WHERE statut_activite NOT IN ('annule','termine')";
+    $params = [];
+    if ($formats) {
+        $sql .= ' AND format IN (' . implode(',', array_fill(0, count($formats), '?')) . ')';
+        $params = $formats;
+    }
+    $sql .= ' ORDER BY (date_debut IS NULL) ASC, date_debut ASC, ordre ASC';
     if ($limit) {
         $sql .= ' LIMIT ' . (int)$limit;
+    }
+    if ($params) {
+        $stmt = db()->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll();
     }
     return db()->query($sql)->fetchAll();
 }
