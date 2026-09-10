@@ -23,7 +23,9 @@
 .cover.sun{background:#FFF6D6} .cover.lilac{background:#F1E9FA} .cover.mint{background:#D6F2EA}
 /* contain plutôt que cover : une photo qui n'est pas exactement en 16:9 (dimension
    recommandée pour les nouveaux imports) se voit entière, quitte à laisser un bandeau
-   de la couleur de fond de la carte de chaque côté, plutôt que d'être rognée. */
+   de chaque côté, plutôt que d'être rognée. Fond blanc plutôt que le mint par défaut de
+   .cover — se fond mieux avec le blanc déjà présent dans la plupart des illustrations. */
+.cover.photo-cover{background:#fff}
 .cover.photo-cover>img{position:absolute; inset:0; width:100%; height:100%; object-fit:contain; display:block}
 .cover .mascot{position:absolute; right:8%; bottom:-6%; height:104%; width:auto}
 
