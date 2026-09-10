@@ -83,9 +83,10 @@ table.mavka-table th a:hover { text-decoration: underline; }
 .mavka-fill-no { color: var(--mavka-color-text-muted); }
 .mavka-editable { cursor: text; border-radius: 6px; padding: 3px 6px; margin: -3px -6px; }
 .mavka-editable:hover { background: var(--mavka-color-teal-light); }
-.mavka-editable input[type="text"], .mavka-editable input[type="email"] {
+.mavka-editable input[type="text"], .mavka-editable input[type="email"], .mavka-editable input[type="number"] {
   font: inherit; width: 100%; padding: 3px 6px; border: 1.5px solid var(--mavka-color-teal); border-radius: 6px;
 }
+.mavka-editable select { font: inherit; padding: 3px 6px; border: 1.5px solid var(--mavka-color-teal); border-radius: 6px; background: #fff; }
 .mavka-colpicker-wrap { position: relative; display: inline-block; }
 .mavka-colpicker { position: absolute; right: 0; top: calc(100% + 6px); z-index: 10; background: #fff;
   border: 2px solid var(--mavka-color-teal-light); border-radius: var(--mavka-radius-card); padding: 12px 16px;
