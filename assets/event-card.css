@@ -9,7 +9,7 @@
    Ta version ; sur une page qui ne charge pas site.css (l'admin), ces variables n'existent
    pas et chaque jeton retombe sur son défaut ci-dessous — la carte reste autonome. */
 .event{
-  --ec-card:var(--card,#fff); --ec-mint:var(--mint,#E6F6F0); --ec-line:var(--line,#D9EFE8);
+  --ec-card:var(--card,#fff); --ec-mint:var(--mint,#E6F6F0); --ec-line:var(--card-line,#E6F6F0);
   --ec-ink:var(--ink,#1E2A3A); --ec-ink-2:var(--ink-2,#4B5A68); --ec-ink-3:var(--ink-3,#7C8994);
   --ec-teal:var(--teal,#1FAE93); --ec-teal-deep:var(--teal-deep,#158A74);
   --ec-sun:var(--sun,#FFD84D); --ec-sun-pale:color-mix(in srgb, var(--ec-sun) 22%, white);
@@ -19,7 +19,11 @@
 }
 .event{
   font-family:var(--ec-body); display:grid; grid-template-rows:auto auto 1fr;
-  border-radius:var(--ec-r); background:var(--ec-card); border:2px solid var(--ec-mint); overflow:hidden;
+  /* Bordure sur --ec-line (dédiée), pas --ec-mint (le fond de la photo de secours) — sinon
+     la carte se fond dans une section déjà vert pâle (.sand) quand les deux tokens sont
+     identiques. Vif et Ta version gardent la même valeur qu'avant (--card-line = --mint
+     par défaut) ; seule Ma palette a un vert plus affirmé pour --card-line. */
+  border-radius:var(--ec-r); background:var(--ec-card); border:2px solid var(--ec-line); overflow:hidden;
 }
 
 /* Photo (ou habillage de secours par catégorie, si pas de photo) */

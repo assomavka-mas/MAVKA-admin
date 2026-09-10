@@ -1,5 +1,6 @@
 :root{
   --ground:#FFFFFF; --mint:#E6F6F0; --cream:#FFF6D6; --lilac:#F1E9FA; --card:#FFFFFF; --line:#D9EFE8;
+  --card-line:#E6F6F0;
   --ink:#1E2A3A; --ink-2:#4B5A68; --ink-3:#7C8994;
   --teal:#1FAE93; --teal-deep:#158A74; --teal-tint:#D6F2EA;
   --violet:#7B4FB5; --violet-tint:#EBDFF7;
@@ -12,9 +13,14 @@
 }
 
 /* ---- Palette "Ma palette" — la palette de marque de Larysa telle quelle (document
-   design-system fourni), sans le jaune qui n'y existe pas : l'orange en tient lieu. ---- */
+   design-system fourni), sans le jaune qui n'y existe pas : l'orange en tient lieu.
+   --lilac (fond de la section "Pourquoi Mavka", .violet) en vert doux plutôt que mauve —
+   et --card-line (obwodka de la carte Activité, distincte de --mint) en un vert plus
+   affirmé, pour que la carte blanche ne se noie pas quand la section autour est déjà
+   vert pâle (.sand). ---- */
 :root[data-style="mapalette"]{
-  --ground:#FAF7F6; --mint:#DFF1EE; --cream:#F3ECE7; --lilac:#F0E9F1; --card:#FFFFFF; --line:#E5D9E8;
+  --ground:#FAF7F6; --mint:#DFF1EE; --cream:#F3ECE7; --lilac:#EAF3E4; --card:#FFFFFF; --line:#E5D9E8;
+  --card-line:#A9D8C4;
   --ink:#241B28; --ink-2:#3D2B35; --ink-3:#6B5B63;
   --teal:#3DA298; --teal-deep:#276A62; --teal-tint:#DFF1EE;
   --violet:#8D5D99; --violet-tint:#F0E9F1;
@@ -27,6 +33,7 @@
    chaud que le blanc pur. ---- */
 :root[data-style="taverse"]{
   --ground:#FBF6EF; --mint:#E3F1EC; --cream:#FBEDD9; --lilac:#F1E7EF; --card:#FFFFFF; --line:#E9DFCE;
+  --card-line:#E3F1EC;
   --ink:#2A2130; --ink-2:#4A3A45; --ink-3:#7A6B72;
   --teal:#2F9184; --teal-deep:#1F6F63; --teal-tint:#E3F1EC;
   --violet:#8D5D99; --violet-tint:#F1E7EF;
