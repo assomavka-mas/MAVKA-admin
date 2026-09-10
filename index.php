@@ -138,17 +138,17 @@ $site_activites_bienetre = site_enrichir_avec_photo_intervenant(site_activites_p
     </div>
   </section>
 
-  <section class="tight">
-    <div class="wrap cta-band">
-      <div>
-        <h3>Une question, une idée, un projet ?</h3>
-        <p>Nous répondons du lundi au samedi, de 10h à 17h. Un appel ou un message suffit pour commencer.</p>
+  <section>
+    <div class="wrap">
+      <div class="cta-card">
+        <h3>Et si vous passiez de participant à acteur ?</h3>
+        <p>MAVKA ne propose pas seulement des activités. L'association permet aussi à celles et ceux qui ont une compétence, une expérience ou une idée de la partager avec les autres.</p>
+        <p>Vous pouvez commencer simplement : rencontrer l'équipe, proposer une idée, tester un atelier et construire progressivement votre projet avec MAVKA.</p>
         <div class="actions">
-          <a class="btn btn-primary" href="#contact">Nous écrire</a>
-          <a class="btn btn-ghost" href="tel:+33656682153">+33 6 56 68 21 53</a>
+          <a class="btn btn-ghost" href="#intervenants">Découvrir le Parcours MAVKA →</a>
+          <a class="btn btn-primary" href="#contact">Nous écrire →</a>
         </div>
       </div>
-      <svg class="mascot" viewBox="0 0 310 769" style="aspect-ratio:310/769"><use href="#m-stand"/></svg>
     </div>
   </section>
 </div>
@@ -474,7 +474,7 @@ $site_activites_bienetre = site_enrichir_avec_photo_intervenant(site_activites_p
     <div class="row">
       <div>
         <a class="brand" href="#accueil"><img src="/assets/site-img/img-01-017fac3c9d.webp" alt=""><b>MAVKA</b></a>
-        <p style="margin-top:12px;max-width:26em">Association loi 1901, Charente. Culture, éducation, bien-être et développement personnel, dans sept communes autour d'Angoulême.</p>
+        <p style="margin-top:12px;max-width:26em">Notre mascotte : Mavka, esprit protecteur de la forêt dans le folklore ukrainien.</p>
       </div>
       <div class="cols">
         <div class="col"><b>Découvrir</b><a href="#agenda">Agenda</a><a href="#activites">Activités</a><a href="#equipe">L'équipe</a></div>
