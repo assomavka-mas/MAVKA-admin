@@ -104,40 +104,36 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
   <aside class="mavka-activite-preview">
     <div class="mavka-activite-preview__label">Carte publique — modifiable directement ici</div>
 
-    <div class="ap-tags" title="Info interne — n'apparaît pas sur la carte, seulement ici pour vérifier d'un coup d'œil">
-      <span id="pv_badge_categorie" class="ap-tag"></span>
-      <span id="pv_badge_format" class="ap-tag"></span>
-      <span id="pv_badge_public" class="ap-tag"></span>
-      <span id="pv_badge_places" class="ap-tag"></span>
-    </div>
-
     <div class="ap-event">
       <label for="f_photo" class="ap-cover">
         <img id="pv_photo" class="ap-cover__img" alt=""
              <?= !empty($a['photo']) ? 'src="/assets/uploads/activites/' . htmlspecialchars($a['photo']) . '"' : 'hidden' ?>>
+        <span id="pv_badge_categorie" class="ap-corner ap-corner--tl" title="Catégorie — info interne, n'apparaît pas sur la carte"></span>
+        <span id="pv_badge_format" class="ap-corner ap-corner--tr" title="Format — info interne, n'apparaît pas sur la carte"></span>
+        <span id="pv_badge_public" class="ap-corner ap-corner--br" title="Public — info interne, n'apparaît pas sur la carte"></span>
+        <span id="pv_badge_places" class="ap-corner ap-corner--br2" title="Places — info interne, n'apparaît pas sur la carte"></span>
         <div id="pv_date_badge" class="ap-date"></div>
-        <span class="ap-cover__pencil" title="Changer la photo">✎</span>
+        <span class="ap-cover__pencil"></span>
       </label>
       <input type="file" id="f_photo" name="photo" accept="image/png,image/jpeg,image/webp" hidden>
 
-      <div class="ap-event-row">
-        <textarea id="f_titre" name="titre" rows="1" class="ap-titre" placeholder="Titre de l'activité" required><?= htmlspecialchars($a['titre']) ?></textarea>
-
-        <span class="ap-meta">
-          <img id="pv_meta_avatar" class="ap-meta__avatar" alt="" hidden>
-          <span id="pv_meta_intervenants"></span>
-          <span id="pv_meta_sep" hidden>·</span>
-          <span class="ap-meta__loc">
-            <input type="text" id="f_lieu" name="lieu" class="ap-meta__input" placeholder="Lieu" value="<?= htmlspecialchars($a['lieu']) ?>">,
-            <input type="text" id="f_ville" name="ville" class="ap-meta__input" placeholder="Ville" value="<?= htmlspecialchars($a['ville']) ?>">
-          </span>
-        </span>
-
-        <div class="ap-date-inputs">
+      <div class="ap-strip">
+        <div class="ap-strip__row">
           <span>📅</span>
           <input type="date" id="f_date_debut" name="date_debut" value="<?= htmlspecialchars($a['date_debut'] ?? '') ?>">
           <input type="text" id="f_heure" name="heure" placeholder="18:00" value="<?= htmlspecialchars($a['heure']) ?>">
-          <input type="text" id="f_recurrence" name="recurrence" placeholder='Récurrence, ex. "Le jeudi"' value="<?= htmlspecialchars($a['recurrence']) ?>" <?= $a['texte_bouton'] === 'Événement régulier' ? '' : 'hidden' ?>>
+        </div>
+        <input type="text" id="f_recurrence" name="recurrence" class="ap-strip__recurrence" placeholder='Récurrence, ex. "Le jeudi"' value="<?= htmlspecialchars($a['recurrence']) ?>" <?= $a['texte_bouton'] === 'Événement régulier' ? '' : 'hidden' ?>>
+        <div class="ap-strip__row">
+          <input type="text" id="f_lieu" name="lieu" class="ap-strip__input ap-strip__input--wide" placeholder="Lieu" value="<?= htmlspecialchars($a['lieu']) ?>">
+          <input type="text" id="f_ville" name="ville" class="ap-strip__input" placeholder="Ville" value="<?= htmlspecialchars($a['ville']) ?>">
+        </div>
+      </div>
+
+      <div class="ap-event-row">
+        <div class="ap-title-row">
+          <div id="pv_avatars" class="ap-avatars"></div>
+          <textarea id="f_titre" name="titre" rows="1" class="ap-titre" placeholder="Titre de l'activité" required><?= htmlspecialchars($a['titre']) ?></textarea>
         </div>
 
         <textarea id="f_description" name="description" class="ap-desc" placeholder="Description de l'activité"><?= htmlspecialchars($a['description']) ?></textarea>
@@ -324,17 +320,6 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
 }
 .mavka-activite-preview__label { font-weight: 700; font-size: 13.5px; color: var(--mavka-color-text-muted); margin-bottom: 10px; }
 
-/* Info interne (Catégorie/Format/Public/Places) : n'existe pas sur la vraie carte, donc plus
-   question de la poser dessus comme avant — un simple bandeau de pastilles au-dessus, pour
-   vérifier d'un coup d'œil en remplissant, sans faire croire que c'est ce que voit le public. */
-.ap-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
-.ap-tag {
-  display: inline-block; font-family: var(--ap-body); font-size: 11.5px; font-weight: 700;
-  letter-spacing: .02em; padding: 4px 10px; border-radius: 999px;
-  background: var(--ap-violet-tint); color: var(--ap-violet);
-}
-.ap-tag:empty { display: none; }
-
 .ap-event {
   font-family: var(--ap-body); background: var(--ap-card); border: 2px solid var(--ap-mint);
   border-radius: var(--ap-r); overflow: hidden;
@@ -343,12 +328,30 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
   display: block; cursor: pointer; position: relative; aspect-ratio: 16/9; background: var(--ap-mint); overflow: hidden;
 }
 .ap-cover__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+/* Le crayon vit au centre, en overlay au survol — pas dans un coin, pour ne pas se battre
+   avec les pastilles Catégorie/Format/Public/Places qui occupent déjà les 4 coins. */
 .ap-cover__pencil {
-  position: absolute; right: 10px; bottom: 10px; z-index: 2; width: 30px; height: 30px; border-radius: 50%;
-  background: var(--ap-teal); color: #fff; display: flex; align-items: center; justify-content: center;
-  font-size: 13px; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(30,42,58,.25);
+  position: absolute; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center;
+  gap: 8px; background: rgba(30,42,58,0); color: #fff; font-size: 13px; font-weight: 700;
+  opacity: 0; transition: opacity .15s, background-color .15s;
 }
-.ap-cover:hover .ap-cover__pencil { background: var(--ap-teal-deep); }
+.ap-cover__pencil::before { content: "✎"; font-size: 16px; }
+.ap-cover__pencil::after { content: "Changer la photo"; }
+.ap-cover:hover .ap-cover__pencil { opacity: 1; background: rgba(30,42,58,.45); }
+/* Catégorie/Format/Public/Places : info interne, n'apparaît jamais sur la vraie carte — mais
+   Larysa veut les garder visibles d'un coup d'œil pendant la saisie, comme avant, sur les
+   coins de la photo (le badge de date, lui, reste en bas à gauche : c'est le vrai aperçu public). */
+.ap-corner {
+  position: absolute; z-index: 1; max-width: calc(50% - 24px);
+  font-family: var(--ap-body); font-size: 11px; font-weight: 700; letter-spacing: .02em;
+  padding: 4px 9px; border-radius: 999px; background: rgba(255,255,255,.92); color: var(--ap-violet);
+  box-shadow: 0 1px 3px rgba(30,42,58,.2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ap-corner:empty { display: none; }
+.ap-corner--tl { top: 10px; left: 10px; }
+.ap-corner--tr { top: 10px; right: 10px; }
+.ap-corner--br { right: 10px; bottom: 10px; }
+.ap-corner--br2 { right: 10px; bottom: 38px; }
 .ap-date {
   position: absolute; left: 14px; bottom: 14px; z-index: 1;
   display: grid; align-content: start; gap: 2px; min-width: 74px; font-family: var(--ap-display);
@@ -362,34 +365,41 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
 .ap-date.ap-date--weekly { background: var(--ap-violet-tint); color: var(--ap-violet); }
 .ap-date.ap-date--weekly b { font-size: .85rem; font-weight: 700; }
 
+/* Bandeau jaune sous la photo : date/heure/récurrence + lieu/ville, toujours modifiables
+   directement, sur toute la largeur — reprend la disposition validée par Larysa (capture
+   d'écran), avec Lieu enfin assez large pour une vraie adresse. */
+.ap-strip {
+  background: var(--ap-sun); padding: 10px 16px; display: grid; gap: 4px;
+}
+.ap-strip__row { display: flex; align-items: center; gap: 8px; }
+.mavka-activite-preview .ap-strip input {
+  font: inherit; font-size: .88rem; border: none; border-radius: 6px; background: transparent;
+  padding: 3px 5px; color: var(--ap-ink); min-width: 0;
+}
+.mavka-activite-preview .ap-strip input:hover, .mavka-activite-preview .ap-strip input:focus { background: rgba(255,255,255,.55); outline: none; }
+.ap-strip input[type="date"] { flex: 1.1; }
+.ap-strip input#f_heure { width: 64px; flex: none; }
+.mavka-activite-preview .ap-strip__input { flex: none; width: 90px; }
+.mavka-activite-preview .ap-strip__input--wide { flex: 1.6; width: auto; }
+.mavka-activite-preview .ap-strip__recurrence { width: 100%; margin-top: 2px; }
+.ap-strip__recurrence[hidden] { display: none; }
+
 .ap-event-row { display: grid; gap: 8px; align-content: start; padding: 22px; }
 /* Spécificité : .mavka-form input/select/textarea (admin.css) est (0,1,1) — chaque règle
    ci-dessous est préfixée par .mavka-activite-preview pour monter à (0,2,0) et gagner,
    au lieu de se faire silencieusement écraser (bug déjà rencontré plusieurs fois sur cette page). */
+.ap-title-row { display: flex; align-items: center; gap: 8px; }
+.ap-avatars { display: flex; flex: none; }
+.ap-avatars img {
+  width: 26px; height: 26px; border-radius: 50%; object-fit: cover; background: var(--ap-mint);
+  border: 2px solid #fff; box-shadow: 0 1px 2px rgba(30,42,58,.15); margin-left: -10px;
+}
+.ap-avatars img:first-child { margin-left: 0; }
 .mavka-activite-preview .ap-titre {
   font-family: var(--ap-display); font-weight: 700; font-size: 1.15rem; line-height: 1.2;
   color: var(--ap-ink); margin: 0; padding: 2px 4px; border: none; border-radius: 8px; background: transparent; width: 100%;
   resize: none; overflow: hidden; min-height: 0;
 }
-.ap-meta {
-  font-size: .9rem; color: var(--ap-ink-3); display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
-}
-.ap-meta__avatar { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; flex: none; background: var(--ap-mint); }
-.ap-meta__loc { display: inline-flex; align-items: center; gap: 3px; }
-.mavka-activite-preview .ap-meta__input {
-  font: inherit; font-size: .9rem; color: var(--ap-ink-3); border: none; border-radius: 5px; background: transparent;
-  padding: 2px 3px; width: 90px; min-width: 0;
-}
-.mavka-activite-preview .ap-meta__input:hover, .mavka-activite-preview .ap-meta__input:focus { background: var(--ap-mint); outline: none; }
-.ap-date-inputs {
-  display: flex; align-items: center; gap: 6px; padding: 6px 4px 2px; font-size: .85rem; color: var(--ap-ink-3);
-}
-.mavka-activite-preview .ap-date-inputs input {
-  font: inherit; font-size: .85rem; border: none; border-radius: 5px; background: transparent; padding: 2px 4px; color: var(--ap-ink); width: auto;
-}
-.ap-date-inputs input[type="date"] { flex: 1.1; }
-.ap-date-inputs input[type="text"] { width: 70px; }
-.mavka-activite-preview .ap-date-inputs input:hover, .mavka-activite-preview .ap-date-inputs input:focus { background: var(--ap-mint); outline: none; }
 .mavka-activite-preview .ap-desc {
   font-family: var(--ap-body); color: var(--ap-ink-2); font-size: .95rem; line-height: 1.5;
   border: none; border-radius: 8px; background: transparent; padding: 4px; margin: 4px 0 0; width: 100%;
@@ -526,32 +536,23 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
   boutonSelect.addEventListener('change', updateDateBadge);
   updateDateBadge();
 
-  // Aperçu intervenant·e dans la ligne meta (avatar + nom) : reflète la première case cochée
-  // dans la liste "Intervenant·e·s" ci-contre — c'est elle qui fait foi, pas un champ séparé.
-  var metaAvatar = $('pv_meta_avatar');
-  var metaNom = $('pv_meta_intervenants');
-  var metaSep = $('pv_meta_sep');
+  // Avatars dans la ligne du titre : un rond par intervenant·e coché·e (sans nom, cf. la liste
+  // "Intervenant·e·s" ci-contre pour les noms) — reflète toutes les cases, pas juste la première.
+  var avatarsWrap = $('pv_avatars');
   var casesIntervenants = document.querySelectorAll('input[name="intervenants[]"]');
-  function updateMetaIntervenant() {
-    var premiere = null;
-    casesIntervenants.forEach(function (c) { if (!premiere && c.checked) premiere = c; });
-    if (premiere) {
-      metaNom.textContent = premiere.dataset.nom;
-      metaSep.hidden = false;
-      if (premiere.dataset.photo) {
-        metaAvatar.src = premiere.dataset.photo;
-        metaAvatar.hidden = false;
-      } else {
-        metaAvatar.hidden = true;
+  function updateAvatars() {
+    avatarsWrap.innerHTML = '';
+    casesIntervenants.forEach(function (c) {
+      if (c.checked && c.dataset.photo) {
+        var img = document.createElement('img');
+        img.src = c.dataset.photo;
+        img.alt = c.dataset.nom || '';
+        avatarsWrap.appendChild(img);
       }
-    } else {
-      metaNom.textContent = '';
-      metaSep.hidden = true;
-      metaAvatar.hidden = true;
-    }
+    });
   }
-  casesIntervenants.forEach(function (c) { c.addEventListener('change', updateMetaIntervenant); });
-  updateMetaIntervenant();
+  casesIntervenants.forEach(function (c) { c.addEventListener('change', updateAvatars); });
+  updateAvatars();
 })();
 </script>
 <?php admin_footer(); ?>
