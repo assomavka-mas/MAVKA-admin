@@ -84,34 +84,33 @@ $site_activites_bienetre = site_enrichir_avec_photo_intervenant(site_activites_p
   </div>
 
   <section>
-    <div class="wrap">
-      <div class="head" style="margin-bottom:24px">
-        <span class="eyebrow">Nos directions</span>
-        <h2>Chacun peut trouver sa façon de participer</h2>
+    <div class="wrap dir-grid">
+      <div>
+        <div class="head" style="margin-bottom:24px">
+          <span class="eyebrow">Nos directions</span>
+          <h2>Chacun peut trouver sa façon de participer</h2>
+        </div>
+        <div class="dirs">
+          <div class="dir">
+            <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-4.5 0-8 3.6-8 8 0 3 2 4 4 4h1a2 2 0 0 1 2 2c0 1.5 1 2 2 2 4.5 0 7-3 7-8 0-4.4-3.5-8-8-8z"/><circle cx="8.5" cy="10" r="1"/><circle cx="12" cy="7.5" r="1"/><circle cx="15.5" cy="10" r="1"/></svg></div>
+            <div><h3>Culture</h3><p>Découvrir et partager les cultures à travers les arts, les traditions et les savoir-faire : Petrykivka, artisanat, calligraphie chinoise et rencontres interculturelles.</p></div>
+          </div>
+          <div class="dir">
+            <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg></div>
+            <div><h3>Éducation</h3><p>Apprendre et transmettre à tout âge : musique, langues, création numérique, impression 3D et nouveaux ateliers proposés par nos intervenants.</p></div>
+          </div>
+          <div class="dir">
+            <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/></svg></div>
+            <div><h3>Bien-être</h3><p>Bouger, respirer, retrouver son équilibre et prendre du temps pour soi grâce à des pratiques accessibles et adaptées.</p></div>
+          </div>
+          <div class="dir">
+            <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V11"/><path d="M12 11c0-4 3-6 7-6 0 4-3 6-7 6z"/><path d="M12 14c0-3-2.5-5-6-5 0 3 2.5 5 6 5z"/></svg></div>
+            <div><h3>Initiatives</h3><p>Vous avez une compétence, une passion ou une idée à partager ? MAVKA vous accompagne pour la tester, construire un atelier et la faire évoluer progressivement.</p></div>
+          </div>
+        </div>
+        <p style="margin-top:22px"><a href="#activites">Tout voir, avec les infos pratiques →</a></p>
       </div>
-      <div class="dir-cards">
-        <div class="dir-card">
-          <svg class="mascot" viewBox="0 0 552 756"><use href="#m-magnify"/></svg>
-          <h3>Culture</h3>
-          <p>Peinture décorative ukrainienne de Petrykivka, calligraphie chinoise, origami, couronnes et objets faits main. Créer de ses mains et découvrir une tradition venue d'ailleurs.</p>
-        </div>
-        <div class="dir-card">
-          <svg class="mascot" viewBox="0 0 549 767"><use href="#m-read"/></svg>
-          <h3>Éducation</h3>
-          <p>Musique (violon, piano, chant, formation musicale) avec trois intervenantes. Bientôt : anglais du quotidien et impression 3D.</p>
-        </div>
-        <div class="dir-card">
-          <svg class="mascot" viewBox="0 0 310 769"><use href="#m-stand"/></svg>
-          <h3>Bien-être</h3>
-          <p>Gymnastique douce, yoga, mobilité, gestion du stress, espaces de parole. Des outils simples pour prendre soin de soi, en prévention, sans remplacer un suivi médical.</p>
-        </div>
-        <div class="dir-card">
-          <svg class="mascot" viewBox="0 0 469 734"><use href="#m-jump"/></svg>
-          <h3>Initiatives</h3>
-          <p>Vous avez une compétence, une passion ou une idée à partager ? MAVKA vous accompagne pour la tester, construire un atelier et la faire évoluer progressivement.</p>
-        </div>
-      </div>
-      <p style="margin-top:22px"><a href="#activites">Tout voir, avec les infos pratiques →</a></p>
+      <div class="dir-art"><img src="/assets/site-img/img-06-3bc40d08fc.webp" alt="Mavka assise, en train de lire"></div>
     </div>
   </section>
 

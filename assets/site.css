@@ -154,9 +154,15 @@ section.tight{padding:44px 0}
 @media (max-width:820px){.events,.events.three{grid-template-columns:1fr}}
 
 /* directions */
+.dir-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+.dirs{display:grid;gap:0}
+.dir{display:grid;grid-template-columns:44px 1fr;gap:16px;padding:20px 0;border-top:1px solid var(--line)}
+.dir:last-child{border-bottom:1px solid var(--line)}
+.dir .ic{width:44px;height:44px;border-radius:14px;background:var(--sun);display:grid;place-items:center;color:var(--ink)}
+.dir p{color:var(--ink-2);font-size:.98rem;margin-top:4px}
 .dir-art{display:flex;justify-content:center}
 .dir-art img,.dir-art .mascot{width:min(100%,340px);height:auto}
-@media (max-width:820px){.dir-art img,.dir-art .mascot{width:200px}}
+@media (max-width:820px){.dir-grid{grid-template-columns:1fr}.dir-art img,.dir-art .mascot{width:200px}}
 
 /* stats strip (sous le Hero) */
 .stats-strip{background:var(--mint);border-radius:var(--r);padding:28px 32px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px 32px}
@@ -166,15 +172,6 @@ section.tight{padding:44px 0}
 .stats-strip .stat:nth-child(3) b{color:var(--violet)}
 .stats-strip .stat p{margin-top:8px;color:var(--ink-2);font-size:.92rem;line-height:1.4}
 @media (max-width:700px){.stats-strip{grid-template-columns:1fr}}
-
-/* directions : cartes avec mascotte (remplace l'ancienne liste à icônes) */
-.dir-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
-.dir-card{background:var(--card);border:2px solid var(--card-line,var(--mint));border-radius:var(--r);padding:28px 20px 24px;text-align:center;display:grid;gap:10px;justify-items:center}
-.dir-card .mascot{height:120px;width:auto}
-.dir-card h3{font-family:var(--display)}
-.dir-card p{color:var(--ink-2);font-size:.92rem;line-height:1.5}
-@media (max-width:900px){.dir-cards{grid-template-columns:repeat(2,1fr)}}
-@media (max-width:560px){.dir-cards{grid-template-columns:1fr}}
 
 /* story */
 .story{display:grid;grid-template-columns:160px 1fr;gap:36px;align-items:center}
