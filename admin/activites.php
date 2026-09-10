@@ -24,7 +24,6 @@ $colonnes = [
     'texte_bouton'       => ['Texte du bouton', false, 'text', null],
     'lien_inscription'   => ['Lien', false, 'lien', null],
     'description'         => ['Description', false, 'fill', null],
-    'photo'               => ['Photo', false, 'photo', null],
     'ordre'               => ['Ordre', false, 'edit_nombre', null],
     'created_at'          => ['Créé le', false, 'date', null],
     'updated_at'          => ['Modifié le', false, 'date', null],
@@ -53,7 +52,7 @@ function act_apercu_lien(?string $lien): string {
 function act_sort_value(array $a, string $col) {
     if ($col === 'date') return $a['date_debut'] ?: '';
     if (in_array($col, ['nombre_places', 'ordre'], true)) return $a[$col] === null ? -1 : (int)$a[$col];
-    if (in_array($col, ['description', 'lien_inscription', 'photo'], true)) {
+    if (in_array($col, ['description', 'lien_inscription'], true)) {
         return trim((string)($a[$col] ?? '')) !== '' ? 1 : 0;
     }
     return mb_strtolower((string)($a[$col] ?? ''));
@@ -102,6 +101,7 @@ admin_header('Activités', $user, 'activites');
 
 <table class="mavka-table" style="margin-top:12px;">
   <tr>
+    <th></th>
     <th><?= act_tri_lien('titre', 'Titre', $tri, $sens) ?></th>
     <?php foreach ($colonnes as $cle => [$libelle, $defaut, $type, $options]): ?>
     <th data-col="<?= htmlspecialchars($cle) ?>"><?= act_tri_lien($cle, $libelle, $tri, $sens) ?></th>
@@ -110,6 +110,7 @@ admin_header('Activités', $user, 'activites');
   </tr>
   <?php foreach ($activites as $a): ?>
   <tr>
+    <td><?= act_apercu_photo($a['photo']) ?></td>
     <td><?= htmlspecialchars($a['titre']) ?></td>
     <?php foreach ($colonnes as $cle => [$libelle, $defaut, $type, $options]): ?>
     <td data-col="<?= htmlspecialchars($cle) ?>">
@@ -126,8 +127,6 @@ admin_header('Activités', $user, 'activites');
         <?php endif; ?>
       <?php elseif ($type === 'fill'): ?>
         <?= act_apercu_texte((string)($a[$cle] ?? '')) ?>
-      <?php elseif ($type === 'photo'): ?>
-        <?= act_apercu_photo($a['photo']) ?>
       <?php elseif ($type === 'lien'): ?>
         <?= act_apercu_lien($a['lien_inscription']) ?>
       <?php elseif ($type === 'date'): ?>
@@ -149,7 +148,7 @@ admin_header('Activités', $user, 'activites');
   </tr>
   <?php endforeach; ?>
   <?php if (!$activites): ?>
-  <tr><td colspan="<?= count($colonnes) + 2 ?>" style="color:var(--mavka-color-text-muted);">Aucune activité pour l'instant.</td></tr>
+  <tr><td colspan="<?= count($colonnes) + 3 ?>" style="color:var(--mavka-color-text-muted);">Aucune activité pour l'instant.</td></tr>
   <?php endif; ?>
 </table>
 
