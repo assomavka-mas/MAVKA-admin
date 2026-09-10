@@ -4,11 +4,11 @@ require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/site_functions.php';
 
 $site_intervenants = site_intervenants_actifs();
-$site_agenda_teaser = site_activites_a_venir(3);
-$site_agenda_toutes = site_activites_a_venir();
-$site_activites_culture = site_activites_par_categorie('Culture');
-$site_activites_education = site_activites_par_categorie('Éducation');
-$site_activites_bienetre = site_activites_par_categorie('Bien-être');
+$site_agenda_teaser = site_enrichir_avec_photo_intervenant(site_activites_a_venir(3));
+$site_agenda_toutes = site_enrichir_avec_photo_intervenant(site_activites_a_venir());
+$site_activites_culture = site_enrichir_avec_photo_intervenant(site_activites_par_categorie('Culture'));
+$site_activites_education = site_enrichir_avec_photo_intervenant(site_activites_par_categorie('Éducation'));
+$site_activites_bienetre = site_enrichir_avec_photo_intervenant(site_activites_par_categorie('Bien-être'));
 ?>
 <!DOCTYPE html>
 <html lang="fr">

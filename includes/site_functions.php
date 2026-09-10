@@ -69,7 +69,9 @@ function render_event_card(array $a): string {
             . render_event_date_badge($a) . '</div>';
     }
 
-    $tag = htmlspecialchars($a['categorie_display'] ?: $a['categorie']);
+    $avatar = !empty($a['intervenant_photo_url'])
+        ? '<img class="event-avatar" src="' . htmlspecialchars($a['intervenant_photo_url']) . '" alt="">'
+        : '';
     $lieuParts = array_filter([$a['intervenants_noms'] ?? null, trim(($a['lieu'] ?? '') . ($a['ville'] ? ', ' . $a['ville'] : ''), ', ')]);
     $meta = htmlspecialchars(implode(' · ', $lieuParts));
     $desc = htmlspecialchars($a['description'] ?? '');
@@ -78,12 +80,46 @@ function render_event_card(array $a): string {
     $btnClass = in_array($a['texte_bouton'], ['En savoir plus', 'Voir sa page'], true) ? 'btn-ghost' : 'btn-primary';
 
     return '<div class="event">' . $cover . '<div class="event-row"><div class="event-body">'
-        . '<span class="tag">' . $tag . '</span>'
         . '<h3>' . htmlspecialchars($a['titre']) . '</h3>'
-        . ($meta !== '' ? '<span class="meta">' . $meta . '</span>' : '')
+        . ($meta !== '' ? '<span class="meta">' . $avatar . $meta . '</span>' : '')
         . ($desc !== '' ? '<p>' . $desc . '</p>' : '')
         . '<a class="btn ' . $btnClass . ' btn-sm" href="' . htmlspecialchars($btnHref) . '">' . $btnLabel . '</a>'
         . '</div></div></div>';
+}
+
+// Photo du·de la premier·ère intervenant·e lié·e à chaque activité (pour l'avatar dans la carte) —
+// une requête séparée plutôt qu'une modification de la vue activites_publiques, pour rester
+// une amélioration réversible sans migration de base.
+function site_activites_intervenant_photos(array $activiteIds): array {
+    $activiteIds = array_values(array_unique(array_map('intval', $activiteIds)));
+    if (!$activiteIds) return [];
+    $placeholders = implode(',', array_fill(0, count($activiteIds), '?'));
+    $stmt = db()->prepare("SELECT ai.activite_id, iv.photo, iv.dossier
+        FROM activite_intervenant ai
+        JOIN intervenants iv ON iv.id = ai.intervenant_id
+        WHERE ai.activite_id IN ($placeholders)
+        ORDER BY ai.activite_id, iv.id");
+    $stmt->execute($activiteIds);
+    $parPremiere = [];
+    foreach ($stmt->fetchAll() as $row) {
+        if (!isset($parPremiere[$row['activite_id']])) {
+            $parPremiere[$row['activite_id']] = $row;
+        }
+    }
+    return $parPremiere;
+}
+
+// Ajoute 'intervenant_photo_url' à chaque activité, à partir de site_activites_intervenant_photos().
+function site_enrichir_avec_photo_intervenant(array $activites): array {
+    $photos = site_activites_intervenant_photos(array_column($activites, 'id'));
+    foreach ($activites as &$a) {
+        $iv = $photos[$a['id']] ?? null;
+        $a['intervenant_photo_url'] = ($iv && $iv['photo'] && $iv['dossier'])
+            ? '/assets/uploads/intervenants/' . rawurlencode($iv['dossier']) . '/' . rawurlencode($iv['photo'])
+            : null;
+    }
+    unset($a);
+    return $activites;
 }
 
 function render_events_grid(array $activites, string $extraClass = ''): string {

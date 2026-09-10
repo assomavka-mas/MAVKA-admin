@@ -153,7 +153,8 @@ section.tight{padding:44px 0}
 .date.weekly{background:var(--violet-tint);color:var(--violet)}
 .date.weekly b{font-size:.95rem;padding:4px 2px;line-height:1.15}
 .event-body{display:grid;gap:8px;align-content:start}
-.event-body .meta{font-size:.9rem;color:var(--ink-3)}
+.event-body .meta{font-size:.9rem;color:var(--ink-3);display:flex;align-items:center;gap:8px}
+.event-avatar{width:22px;height:22px;border-radius:50%;object-fit:cover;flex:none;background:var(--mint)}
 .event-body p{color:var(--ink-2);font-size:.97rem}
 .event-body .btn{justify-self:start;margin-top:8px}
 .tag{display:inline-block;justify-self:start;font-size:.74rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:4px 10px;border-radius:999px;background:var(--lilac);color:var(--violet)}
