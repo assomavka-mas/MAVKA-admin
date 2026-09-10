@@ -7,7 +7,7 @@ $user = auth_require(['super_admin', 'mavka_admin']);
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : null;
 $iv = [
-    'nom' => '', 'dossier' => '', 'role_titre' => '', 'resume' => '', 'domaine' => '', 'adresse' => '',
+    'nom' => '', 'dossier' => '', 'resume' => '', 'domaine' => '', 'adresse' => '',
     'bio' => '', 'parcours_personnel' => '', 'vision' => '',
     'charte_benevolat_lien' => '', 'charte_benevolat_fichier' => null,
     'contrat_intervention_lien' => '', 'contrat_intervention_fichier' => null,
@@ -36,7 +36,6 @@ if ($id) {
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'save') === 'save') {
     $iv['nom'] = trim($_POST['nom'] ?? '');
-    $iv['role_titre'] = trim($_POST['role_titre'] ?? '');
     $iv['resume'] = trim($_POST['resume'] ?? '');
     $iv['domaine'] = implode(',', array_map('trim', $_POST['domaine'] ?? [])) ?: null;
     $iv['adresse'] = trim($_POST['adresse'] ?? '');
@@ -60,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'save') === 's
         $error = 'Le nom est obligatoire.';
     } else {
         $fields = [
-            'nom', 'dossier', 'role_titre', 'resume', 'domaine', 'adresse',
+            'nom', 'dossier', 'resume', 'domaine', 'adresse',
             'bio', 'parcours_personnel', 'vision',
             'charte_benevolat_lien', 'charte_benevolat_fichier', 'contrat_intervention_lien', 'contrat_intervention_fichier',
             'date_signee', 'cv_lien', 'cv_fichier', 'rib_lien', 'rib_fichier',
@@ -167,7 +166,6 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
   <?php endif; ?>
   <div>
     <div class="mavka-sticky-identity__name"><?= htmlspecialchars($iv['nom']) ?></div>
-    <?php if ($iv['role_titre']): ?><div class="mavka-sticky-identity__role"><?= htmlspecialchars($iv['role_titre']) ?></div><?php endif; ?>
   </div>
 </div>
 <?php endif; ?>
@@ -192,9 +190,6 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
     <label>Nom</label>
     <input type="text" name="nom" value="<?= htmlspecialchars($iv['nom']) ?>" required>
 
-    <label>Rôle</label>
-    <input type="text" name="role_titre" placeholder="Bénévole" value="<?= htmlspecialchars($iv['role_titre'] ?? '') ?>">
-
     <label>Domaine <span style="font-weight:400; color:var(--mavka-color-text-muted);">(plusieurs choix possibles)</span></label>
     <div class="mavka-picklist" style="max-height:none;">
       <?php $domaines_actuels = array_filter(explode(',', $iv['domaine'] ?? '')); ?>
@@ -206,7 +201,7 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
       <?php endforeach; ?>
     </div>
 
-    <label>Résumé (courte description affichée sur la carte, sous le rôle)</label>
+    <label>Résumé (courte description affichée sur la carte — peut inclure le rôle, ex. « Présidente, accompagnement des intervenants »)</label>
     <input type="text" name="resume" placeholder="Développement personnel, accompagnement des intervenants, Parcours MAVKA" value="<?= htmlspecialchars($iv['resume'] ?? '') ?>" maxlength="300">
 
     <label>Statut (calculé automatiquement)</label>

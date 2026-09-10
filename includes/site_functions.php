@@ -21,8 +21,7 @@ function site_activites_par_categorie(string $categorie): array {
 }
 
 function site_intervenants_actifs(): array {
-    return db()->query("SELECT * FROM intervenants WHERE actif = 1
-        ORDER BY (role_titre = 'Présidente') DESC, nom ASC")->fetchAll();
+    return db()->query('SELECT * FROM intervenants WHERE actif = 1 ORDER BY nom ASC')->fetchAll();
 }
 
 function site_intervenant_ateliers(int $intervenant_id): array {
@@ -107,7 +106,6 @@ function render_person_card(array $iv): string {
     return '<div class="person">'
         . '<img src="' . htmlspecialchars($photoUrl) . '" alt="' . htmlspecialchars($iv['nom']) . '">'
         . '<b>' . htmlspecialchars($iv['nom']) . '</b>'
-        . '<span class="role">' . htmlspecialchars($iv['role_titre'] ?: 'Bénévole') . '</span>'
         . ($resume !== '' ? '<span>' . $resume . '</span>' : '')
         . ($domaine !== '' ? '<span class="meta">' . $domaine . '</span>' : '')
         . '<a href="' . htmlspecialchars(intervenant_page_url((int)$iv['id'])) . '">Voir sa page →</a>'

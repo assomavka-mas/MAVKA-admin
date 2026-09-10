@@ -252,7 +252,7 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
       <label class="mavka-picklist__item">
         <input type="checkbox" name="intervenants[]" value="<?= $iv['id'] ?>"
           <?= in_array($iv['id'], $selected_intervenants) ? 'checked' : '' ?>>
-        <span><?= htmlspecialchars($iv['nom']) ?><?= $iv['role_titre'] ? ' — ' . htmlspecialchars($iv['role_titre']) : '' ?></span>
+        <span><?= htmlspecialchars($iv['nom']) ?></span>
       </label>
       <?php endforeach; ?>
     </div>

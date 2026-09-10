@@ -66,6 +66,22 @@ table.mavka-table tr:last-child td { border-bottom: none; }
 .mavka-badge--publie { background: var(--mavka-color-success-bg); color: var(--mavka-color-success-text); }
 .mavka-badge--brouillon { background: var(--mavka-color-cream-soft); color: var(--mavka-color-text-muted); }
 
+/* Tableau : tri, colonnes configurables, édition rapide (intervenants.php) */
+table.mavka-table th a { color: inherit; text-decoration: none; white-space: nowrap; }
+table.mavka-table th a:hover { text-decoration: underline; }
+.mavka-fill-yes { color: var(--mavka-color-success-text); font-weight: 700; }
+.mavka-fill-no { color: var(--mavka-color-text-muted); }
+.mavka-editable { cursor: text; border-radius: 6px; padding: 3px 6px; margin: -3px -6px; }
+.mavka-editable:hover { background: var(--mavka-color-teal-light); }
+.mavka-editable input[type="text"], .mavka-editable input[type="email"] {
+  font: inherit; width: 100%; padding: 3px 6px; border: 1.5px solid var(--mavka-color-teal); border-radius: 6px;
+}
+.mavka-colpicker-wrap { position: relative; display: inline-block; }
+.mavka-colpicker { position: absolute; right: 0; top: calc(100% + 6px); z-index: 10; background: #fff;
+  border: 2px solid var(--mavka-color-teal-light); border-radius: var(--mavka-radius-card); padding: 12px 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.12); min-width: 240px; max-height: 360px; overflow-y: auto; }
+.mavka-colpicker label { display: flex; align-items: center; gap: 8px; font-size: 13.5px; padding: 4px 0; font-weight: 400; }
+
 .mavka-form label { display: block; font-weight: 700; font-size: 13.5px; margin: 14px 0 5px; color: var(--mavka-color-ink); }
 .mavka-form input, .mavka-form select, .mavka-form textarea {
   width: 100%; padding: 10px 12px; border-radius: 10px; border: 1.5px solid var(--mavka-color-teal-light);
@@ -209,5 +225,4 @@ table.mavka-table tr:last-child td { border-bottom: none; }
   font-family: var(--mavka-font-display); font-size: 18px;
 }
 .mavka-sticky-identity__name { font-family: var(--mavka-font-display); font-size: 16px; color: var(--mavka-color-ink); line-height: 1.2; }
-.mavka-sticky-identity__role { font-size: 12px; color: var(--mavka-color-text-muted); line-height: 1.3; }
 

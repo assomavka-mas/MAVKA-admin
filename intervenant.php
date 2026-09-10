@@ -31,7 +31,7 @@ if ($iv) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= $iv ? htmlspecialchars($iv['nom']) . ' — MAVKA' : 'Volontaire introuvable — MAVKA' ?></title>
-<meta name="description" content="<?= $iv ? htmlspecialchars($iv['nom'] . ', ' . ($iv['role_titre'] ?: 'bénévole') . ' à MAVKA. ' . ($iv['resume'] ?? '')) : '' ?>">
+<meta name="description" content="<?= $iv ? htmlspecialchars($iv['nom'] . ' à MAVKA. ' . ($iv['resume'] ?? '')) : '' ?>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Figtree:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap">
 <link rel="stylesheet" href="/assets/site.css">
@@ -88,7 +88,7 @@ if ($iv) {
       <div class="iv-hero">
         <img src="<?= htmlspecialchars($photoUrl) ?>" alt="<?= htmlspecialchars($iv['nom']) ?>">
         <div>
-          <span class="eyebrow"><?= htmlspecialchars($iv['role_titre'] ?: 'Bénévole') ?></span>
+          <span class="eyebrow">Membre de l'équipe</span>
           <h1 style="margin-top:12px"><?= htmlspecialchars($iv['nom']) ?></h1>
           <?php if ($iv['resume']): ?><p class="lede" style="margin-top:12px"><?= htmlspecialchars($iv['resume']) ?></p><?php endif; ?>
           <?php if ($iv['domaine']): ?><p style="margin-top:10px;color:var(--ink-3);font-size:.92rem"><?= htmlspecialchars($iv['domaine']) ?></p><?php endif; ?>
