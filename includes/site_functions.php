@@ -44,29 +44,38 @@ function site_categorie_habillage(string $categorie): array {
 
 const SITE_MOIS_FR = [1=>'jan',2=>'fév',3=>'mars',4=>'avr',5=>'mai',6=>'juin',7=>'juil',8=>'août',9=>'sept',10=>'oct',11=>'nov',12=>'déc'];
 
-function render_event_date_badge(array $a): string {
+// Bandeau jaune (.strip, assets/event-card.css) : date/heure ou récurrence, puis lieu/ville.
+// Utilisé tel quel par le site ; l'admin réutilise les mêmes classes autour de champs modifiables.
+function render_event_strip(array $a): string {
     if (!empty($a['date_debut'])) {
         $ts = strtotime($a['date_debut']);
         $jour = date('d', $ts);
         $mois = SITE_MOIS_FR[(int)date('n', $ts)];
         $heure = htmlspecialchars($a['heure'] ?? '');
-        return '<div class="date"><b>' . $jour . '</b><span>' . $mois . '</span>'
-            . ($heure !== '' ? '<small>' . $heure . '</small>' : '') . '</div>';
+        $dateHtml = '<span class="strip__date">' . $jour . '<span class="strip__date-unit">' . $mois . '</span></span>'
+            . ($heure !== '' ? '<span class="strip__time">' . $heure . '</span>' : '');
+    } else {
+        $principal = htmlspecialchars($a['recurrence'] ?: 'Régulier');
+        $secondaire = htmlspecialchars($a['heure'] ?: '');
+        $dateHtml = '<span class="strip__date">' . $principal . '</span>'
+            . ($secondaire !== '' ? '<span class="strip__time">' . $secondaire . '</span>' : '');
     }
-    $principal = htmlspecialchars($a['recurrence'] ?: 'Régulier');
-    $secondaire = htmlspecialchars($a['heure'] ?: ($a['ville'] ?: 'Sur demande'));
-    return '<div class="date weekly"><b>' . $principal . '</b><small>' . $secondaire . '</small></div>';
+    $lieuVille = trim(($a['lieu'] ?? '') . ($a['ville'] ? ', ' . $a['ville'] : ''), ', ');
+    $loc = $lieuVille !== '' ? '<div class="strip__loc">' . htmlspecialchars($lieuVille) . '</div>' : '';
+    return '<div class="strip"><div class="strip__row">' . $dateHtml . '</div>' . $loc . '</div>';
 }
 
 function render_event_card(array $a): string {
     $habillage = site_categorie_habillage($a['categorie']);
+    $corners = '<span class="corner corner--tl">' . htmlspecialchars($a['categorie_display'] ?: $a['categorie']) . '</span>'
+        . '<span class="corner corner--tr">' . htmlspecialchars($a['format'] ?? '') . '</span>'
+        . '<span class="corner corner--br">' . htmlspecialchars($a['public'] ?? '') . '</span>'
+        . '<span class="corner corner--br2">' . ($a['nombre_places'] !== null && $a['nombre_places'] !== '' ? htmlspecialchars($a['nombre_places'] . ' places') : '') . '</span>';
     if (!empty($a['photo'])) {
-        $cover = '<div class="cover photo-cover"><img src="/assets/uploads/activites/' . htmlspecialchars($a['photo']) . '" alt="">'
-            . render_event_date_badge($a) . '</div>';
+        $cover = '<div class="cover photo-cover"><img src="/assets/uploads/activites/' . htmlspecialchars($a['photo']) . '" alt="">' . $corners . '</div>';
     } else {
         $cover = '<div class="cover ' . $habillage['cover'] . '">'
-            . '<svg class="mascot" viewBox="' . $habillage['vb'] . '"><use href="#' . $habillage['mascot'] . '"/></svg>'
-            . render_event_date_badge($a) . '</div>';
+            . '<svg class="mascot" viewBox="' . $habillage['vb'] . '"><use href="#' . $habillage['mascot'] . '"/></svg>' . $corners . '</div>';
     }
 
     $avatars = '';
@@ -75,16 +84,13 @@ function render_event_card(array $a): string {
     }
     $avatars = $avatars !== '' ? '<div class="event-avatars">' . $avatars . '</div>' : '';
 
-    $lieuParts = array_filter([$a['intervenants_noms'] ?? null, trim(($a['lieu'] ?? '') . ($a['ville'] ? ', ' . $a['ville'] : ''), ', ')]);
-    $meta = htmlspecialchars(implode(' · ', $lieuParts));
     $desc = htmlspecialchars($a['description'] ?? '');
     $btnLabel = htmlspecialchars($a['texte_bouton'] ?: 'En savoir plus');
     $btnHref = $a['lien_inscription'] ?: '#contact';
     $btnClass = in_array($a['texte_bouton'], ['En savoir plus', 'Voir sa page'], true) ? 'btn-ghost' : 'btn-primary';
 
-    return '<div class="event">' . $cover . '<div class="event-row"><div class="event-body">'
+    return '<div class="event">' . $cover . render_event_strip($a) . '<div class="event-row"><div class="event-body">'
         . '<div class="event-title-row">' . $avatars . '<h3>' . htmlspecialchars($a['titre']) . '</h3></div>'
-        . ($meta !== '' ? '<span class="meta">' . $meta . '</span>' : '')
         . ($desc !== '' ? '<p>' . $desc . '</p>' : '')
         . '<a class="btn ' . $btnClass . ' btn-sm" href="' . htmlspecialchars($btnHref) . '">' . $btnLabel . '</a>'
         . '</div></div></div>';
