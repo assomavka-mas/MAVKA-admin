@@ -3,7 +3,24 @@ require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/layout.php';
 
 $user = auth_require(['super_admin', 'mavka_admin', 'partenaire']);
-$activites = db()->query('SELECT * FROM activites ORDER BY ordre ASC, date_debut ASC')->fetchAll();
+
+// Filtre "un seul volontaire" (?intervenant=ID) — plus direct qu'un tri pour répondre à
+// "montre-moi tout ce qui concerne Snizhana" : réduit la liste au lieu de juste la réordonner.
+$filtre_intervenant = isset($_GET['intervenant']) ? (int)$_GET['intervenant'] : 0;
+$tous_intervenants = db()->query('SELECT id, nom FROM intervenants ORDER BY nom ASC')->fetchAll();
+
+$sql = "SELECT a.*,
+        (SELECT GROUP_CONCAT(iv.nom SEPARATOR ', ') FROM activite_intervenant ai JOIN intervenants iv ON iv.id = ai.intervenant_id WHERE ai.activite_id = a.id) AS intervenants_noms
+    FROM activites a";
+$params = [];
+if ($filtre_intervenant) {
+    $sql .= ' WHERE EXISTS (SELECT 1 FROM activite_intervenant ai WHERE ai.activite_id = a.id AND ai.intervenant_id = ?)';
+    $params[] = $filtre_intervenant;
+}
+$sql .= ' ORDER BY a.ordre ASC, a.date_debut ASC';
+$stmt = db()->prepare($sql);
+$stmt->execute($params);
+$activites = $stmt->fetchAll();
 
 // Colonnes configurables : clé => [libellé, visible par défaut, type d'affichage, options].
 // type : text (lecture seule) · edit_text · edit_nombre · edit_date (date_debut) ·
@@ -11,6 +28,7 @@ $activites = db()->query('SELECT * FROM activites ORDER BY ordre ASC, date_debut
 //        select_plain (édition rapide, texte simple — Catégorie/Format/Public) ·
 //        fill (aperçu d'un texte long) · photo · lien · date
 $colonnes = [
+    'intervenants_noms'  => ['Intervenant·e·s', true, 'text', null],
     'categorie'          => ['Catégorie', true, 'select_plain', ['Culture' => 'Culture', 'Éducation' => 'Éducation', 'Bien-être' => 'Bien-être', 'Développement personnel' => 'Développement personnel']],
     'date'                => ['Date', true, 'edit_date', null],
     'lieu'                => ['Lieu', true, 'edit_text', null],
@@ -71,17 +89,32 @@ if ($tri !== '' && ($tri === 'titre' || isset($colonnes[$tri]))) {
     });
 }
 
-function act_tri_lien(string $col, string $libelle, string $triActuel, string $sensActuel): string {
+function act_tri_lien(string $col, string $libelle, string $triActuel, string $sensActuel, int $filtre_intervenant = 0): string {
     $prochainSens = ($triActuel === $col && $sensActuel === 'asc') ? 'desc' : 'asc';
     $fleche = $triActuel === $col ? ($sensActuel === 'asc' ? ' ▲' : ' ▼') : '';
-    return '<a href="?sort=' . urlencode($col) . '&dir=' . $prochainSens . '">' . htmlspecialchars($libelle) . $fleche . '</a>';
+    $suffixeFiltre = $filtre_intervenant ? '&intervenant=' . $filtre_intervenant : '';
+    return '<a href="?sort=' . urlencode($col) . '&dir=' . $prochainSens . $suffixeFiltre . '">' . htmlspecialchars($libelle) . $fleche . '</a>';
 }
 
 admin_header('Activités', $user, 'activites');
 ?>
 <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
-  <h1>Activités</h1>
+  <?php
+    $nom_filtre = '';
+    if ($filtre_intervenant) {
+        foreach ($tous_intervenants as $iv) {
+            if ((int)$iv['id'] === $filtre_intervenant) { $nom_filtre = $iv['nom']; break; }
+        }
+    }
+  ?>
+  <h1>Activités<?php if ($filtre_intervenant): ?><span style="font-weight:400; color:var(--mavka-color-text-muted); font-size:18px;"> — <?= count($activites) ?> pour <?= htmlspecialchars($nom_filtre) ?></span><?php endif; ?></h1>
   <div style="display:flex; gap:10px; align-items:center;">
+    <select id="filtreIntervenant" class="mavka-btn mavka-btn--sm" style="cursor:pointer;" onchange="location.href = this.value ? '?intervenant=' + this.value : location.pathname;">
+      <option value="">— Tou·te·s les volontaires —</option>
+      <?php foreach ($tous_intervenants as $iv): ?>
+      <option value="<?= $iv['id'] ?>" <?= $filtre_intervenant === (int)$iv['id'] ? 'selected' : '' ?>><?= htmlspecialchars($iv['nom']) ?></option>
+      <?php endforeach; ?>
+    </select>
     <div class="mavka-colpicker-wrap">
       <button type="button" id="colPickerBtn" class="mavka-btn mavka-btn--sm">⚙ Colonnes</button>
       <div class="mavka-colpicker" id="colPicker" hidden>
@@ -104,9 +137,9 @@ admin_header('Activités', $user, 'activites');
 <table class="mavka-table" style="margin-top:12px;">
   <tr>
     <th></th>
-    <th><?= act_tri_lien('titre', 'Titre', $tri, $sens) ?></th>
+    <th><?= act_tri_lien('titre', 'Titre', $tri, $sens, $filtre_intervenant) ?></th>
     <?php foreach ($colonnes as $cle => [$libelle, $defaut, $type, $options]): ?>
-    <th data-col="<?= htmlspecialchars($cle) ?>"><?= act_tri_lien($cle, $libelle, $tri, $sens) ?></th>
+    <th data-col="<?= htmlspecialchars($cle) ?>"><?= act_tri_lien($cle, $libelle, $tri, $sens, $filtre_intervenant) ?></th>
     <?php endforeach; ?>
     <th></th>
   </tr>
