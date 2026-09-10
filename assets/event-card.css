@@ -3,13 +3,17 @@
    admin/activite-form.php. L'admin ajoute juste des champs de saisie par-dessus les mêmes
    classes ; elle ne redéfinit jamais son propre style pour la carte. Si la carte doit changer,
    elle change ici, une fois, pour les deux.
-   Jetons autonomes (scopés sous .event) pour que ce fichier fonctionne seul, même sur une
-   page qui ne charge pas assets/site.css (l'admin). */
+   Jetons autonomes (scopés sous .event), mais qui SUIVENT la palette du site (--card/--mint/
+   --ink/--teal/--violet/--sun de assets/site.css) quand elle est chargée, via des valeurs
+   par défaut dans var(...) : sur le site, la carte change avec le sélecteur Vif/Ma palette/
+   Ta version ; sur une page qui ne charge pas site.css (l'admin), ces variables n'existent
+   pas et chaque jeton retombe sur son défaut ci-dessous — la carte reste autonome. */
 .event{
-  --ec-card:#fff; --ec-mint:#E6F6F0; --ec-line:#D9EFE8;
-  --ec-ink:#1E2A3A; --ec-ink-2:#4B5A68; --ec-ink-3:#7C8994;
-  --ec-teal:#1FAE93; --ec-teal-deep:#158A74;
-  --ec-sun:#FFD84D; --ec-sun-pale:#FFF6D6; --ec-violet:#7B4FB5; --ec-violet-tint:#EBDFF7;
+  --ec-card:var(--card,#fff); --ec-mint:var(--mint,#E6F6F0); --ec-line:var(--line,#D9EFE8);
+  --ec-ink:var(--ink,#1E2A3A); --ec-ink-2:var(--ink-2,#4B5A68); --ec-ink-3:var(--ink-3,#7C8994);
+  --ec-teal:var(--teal,#1FAE93); --ec-teal-deep:var(--teal-deep,#158A74);
+  --ec-sun:var(--sun,#FFD84D); --ec-sun-pale:color-mix(in srgb, var(--ec-sun) 22%, white);
+  --ec-violet:var(--violet,#7B4FB5); --ec-violet-tint:var(--violet-tint,#EBDFF7);
   --ec-r:22px; --ec-display:"PT Serif",Georgia,"Times New Roman",serif;
   --ec-body:"Nunito Sans","Helvetica Neue",Arial,sans-serif;
 }

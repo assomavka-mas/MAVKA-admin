@@ -21,7 +21,7 @@ $site_activites_bienetre = site_enrichir_avec_photo_intervenant(site_activites_p
 <!-- PT Serif (titres) + Nunito Sans (texte) : choix fixé après comparaison sur la page réelle —
      toutes deux vérifiées pour le cyrillique (nécessaire pour la bascule UK), contrairement
      aux anciennes Bricolage Grotesque/Figtree. Fraunces reste chargée pour le thème "Lin". -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&family=Nunito+Sans:wght@400;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&family=Nunito+Sans:wght@400;600;700&display=swap">
 <link rel="stylesheet" href="/assets/site.css?v=<?= @filemtime(__DIR__ . '/assets/site.css') ?: time() ?>">
 <link rel="stylesheet" href="/assets/event-card.css?v=<?= @filemtime(__DIR__ . '/assets/event-card.css') ?: time() ?>">
 </head>
@@ -40,8 +40,8 @@ $site_activites_bienetre = site_enrichir_avec_photo_intervenant(site_activites_p
     <a class="btn btn-primary btn-sm" href="#contact">Contact</a>
     <div class="styles" id="styles" role="group" aria-label="Style du site">
       <button type="button" data-style="vif" aria-pressed="true"><i style="background:#1FAE93"></i>Vif</button>
-      <button type="button" data-style="foret" aria-pressed="false"><i style="background:#5E8C6A"></i>Forêt</button>
-      <button type="button" data-style="lin" aria-pressed="false"><i style="background:#B9AE95"></i>Lin</button>
+      <button type="button" data-style="mapalette" aria-pressed="false"><i style="background:#3DA298"></i>Ma palette</button>
+      <button type="button" data-style="taverse" aria-pressed="false"><i style="background:#2F9184"></i>Ta version</button>
     </div>
     <button class="lang" id="langBtn" type="button" aria-label="Змінити мову">УКР</button>
     <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="nav">Menu</button>

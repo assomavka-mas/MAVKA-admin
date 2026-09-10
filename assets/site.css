@@ -11,32 +11,29 @@
   --body:"Nunito Sans","Helvetica Neue",Arial,sans-serif;
 }
 
-/* ---- Theme: Forêt (pastel, nature) ---- */
-:root[data-style="foret"]{
-  --ground:#FBFAF6; --mint:#E9EFE4; --cream:#F6EFE3; --lilac:#EFE8EE; --card:#FFFFFF; --line:#E1E7DB;
-  --ink:#2B3430; --ink-2:#5B655F; --ink-3:#8A938D;
-  --teal:#5E8C6A; --teal-deep:#47705A; --teal-tint:#E3ECDF;
-  --violet:#8C6B8F; --violet-tint:#EFE6EE;
-  --sun:#F2D5AC; --sun-deep:#D9B98A;
+/* ---- Palette "Ma palette" — la palette de marque de Larysa telle quelle (document
+   design-system fourni), sans le jaune qui n'y existe pas : l'orange en tient lieu. ---- */
+:root[data-style="mapalette"]{
+  --ground:#FAF7F6; --mint:#DFF1EE; --cream:#F3ECE7; --lilac:#F0E9F1; --card:#FFFFFF; --line:#E5D9E8;
+  --ink:#241B28; --ink-2:#3D2B35; --ink-3:#6B5B63;
+  --teal:#3DA298; --teal-deep:#276A62; --teal-tint:#DFF1EE;
+  --violet:#8D5D99; --violet-tint:#F0E9F1;
+  --sun:#F2913D; --sun-deep:#DD721F;
   --on-teal:#FFFFFF; --press:2px;
-  --shadow:0 2px 0 rgba(43,52,48,.03),0 16px 40px -20px rgba(71,112,90,.35);
+  --shadow:0 2px 0 rgba(36,27,40,.04),0 16px 40px -18px rgba(61,162,152,.35);
 }
-/* ---- Theme: Lin (neutral, calm) ---- */
-:root[data-style="lin"]{
-  --ground:#F7F5F0; --mint:#ECE9E2; --cream:#F2EEE5; --lilac:#EBE9E7; --card:#FFFDF9; --line:#E3DFD6;
-  --ink:#26292B; --ink-2:#5A5F5F; --ink-3:#8B908E;
-  --teal:#6B8F7B; --teal-deep:#53745F; --teal-tint:#E6EBE4;
-  --violet:#77738A; --violet-tint:#ECEAF0;
-  --sun:#EADFC8; --sun-deep:#D2C3A2;
-  --on-teal:#FFFFFF; --press:2px;
-  --shadow:0 2px 0 rgba(38,41,43,.03),0 16px 40px -20px rgba(83,116,95,.3);
-  --display:Fraunces,Georgia,"Times New Roman",serif;
+/* ---- Palette "Ta version" — même famille (teal/violet de la marque), mais je garde le
+   jaune : il porte bien les pastilles d'attention de la carte Activité, et un fond plus
+   chaud que le blanc pur. ---- */
+:root[data-style="taverse"]{
+  --ground:#FBF6EF; --mint:#E3F1EC; --cream:#FBEDD9; --lilac:#F1E7EF; --card:#FFFFFF; --line:#E9DFCE;
+  --ink:#2A2130; --ink-2:#4A3A45; --ink-3:#7A6B72;
+  --teal:#2F9184; --teal-deep:#1F6F63; --teal-tint:#E3F1EC;
+  --violet:#8D5D99; --violet-tint:#F1E7EF;
+  --sun:#FFCB4D; --sun-deep:#E8A716;
+  --on-teal:#FFFFFF; --press:3px;
+  --shadow:0 2px 0 rgba(42,33,48,.04),0 16px 40px -18px rgba(47,145,132,.35);
 }
-:root[data-style="lin"] h1,:root[data-style="lin"] h2{font-weight:600;letter-spacing:-.01em}
-:root[data-style="lin"] .brand b{font-family:var(--body)}
-:root[data-style="lin"] .date b{font-weight:600}
-:root[data-style="foret"] h1{font-weight:700}
-:root[data-style="foret"] header,:root[data-style="lin"] header{background:color-mix(in srgb,var(--ground) 92%,transparent)}
 
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
