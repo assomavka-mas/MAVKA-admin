@@ -86,13 +86,18 @@
   text-transform:uppercase; padding:4px 10px; border-radius:999px; background:#F1E9FA; color:var(--ec-violet);
 }
 
-.btn{
+/* Préfixées par .event : .btn/.btn-primary/.btn-ghost existent aussi, avec un tout autre
+   sens, dans assets/site.css (bouton du Hero, du CTA...). Sans ce préfixe, ces règles ici
+   s'appliquaient partout sur le site — pas seulement dans la carte — et cassaient tous les
+   autres boutons de la page : var(--ec-teal)/var(--ec-sun) n'existent que dans .event, donc
+   hors d'une carte ces propriétés étaient invalides → fond transparent, mauvaise bordure. */
+.event .btn{
   display:inline-flex; align-items:center; gap:8px; padding:13px 22px; border-radius:999px;
   font-weight:700; font-size:.98rem; border:1.5px solid transparent; cursor:pointer;
   font-family:var(--ec-body); line-height:1.2; white-space:nowrap; text-decoration:none;
 }
-.btn:hover{text-decoration:none}
-.btn-primary{background:var(--ec-teal); color:#fff; border-color:var(--ec-teal)}
-.btn-primary:hover{background:var(--ec-teal-deep)}
-.btn-ghost{background:var(--ec-sun); color:var(--ec-ink); border-color:var(--ec-sun)}
-.btn-sm{padding:9px 16px; font-size:.9rem}
+.event .btn:hover{text-decoration:none}
+.event .btn-primary{background:var(--ec-teal); color:#fff; border-color:var(--ec-teal)}
+.event .btn-primary:hover{background:var(--ec-teal-deep)}
+.event .btn-ghost{background:var(--ec-sun); color:var(--ec-ink); border-color:var(--ec-sun)}
+.event .btn-sm{padding:9px 16px; font-size:.9rem}

@@ -42,6 +42,13 @@
   --shadow:0 2px 0 rgba(42,33,48,.04),0 16px 40px -18px rgba(47,145,132,.35);
 }
 
+/* ---- Expérimentation bloc par bloc sur "Ma palette" : le Hero de l'accueil emprunte le
+   jaune de "Ta version" (au lieu de l'orange du reste de la page) — juste pour ce bloc,
+   via la cascade de --sun/--sun-deep sur ses descendants (bouton "Devenir bénévole" en
+   .btn-ghost, cercle décoratif derrière la mascotte). Le reste de la page (plashkas,
+   numéros d'étape...) garde l'orange de Ma palette. ---- */
+:root[data-style="mapalette"] .hero{ --sun:#FFCB4D; --sun-deep:#E8A716; }
+
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
