@@ -53,6 +53,36 @@ function iv_est_rempli(array $iv, string $col, array $champsFill2): bool {
     return trim((string)($iv[$col] ?? '')) !== '';
 }
 
+// Aperçu d'un champ texte (Bio, Parcours...) : un extrait du vrai contenu plutôt qu'une coche,
+// pour repérer les manques ET relire le fond sans ouvrir la fiche complète.
+function iv_apercu_texte(string $texte, int $max = 70): string {
+    $texte = trim(preg_replace('/\s+/', ' ', $texte));
+    if ($texte === '') return '<span class="mavka-fill-no">—</span>';
+    $court = mb_strlen($texte) > $max ? mb_substr($texte, 0, $max) . '…' : $texte;
+    return '<span class="mavka-fill-yes" title="' . htmlspecialchars($texte) . '">' . htmlspecialchars($court) . '</span>';
+}
+
+// Aperçu d'un document (lien Drive ou fichier téléversé) : miniature pour une image, badge pour
+// un PDF, lien pour un Drive — cliquable directement, sans passer par la fiche complète.
+function iv_apercu_document(array $iv, string $lienChamp, string $fichierChamp): string {
+    $fichier = $iv[$fichierChamp] ?? '';
+    if ($fichier && $iv['dossier']) {
+        $url = '/assets/uploads/intervenants/' . rawurlencode($iv['dossier']) . '/' . rawurlencode($fichier);
+        $ext = strtolower(pathinfo($fichier, PATHINFO_EXTENSION));
+        if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp'], true)) {
+            return '<a href="' . htmlspecialchars($url) . '" target="_blank" title="Voir le fichier">'
+                . '<img src="' . htmlspecialchars($url) . '" alt="" style="width:32px;height:32px;object-fit:cover;border-radius:6px;display:block;">'
+                . '</a>';
+        }
+        return '<a class="mavka-fill-yes" href="' . htmlspecialchars($url) . '" target="_blank">📄 ' . htmlspecialchars(strtoupper($ext ?: 'Fichier')) . '</a>';
+    }
+    $lien = $iv[$lienChamp] ?? '';
+    if ($lien) {
+        return '<a class="mavka-fill-yes" href="' . htmlspecialchars($lien) . '" target="_blank">🔗 Lien</a>';
+    }
+    return '<span class="mavka-fill-no">—</span>';
+}
+
 function iv_sort_value(array $iv, string $col, array $champsFill2) {
     if ($col === 'statut') return implode(' ', intervenant_statuts($iv));
     if ($col === 'actif') return (int)$iv['actif'];
@@ -128,12 +158,10 @@ admin_header('Intervenants', $user, 'intervenants');
         <?php else: ?>
         <?= $iv['actif'] ? '✓' : '—' ?>
         <?php endif; ?>
-      <?php elseif ($type === 'fill' || $type === 'fill2'): ?>
-        <?php if (iv_est_rempli($iv, $cle, $champs_fill2)): ?>
-        <a class="mavka-fill-yes" href="/admin/intervenant-form.php?id=<?= $iv['id'] ?>">✓</a>
-        <?php else: ?>
-        <a class="mavka-fill-no" href="/admin/intervenant-form.php?id=<?= $iv['id'] ?>">—</a>
-        <?php endif; ?>
+      <?php elseif ($type === 'fill'): ?>
+        <?= iv_apercu_texte((string)($iv[$cle] ?? '')) ?>
+      <?php elseif ($type === 'fill2'): ?>
+        <?= iv_apercu_document($iv, ...$champs_fill2[$cle]) ?>
       <?php elseif ($type === 'date'): ?>
         <?= $iv[$cle] ? htmlspecialchars(date('d/m/Y', strtotime($iv[$cle]))) : '' ?>
       <?php elseif (isset($champs_editables[$cle]) && peut_editer($user)): ?>
