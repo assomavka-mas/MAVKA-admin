@@ -82,6 +82,7 @@ CREATE TABLE IF NOT EXISTS activites (
   photo VARCHAR(255) NULL,               -- ім'я файлу в /assets/uploads/activites/
   statut ENUM('publie','brouillon') NOT NULL DEFAULT 'publie',
   statut_activite ENUM('ouvert','complet','annule','termine') NOT NULL DEFAULT 'ouvert',
+  visible_accueil TINYINT(1) NOT NULL DEFAULT 1,  -- 0 = réelle et réservable, mais visible seulement sur la page du volontaire (pas dans la grille d'accueil)
   ordre INT NOT NULL DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -127,5 +128,5 @@ SELECT
      FROM activite_intervenant ai JOIN intervenants iv ON iv.id = ai.intervenant_id
     WHERE ai.activite_id = a.id) AS intervenants_noms
 FROM activites a
-WHERE a.statut = 'publie'
+WHERE a.statut = 'publie' AND a.visible_accueil = 1
 ORDER BY a.ordre ASC, a.date_debut ASC;

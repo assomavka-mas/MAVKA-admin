@@ -11,7 +11,8 @@ $a = [
     'format' => '', 'public' => '', 'description' => '',
     'date_debut' => '', 'heure' => '', 'recurrence' => '',
     'lieu' => '', 'nombre_places' => '', 'ville' => '', 'texte_bouton' => 'Préinscription gratuite',
-    'lien_inscription' => '', 'photo' => null, 'statut' => 'publie', 'statut_activite' => 'ouvert', 'ordre' => 0,
+    'lien_inscription' => '', 'photo' => null, 'statut' => 'publie', 'statut_activite' => 'ouvert',
+    'visible_accueil' => 1, 'ordre' => 0,
 ];
 $selected_intervenants = [];
 if ($id) {
@@ -48,6 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $a['statut'] = $_POST['statut'] === 'brouillon' ? 'brouillon' : 'publie';
     $a['statut_activite'] = in_array($_POST['statut_activite'] ?? '', ['ouvert', 'complet', 'annule', 'termine'])
         ? $_POST['statut_activite'] : 'ouvert';
+    $a['visible_accueil'] = isset($_POST['visible_accueil']) ? 1 : 0;
     $a['ordre'] = (int)($_POST['ordre'] ?? 0);
     $posted_intervenants = array_map('intval', $_POST['intervenants'] ?? []);
 
@@ -73,11 +75,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Le titre est obligatoire.';
     } else {
         if ($id) {
-            $stmt = db()->prepare('UPDATE activites SET titre=?, categorie=?, categorie_display=?, format=?, public=?, description=?, date_debut=?, heure=?, recurrence=?, lieu=?, nombre_places=?, ville=?, texte_bouton=?, lien_inscription=?, photo=?, statut=?, statut_activite=?, ordre=? WHERE id=?');
-            $stmt->execute([$a['titre'], $a['categorie'], $a['categorie_display'], $a['format'], $a['public'], $a['description'], $a['date_debut'], $a['heure'], $a['recurrence'], $a['lieu'], $a['nombre_places'], $a['ville'], $a['texte_bouton'], $a['lien_inscription'], $a['photo'], $a['statut'], $a['statut_activite'], $a['ordre'], $id]);
+            $stmt = db()->prepare('UPDATE activites SET titre=?, categorie=?, categorie_display=?, format=?, public=?, description=?, date_debut=?, heure=?, recurrence=?, lieu=?, nombre_places=?, ville=?, texte_bouton=?, lien_inscription=?, photo=?, statut=?, statut_activite=?, visible_accueil=?, ordre=? WHERE id=?');
+            $stmt->execute([$a['titre'], $a['categorie'], $a['categorie_display'], $a['format'], $a['public'], $a['description'], $a['date_debut'], $a['heure'], $a['recurrence'], $a['lieu'], $a['nombre_places'], $a['ville'], $a['texte_bouton'], $a['lien_inscription'], $a['photo'], $a['statut'], $a['statut_activite'], $a['visible_accueil'], $a['ordre'], $id]);
         } else {
-            $stmt = db()->prepare('INSERT INTO activites (titre, categorie, categorie_display, format, public, description, date_debut, heure, recurrence, lieu, nombre_places, ville, texte_bouton, lien_inscription, photo, statut, statut_activite, ordre) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
-            $stmt->execute([$a['titre'], $a['categorie'], $a['categorie_display'], $a['format'], $a['public'], $a['description'], $a['date_debut'], $a['heure'], $a['recurrence'], $a['lieu'], $a['nombre_places'], $a['ville'], $a['texte_bouton'], $a['lien_inscription'], $a['photo'], $a['statut'], $a['statut_activite'], $a['ordre']]);
+            $stmt = db()->prepare('INSERT INTO activites (titre, categorie, categorie_display, format, public, description, date_debut, heure, recurrence, lieu, nombre_places, ville, texte_bouton, lien_inscription, photo, statut, statut_activite, visible_accueil, ordre) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
+            $stmt->execute([$a['titre'], $a['categorie'], $a['categorie_display'], $a['format'], $a['public'], $a['description'], $a['date_debut'], $a['heure'], $a['recurrence'], $a['lieu'], $a['nombre_places'], $a['ville'], $a['texte_bouton'], $a['lien_inscription'], $a['photo'], $a['statut'], $a['statut_activite'], $a['visible_accueil'], $a['ordre']]);
             $id = (int)db()->lastInsertId();
         }
 
@@ -229,6 +231,14 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
           <option value="brouillon" <?= $a['statut'] === 'brouillon' ? 'selected' : '' ?>>Brouillon</option>
         </select>
       </div>
+    </div>
+
+    <div>
+      <label style="display:flex; align-items:center; gap:8px; font-weight:400;">
+        <input type="checkbox" name="visible_accueil" value="1" style="width:auto;" <?= ($a['visible_accueil'] ?? 1) ? 'checked' : '' ?>>
+        Afficher sur la page d'accueil
+      </label>
+      <p class="mavka-form-section__hint" style="margin-top:4px;">Décoche pour une activité réelle et réservable (vraie carte, vrai bouton), mais visible seulement sur la page du·de la volontaire qui la propose — pas dans la grille de l'accueil. Utile pour une proposition à l'essai (ex. pour sonder l'intérêt avant d'en parler à une mairie).</p>
     </div>
 
     <div class="row mavka-row--nombres">

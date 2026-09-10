@@ -30,6 +30,21 @@ function site_intervenant_ateliers(int $intervenant_id): array {
     return $stmt->fetchAll();
 }
 
+// Activités réelles et réservables d'un·e volontaire, affichées sur SA page — que ces
+// activités apparaissent ou non dans la grille de l'accueil (activites_publiques ne
+// garde que visible_accueil = 1, donc on interroge `activites` directement ici, sans
+// passer par la vue). Sert par ex. à une proposition "à l'essai" pour sonder l'intérêt
+// avant d'en parler à une mairie, montrée sur la page du·de la volontaire concerné·e
+// sans encombrer l'accueil de plusieurs cartes par personne.
+function site_activites_intervenant(int $intervenant_id): array {
+    $stmt = db()->prepare("SELECT a.* FROM activites a
+        JOIN activite_intervenant ai ON ai.activite_id = a.id
+        WHERE ai.intervenant_id = ? AND a.statut = 'publie' AND a.statut_activite NOT IN ('annule','termine')
+        ORDER BY (a.date_debut IS NULL) ASC, a.date_debut ASC, a.ordre ASC");
+    $stmt->execute([$intervenant_id]);
+    return $stmt->fetchAll();
+}
+
 // Habillage visuel par catégorie quand l'activité n'a pas de photo : couleur de fond
 // et mascotte, choisies une fois pour toutes par catégorie (pas au hasard par carte).
 function site_categorie_habillage(string $categorie): array {

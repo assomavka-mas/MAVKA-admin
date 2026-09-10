@@ -13,6 +13,7 @@ if (!$iv) {
 }
 
 $ateliers = $iv ? site_intervenant_ateliers($iv['id']) : [];
+$activitesVolontaire = $iv ? site_activites_intervenant($iv['id']) : [];
 $photoUrl = ($iv && $iv['photo'] && $iv['dossier'])
     ? '/assets/uploads/intervenants/' . rawurlencode($iv['dossier']) . '/' . rawurlencode($iv['photo'])
     : '/assets/site-img/img-01-017fac3c9d.webp';
@@ -35,6 +36,7 @@ if ($iv) {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Figtree:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap">
 <link rel="stylesheet" href="/assets/site.css">
+<link rel="stylesheet" href="/assets/event-card.css">
 <style>
 .iv-hero{display:grid;grid-template-columns:220px 1fr;gap:36px;align-items:center}
 .iv-hero img{width:220px;height:220px;border-radius:50%;object-fit:cover;background:var(--mint)}
@@ -122,7 +124,8 @@ if ($iv) {
     <div class="wrap">
       <div class="head">
         <span class="eyebrow">Ce que <?= htmlspecialchars($iv['nom']) ?> propose</span>
-        <h2>Ateliers possibles</h2>
+        <h2>Ses savoir-faire</h2>
+        <p class="lede">Ses grands domaines — pas forcément programmés dans l'immédiat, mais ce vers quoi <?= htmlspecialchars($iv['nom']) ?> avance, pas à pas.</p>
       </div>
       <div class="iv-ateliers">
         <?php foreach ($ateliers as $at): ?>
@@ -132,6 +135,18 @@ if ($iv) {
         </div>
         <?php endforeach; ?>
       </div>
+    </div>
+  </section>
+  <?php endif; ?>
+
+  <?php if ($activitesVolontaire): ?>
+  <section class="sand">
+    <div class="wrap">
+      <div class="head">
+        <span class="eyebrow">Concret, dès maintenant</span>
+        <h2>Ses activités</h2>
+      </div>
+      <?= render_events_grid($activitesVolontaire) ?>
     </div>
   </section>
   <?php endif; ?>
