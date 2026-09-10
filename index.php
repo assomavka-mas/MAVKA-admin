@@ -125,7 +125,7 @@ $site_activites_bienetre = site_enrichir_avec_photo_intervenant(site_activites_p
     </div>
   </div>
 
-  <section>
+  <section class="agenda-teaser">
     <div class="wrap">
       <div class="head">
         <span class="eyebrow">Agenda</span>
