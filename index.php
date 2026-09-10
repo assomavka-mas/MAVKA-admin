@@ -18,7 +18,12 @@ $site_activites_bienetre = site_enrichir_avec_photo_intervenant(site_activites_p
 <meta name="description" content="MAVKA — association loi 1901 en Charente. Ateliers de culture, éducation, bien-être et développement personnel dans sept communes autour d'Angoulême.">
 <title>MAVKA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Figtree:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap">
+<!-- Familles ajoutées pour comparer 4 pistes de typographie (bouton "Police" ci-dessous),
+     en plus des polices déjà utilisées par le site. Toutes vérifiées pour le cyrillique
+     (nécessaire pour la bascule UK) — contrairement à Bricolage Grotesque/Figtree/Paprika,
+     qui n'ont pas ce sous-ensemble. Une fois un choix fixé, à retirer ici pour ne garder
+     que la police retenue. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Figtree:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Comfortaa:wght@500;700&family=Nunito+Sans:wght@400;600;700&family=Unbounded:wght@600;700;800&family=Manrope:wght@400;600;700&family=PT+Serif:wght@400;700&family=PT+Sans:wght@400;700&family=Literata:wght@400;600;700&family=Golos+Text:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="/assets/site.css?v=<?= @filemtime(__DIR__ . '/assets/site.css') ?: time() ?>">
 <link rel="stylesheet" href="/assets/event-card.css?v=<?= @filemtime(__DIR__ . '/assets/event-card.css') ?: time() ?>">
 </head>
@@ -39,6 +44,15 @@ $site_activites_bienetre = site_enrichir_avec_photo_intervenant(site_activites_p
       <button type="button" data-style="vif" aria-pressed="true"><i style="background:#1FAE93"></i>Vif</button>
       <button type="button" data-style="foret" aria-pressed="false"><i style="background:#5E8C6A"></i>Forêt</button>
       <button type="button" data-style="lin" aria-pressed="false"><i style="background:#B9AE95"></i>Lin</button>
+    </div>
+    <!-- Comparaison de typographies (temporaire) : indépendant du sélecteur de palette
+         ci-dessus, pour pouvoir tester n'importe quelle police avec n'importe quelle
+         couleur. À retirer une fois une police fixée. -->
+    <div class="styles" id="fonts" role="group" aria-label="Police du site">
+      <button type="button" data-font="chaleureux" aria-pressed="true">Chaleureux</button>
+      <button type="button" data-font="vivant" aria-pressed="false">Vivant</button>
+      <button type="button" data-font="conte" aria-pressed="false">Conte</button>
+      <button type="button" data-font="calme" aria-pressed="false">Calme</button>
     </div>
     <button class="lang" id="langBtn" type="button" aria-label="Змінити мову">УКР</button>
     <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="nav">Menu</button>
@@ -542,6 +556,16 @@ $site_activites_bienetre = site_enrichir_avec_photo_intervenant(site_activites_p
   let s='vif'; try{s=localStorage.getItem('mavka-style')||'vif'}catch(e){}
   set(s);
   box.addEventListener('click',e=>{const b=e.target.closest('button[data-style]'); if(b) set(b.dataset.style);});
+})();
+// ---- font switch (comparaison temporaire, indépendante de la palette) ----
+(function(){
+  const box=document.getElementById('fonts');
+  function set(f){ document.documentElement.setAttribute('data-font',f);
+    box.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.font===f)));
+    try{localStorage.setItem('mavka-font',f)}catch(e){} }
+  let f='chaleureux'; try{f=localStorage.getItem('mavka-font')||'chaleureux'}catch(e){}
+  set(f);
+  box.addEventListener('click',e=>{const b=e.target.closest('button[data-font]'); if(b) set(b.dataset.font);});
 })();
 // ---- FR / UK switch ----
 (function(){

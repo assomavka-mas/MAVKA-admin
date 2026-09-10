@@ -37,6 +37,16 @@
 :root[data-style="lin"] .date b{font-weight:600}
 :root[data-style="foret"] h1{font-weight:700}
 :root[data-style="foret"] header,:root[data-style="lin"] header{background:color-mix(in srgb,var(--ground) 92%,transparent)}
+
+/* ---- Comparaison de typographies (temporaire, bouton "Police") — indépendant de la
+   palette ci-dessus : n'importe laquelle de ces 4 pistes peut se combiner avec n'importe
+   quel style de couleur. Retirer ce bloc (et le sélecteur associé dans index.php) une
+   fois une police définitivement choisie ; la remettre alors directement dans :root. ---- */
+:root[data-font="chaleureux"]{--display:Comfortaa,"Avenir Next",Avenir,"Helvetica Neue",Arial,sans-serif; --body:"Nunito Sans","Helvetica Neue",Arial,sans-serif;}
+:root[data-font="vivant"]{--display:Unbounded,"Avenir Next",Avenir,"Helvetica Neue",Arial,sans-serif; --body:Manrope,"Helvetica Neue",Arial,sans-serif;}
+:root[data-font="conte"]{--display:"PT Serif",Georgia,"Times New Roman",serif; --body:"PT Sans","Helvetica Neue",Arial,sans-serif;}
+:root[data-font="calme"]{--display:Literata,Georgia,"Times New Roman",serif; --body:"Golos Text","Helvetica Neue",Arial,sans-serif;}
+
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
