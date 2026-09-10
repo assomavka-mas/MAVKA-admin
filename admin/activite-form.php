@@ -103,49 +103,58 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
   <div class="mavka-activite-col mavka-activite-col--card">
   <aside class="mavka-activite-preview">
     <div class="mavka-activite-preview__label">Carte publique — modifiable directement ici</div>
-    <div class="mavka-activite-preview__card">
-      <label for="f_photo" class="mavka-activite-preview__photo-wrap">
-        <div class="mavka-activite-preview__photo-box">
-          <img id="pv_photo" class="mavka-activite-preview__photo" alt=""
-               <?= !empty($a['photo']) ? 'src="/assets/uploads/activites/' . htmlspecialchars($a['photo']) . '"' : 'hidden' ?>>
-        </div>
-        <span id="pv_badge_categorie" class="mavka-activite-preview__badge mavka-activite-preview__badge--photo mavka-activite-preview__badge--tl" title="Provisoire — sera intégré à la carte lors de la maquette finale"></span>
-        <span id="pv_badge_format" class="mavka-activite-preview__badge mavka-activite-preview__badge--photo mavka-activite-preview__badge--tr" title="Provisoire — sera intégré à la carte lors de la maquette finale"></span>
-        <span id="pv_badge_public" class="mavka-activite-preview__badge mavka-activite-preview__badge--photo mavka-activite-preview__badge--bl" title="Provisoire — sera intégré à la carte lors de la maquette finale"></span>
-        <span class="mavka-activite-preview__photo-pencil" title="Changer la photo">✎</span>
+
+    <div class="ap-tags" title="Info interne — n'apparaît pas sur la carte, seulement ici pour vérifier d'un coup d'œil">
+      <span id="pv_badge_categorie" class="ap-tag"></span>
+      <span id="pv_badge_format" class="ap-tag"></span>
+      <span id="pv_badge_public" class="ap-tag"></span>
+      <span id="pv_badge_places" class="ap-tag"></span>
+    </div>
+
+    <div class="ap-event">
+      <label for="f_photo" class="ap-cover">
+        <img id="pv_photo" class="ap-cover__img" alt=""
+             <?= !empty($a['photo']) ? 'src="/assets/uploads/activites/' . htmlspecialchars($a['photo']) . '"' : 'hidden' ?>>
+        <div id="pv_date_badge" class="ap-date"></div>
+        <span class="ap-cover__pencil" title="Changer la photo">✎</span>
       </label>
       <input type="file" id="f_photo" name="photo" accept="image/png,image/jpeg,image/webp" hidden>
 
-      <textarea id="f_titre" name="titre" rows="1" class="mavka-activite-preview__field-default mavka-activite-preview__titre" placeholder="Titre de l'activité" required><?= htmlspecialchars($a['titre']) ?></textarea>
+      <div class="ap-event-row">
+        <textarea id="f_titre" name="titre" rows="1" class="ap-titre" placeholder="Titre de l'activité" required><?= htmlspecialchars($a['titre']) ?></textarea>
 
-      <div class="mavka-activite-preview__meta">
-        <div class="mavka-activite-preview__meta-row">
+        <span class="ap-meta">
+          <img id="pv_meta_avatar" class="ap-meta__avatar" alt="" hidden>
+          <span id="pv_meta_intervenants"></span>
+          <span id="pv_meta_sep" hidden>·</span>
+          <span class="ap-meta__loc">
+            <input type="text" id="f_lieu" name="lieu" class="ap-meta__input" placeholder="Lieu" value="<?= htmlspecialchars($a['lieu']) ?>">,
+            <input type="text" id="f_ville" name="ville" class="ap-meta__input" placeholder="Ville" value="<?= htmlspecialchars($a['ville']) ?>">
+          </span>
+        </span>
+
+        <div class="ap-date-inputs">
           <span>📅</span>
-          <input type="date" id="f_date_debut" name="date_debut" class="mavka-activite-preview__field-default" value="<?= htmlspecialchars($a['date_debut'] ?? '') ?>">
-          <input type="text" id="f_heure" name="heure" class="mavka-activite-preview__field-default" placeholder="18:00" value="<?= htmlspecialchars($a['heure']) ?>">
+          <input type="date" id="f_date_debut" name="date_debut" value="<?= htmlspecialchars($a['date_debut'] ?? '') ?>">
+          <input type="text" id="f_heure" name="heure" placeholder="18:00" value="<?= htmlspecialchars($a['heure']) ?>">
+          <input type="text" id="f_recurrence" name="recurrence" placeholder='Récurrence, ex. "Le jeudi"' value="<?= htmlspecialchars($a['recurrence']) ?>" <?= $a['texte_bouton'] === 'Événement régulier' ? '' : 'hidden' ?>>
         </div>
-        <input type="text" id="f_recurrence" name="recurrence" class="mavka-activite-preview__field-default" placeholder='Récurrence, ex. "Le jeudi"' value="<?= htmlspecialchars($a['recurrence']) ?>" <?= $a['texte_bouton'] === 'Événement régulier' ? '' : 'hidden' ?>>
-        <div class="mavka-activite-preview__meta-row">
-          <input type="text" id="f_lieu" name="lieu" class="mavka-activite-preview__field-default" placeholder="Lieu" value="<?= htmlspecialchars($a['lieu']) ?>">
-          <input type="text" id="f_ville" name="ville" class="mavka-activite-preview__field-default" placeholder="Ville" value="<?= htmlspecialchars($a['ville']) ?>">
-        </div>
-        <span id="pv_badge_places" class="mavka-activite-preview__badge" style="margin-top:6px;" title="Provisoire — sera intégré à la carte lors de la maquette finale"></span>
+
+        <textarea id="f_description" name="description" class="ap-desc" placeholder="Description de l'activité"><?= htmlspecialchars($a['description']) ?></textarea>
+
+        <?php
+          $boutons = ['Préinscription gratuite', 'Préinscription', 'Gratuit', 'Événement régulier', 'En savoir plus', 'Voir sa page'];
+          if ($a['texte_bouton'] && !in_array($a['texte_bouton'], $boutons)) {
+              array_unshift($boutons, $a['texte_bouton']); // garde l'ancienne valeur personnalisée si elle ne fait pas partie de la liste
+          }
+        ?>
+        <label class="mavka-activite-preview__btn-label">Texte du bouton<sup class="mavka-footnote-ref">2</sup></label>
+        <select id="f_texte_bouton" name="texte_bouton" class="ap-btn ap-btn--primary">
+          <?php foreach ($boutons as $b): ?>
+          <option value="<?= htmlspecialchars($b) ?>" <?= $a['texte_bouton'] === $b ? 'selected' : '' ?>><?= htmlspecialchars($b) ?></option>
+          <?php endforeach; ?>
+        </select>
       </div>
-
-      <textarea id="f_description" name="description" class="mavka-activite-preview__field-default mavka-activite-preview__desc" placeholder="Description de l'activité"><?= htmlspecialchars($a['description']) ?></textarea>
-
-      <?php
-        $boutons = ['Préinscription gratuite', 'Préinscription', 'Gratuit', 'Événement régulier', 'En savoir plus', 'Voir sa page'];
-        if ($a['texte_bouton'] && !in_array($a['texte_bouton'], $boutons)) {
-            array_unshift($boutons, $a['texte_bouton']); // garde l'ancienne valeur personnalisée si elle ne fait pas partie de la liste
-        }
-      ?>
-      <label class="mavka-activite-preview__btn-label">Texte du bouton<sup class="mavka-footnote-ref">2</sup></label>
-      <select id="f_texte_bouton" name="texte_bouton" class="mavka-activite-preview__btn">
-        <?php foreach ($boutons as $b): ?>
-        <option value="<?= htmlspecialchars($b) ?>" <?= $a['texte_bouton'] === $b ? 'selected' : '' ?>><?= htmlspecialchars($b) ?></option>
-        <?php endforeach; ?>
-      </select>
     </div>
   </aside>
 
@@ -248,9 +257,11 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
         Aucun intervenant enregistré — <a href="/admin/intervenants.php">en ajouter un</a>.
       </div>
       <?php endif; ?>
-      <?php foreach ($intervenants as $iv): ?>
+      <?php foreach ($intervenants as $iv):
+        $iv_photo_url = ($iv['photo'] && $iv['dossier']) ? '/assets/uploads/intervenants/' . rawurlencode($iv['dossier']) . '/' . rawurlencode($iv['photo']) : '';
+      ?>
       <label class="mavka-picklist__item">
-        <input type="checkbox" name="intervenants[]" value="<?= $iv['id'] ?>"
+        <input type="checkbox" name="intervenants[]" value="<?= $iv['id'] ?>" data-nom="<?= htmlspecialchars($iv['nom']) ?>" data-photo="<?= htmlspecialchars($iv_photo_url) ?>"
           <?= in_array($iv['id'], $selected_intervenants) ? 'checked' : '' ?>>
         <span><?= htmlspecialchars($iv['nom']) ?></span>
       </label>
@@ -297,69 +308,103 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
   display: block; font-size: 12.5px; font-weight: 700; color: var(--mavka-color-text-muted); margin: 0 0 6px;
 }
 .mavka-form-section--parametres { --section-color: var(--mavka-color-purple-dark); }
-.mavka-activite-preview { width: 100%; }
-.mavka-activite-preview__label { font-weight: 700; font-size: 13.5px; color: var(--mavka-color-text-muted); margin-bottom: 8px; }
-.mavka-activite-preview__card {
-  background: #fff; border: 2px solid var(--mavka-color-teal); border-radius: var(--mavka-radius-card);
-  padding: 18px; overflow: hidden;
-}
 
-/* Une seule apparence de champ pour tout le formulaire de la carte (titre, date, heure,
-   lieu, ville, description) — celle par défaut de .mavka-form, pas de traitement à part. */
+/* La carte publique reprend, telle quelle, la palette et les classes réelles du site
+   (assets/site.css) — au lieu d'un style "provisoire" maison qui a fini par diverger du
+   vrai rendu public. Les tokens sont redéclarés ici, sous .mavka-activite-preview, pour ne
+   pas mélanger le design system du site avec celui de l'admin (--mavka-color-*). */
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Figtree:wght@400;500;600&display=swap');
+.mavka-activite-preview {
+  width: 100%;
+  --ap-ground: #fff; --ap-mint: #E6F6F0; --ap-card: #fff; --ap-line: #D9EFE8;
+  --ap-ink: #1E2A3A; --ap-ink-2: #4B5A68; --ap-ink-3: #7C8994;
+  --ap-teal: #1FAE93; --ap-teal-deep: #158A74;
+  --ap-sun: #FFD84D; --ap-violet: #7B4FB5; --ap-violet-tint: #EBDFF7;
+  --ap-r: 22px; --ap-display: "Bricolage Grotesque", var(--mavka-font-display), sans-serif; --ap-body: Figtree, var(--mavka-font-body), sans-serif;
+}
+.mavka-activite-preview__label { font-weight: 700; font-size: 13.5px; color: var(--mavka-color-text-muted); margin-bottom: 10px; }
 
-.mavka-activite-preview__photo-wrap {
-  display: block; cursor: pointer; position: relative; margin-bottom: 12px;
+/* Info interne (Catégorie/Format/Public/Places) : n'existe pas sur la vraie carte, donc plus
+   question de la poser dessus comme avant — un simple bandeau de pastilles au-dessus, pour
+   vérifier d'un coup d'œil en remplissant, sans faire croire que c'est ce que voit le public. */
+.ap-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.ap-tag {
+  display: inline-block; font-family: var(--ap-body); font-size: 11.5px; font-weight: 700;
+  letter-spacing: .02em; padding: 4px 10px; border-radius: 999px;
+  background: var(--ap-violet-tint); color: var(--ap-violet);
 }
-.mavka-activite-preview__photo-box {
-  width: 100%; aspect-ratio: 16/10; border-radius: 10px; overflow: hidden;
-  background: var(--mavka-color-teal-light);
-}
-.mavka-activite-preview__photo { width: 100%; height: 100%; object-fit: cover; display: block; }
-.mavka-activite-preview__photo-pencil {
-  position: absolute; right: 8px; bottom: 8px; width: 30px; height: 30px; border-radius: 50%;
-  background: var(--mavka-color-teal); color: #fff; display: flex; align-items: center; justify-content: center;
-  font-size: 13px; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(36,27,40,.2);
-}
-.mavka-activite-preview__photo-wrap:hover .mavka-activite-preview__photo-pencil { background: var(--mavka-color-teal-dark, #276A62); }
-/* Provisoire : juste pour que Catégorie/Type/Public/Places soient visibles quelque part
-   avant la maquette finale des pages publiques — couleur volontairement hors palette pour
-   rester repérable comme "à refaire". */
-.mavka-activite-preview__badge {
-  display: inline-block; max-width: 100%;
-  background: #FFD54D; color: #4A3B00; font-size: 11.5px; font-weight: 700;
-  padding: 4px 9px; border-radius: 6px; box-shadow: 0 1px 3px rgba(36,27,40,.25);
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.mavka-activite-preview__badge:empty { display: none; }
-.mavka-activite-preview__badge--photo { position: absolute; max-width: calc(50% - 30px); }
-.mavka-activite-preview__badge--tl { top: 8px; left: 8px; }
-.mavka-activite-preview__badge--tr { top: 8px; right: 8px; }
-.mavka-activite-preview__badge--bl { bottom: 8px; left: 8px; }
+.ap-tag:empty { display: none; }
 
-.mavka-activite-preview__card .mavka-activite-preview__field-default.mavka-activite-preview__titre {
-  font-family: var(--mavka-font-display); font-style: italic; font-weight: 400; font-size: 19px;
-  line-height: 1.25; color: var(--mavka-color-ink); margin: 0 0 12px; display: block; padding: 4px 6px;
+.ap-event {
+  font-family: var(--ap-body); background: var(--ap-card); border: 2px solid var(--ap-mint);
+  border-radius: var(--ap-r); overflow: hidden;
+}
+.ap-cover {
+  display: block; cursor: pointer; position: relative; aspect-ratio: 16/9; background: var(--ap-mint); overflow: hidden;
+}
+.ap-cover__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.ap-cover__pencil {
+  position: absolute; right: 10px; bottom: 10px; z-index: 2; width: 30px; height: 30px; border-radius: 50%;
+  background: var(--ap-teal); color: #fff; display: flex; align-items: center; justify-content: center;
+  font-size: 13px; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(30,42,58,.25);
+}
+.ap-cover:hover .ap-cover__pencil { background: var(--ap-teal-deep); }
+.ap-date {
+  position: absolute; left: 14px; bottom: 14px; z-index: 1;
+  display: grid; align-content: start; gap: 2px; min-width: 74px; font-family: var(--ap-display);
+  line-height: 1; text-align: center; padding: 9px 8px; border-radius: 14px; background: var(--ap-sun);
+  color: var(--ap-ink); box-shadow: 0 4px 0 rgba(0,0,0,.08);
+}
+.ap-date:empty { display: none; }
+.ap-date b { display: block; font-size: 1.4rem; font-weight: 800; }
+.ap-date span { font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; }
+.ap-date small { display: block; font-size: .72rem; color: var(--ap-ink-2); margin-top: 3px; font-family: var(--ap-body); font-weight: 600; }
+.ap-date.ap-date--weekly { background: var(--ap-violet-tint); color: var(--ap-violet); }
+.ap-date.ap-date--weekly b { font-size: .85rem; font-weight: 700; }
+
+.ap-event-row { display: grid; gap: 8px; align-content: start; padding: 22px; }
+/* Spécificité : .mavka-form input/select/textarea (admin.css) est (0,1,1) — chaque règle
+   ci-dessous est préfixée par .mavka-activite-preview pour monter à (0,2,0) et gagner,
+   au lieu de se faire silencieusement écraser (bug déjà rencontré plusieurs fois sur cette page). */
+.mavka-activite-preview .ap-titre {
+  font-family: var(--ap-display); font-weight: 700; font-size: 1.15rem; line-height: 1.2;
+  color: var(--ap-ink); margin: 0; padding: 2px 4px; border: none; border-radius: 8px; background: transparent; width: 100%;
   resize: none; overflow: hidden; min-height: 0;
 }
-.mavka-activite-preview__meta {
-  border: 1.5px solid var(--mavka-color-orange); border-radius: 10px; padding: 8px 12px; margin-bottom: 12px;
+.ap-meta {
+  font-size: .9rem; color: var(--ap-ink-3); display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
 }
-.mavka-activite-preview__meta-row { display: flex; gap: 6px; }
-.mavka-activite-preview__meta-row + .mavka-activite-preview__meta-row { margin-top: 6px; }
-.mavka-activite-preview__meta-row input[type="date"] { flex: 1.4; }
-.mavka-activite-preview__meta-row input[type="text"] { flex: 1; }
-.mavka-activite-preview__card .mavka-activite-preview__field-default { font-size: 13px; padding: 6px 8px; }
-.mavka-activite-preview__card #f_recurrence.mavka-activite-preview__field-default { margin-top: 6px; }
-.mavka-activite-preview__card .mavka-activite-preview__field-default.mavka-activite-preview__desc {
-  font-size: 13.5px; line-height: 1.5; margin: 0 0 14px; min-height: 220px; resize: vertical;
+.ap-meta__avatar { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; flex: none; background: var(--ap-mint); }
+.ap-meta__loc { display: inline-flex; align-items: center; gap: 3px; }
+.mavka-activite-preview .ap-meta__input {
+  font: inherit; font-size: .9rem; color: var(--ap-ink-3); border: none; border-radius: 5px; background: transparent;
+  padding: 2px 3px; width: 90px; min-width: 0;
 }
-.mavka-activite-preview__card .mavka-activite-preview__btn {
-  width: 100%; appearance: none; background: var(--mavka-color-purple); color: #fff; text-align: center;
-  text-align-last: center; font-weight: 700; font-size: 14px; border: 1.5px dashed transparent;
-  border-radius: var(--mavka-radius-pill); padding: 11px 18px; cursor: pointer;
+.mavka-activite-preview .ap-meta__input:hover, .mavka-activite-preview .ap-meta__input:focus { background: var(--ap-mint); outline: none; }
+.ap-date-inputs {
+  display: flex; align-items: center; gap: 6px; padding: 6px 4px 2px; font-size: .85rem; color: var(--ap-ink-3);
 }
-.mavka-activite-preview__card .mavka-activite-preview__btn:hover { border-color: rgba(255,255,255,.6); }
-.mavka-activite-preview__card .mavka-activite-preview__btn:focus { outline: none; border-color: #fff; }
+.mavka-activite-preview .ap-date-inputs input {
+  font: inherit; font-size: .85rem; border: none; border-radius: 5px; background: transparent; padding: 2px 4px; color: var(--ap-ink); width: auto;
+}
+.ap-date-inputs input[type="date"] { flex: 1.1; }
+.ap-date-inputs input[type="text"] { width: 70px; }
+.mavka-activite-preview .ap-date-inputs input:hover, .mavka-activite-preview .ap-date-inputs input:focus { background: var(--ap-mint); outline: none; }
+.mavka-activite-preview .ap-desc {
+  font-family: var(--ap-body); color: var(--ap-ink-2); font-size: .95rem; line-height: 1.5;
+  border: none; border-radius: 8px; background: transparent; padding: 4px; margin: 4px 0 0; width: 100%;
+  min-height: 130px; resize: vertical;
+}
+.mavka-activite-preview .ap-desc:hover, .mavka-activite-preview .ap-desc:focus,
+.mavka-activite-preview .ap-titre:hover, .mavka-activite-preview .ap-titre:focus { background: var(--ap-mint); outline: none; }
+
+.mavka-activite-preview .ap-btn {
+  appearance: none; width: fit-content; margin-top: 6px; justify-self: start;
+  display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 999px;
+  font-family: var(--ap-body); font-weight: 700; font-size: .92rem; border: 1.5px solid transparent; cursor: pointer;
+}
+.mavka-activite-preview .ap-btn--primary { background: var(--ap-teal); color: #fff; }
+.mavka-activite-preview .ap-btn--primary:hover { background: var(--ap-teal-deep); }
 </style>
 
 <script>
@@ -450,6 +495,63 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
   }
   $('f_nombre_places').addEventListener('input', updateBadgePlaces);
   updateBadgePlaces();
+
+  // Plashka de date sur la photo : reproduit exactement render_event_date_badge() côté PHP
+  // (includes/site_functions.php), pour que ce qu'on voit ici soit ce que voit le public.
+  var MOIS_FR = {1:'jan',2:'fév',3:'mars',4:'avr',5:'mai',6:'juin',7:'juil',8:'août',9:'sept',10:'oct',11:'nov',12:'déc'};
+  var dateBadge = $('pv_date_badge');
+  var dateDebutInput = $('f_date_debut');
+  var heureInput = $('f_heure');
+  var villeInput = $('f_ville');
+  function updateDateBadge() {
+    var dateDebut = dateDebutInput.value;
+    var heure = heureInput.value.trim();
+    dateBadge.classList.remove('ap-date--weekly');
+    if (dateDebut) {
+      var parts = dateDebut.split('-');
+      var jour = parts[2];
+      var mois = MOIS_FR[parseInt(parts[1], 10)] || '';
+      dateBadge.innerHTML = '<b>' + jour + '</b><span>' + mois + '</span>' + (heure ? '<small>' + heure + '</small>' : '');
+    } else {
+      var principal = recurrenceInput.value.trim() || 'Régulier';
+      var secondaire = heure || villeInput.value.trim() || 'Sur demande';
+      dateBadge.classList.add('ap-date--weekly');
+      dateBadge.innerHTML = '<b>' + principal + '</b><small>' + secondaire + '</small>';
+    }
+  }
+  dateDebutInput.addEventListener('input', updateDateBadge);
+  heureInput.addEventListener('input', updateDateBadge);
+  recurrenceInput.addEventListener('input', updateDateBadge);
+  villeInput.addEventListener('input', updateDateBadge);
+  boutonSelect.addEventListener('change', updateDateBadge);
+  updateDateBadge();
+
+  // Aperçu intervenant·e dans la ligne meta (avatar + nom) : reflète la première case cochée
+  // dans la liste "Intervenant·e·s" ci-contre — c'est elle qui fait foi, pas un champ séparé.
+  var metaAvatar = $('pv_meta_avatar');
+  var metaNom = $('pv_meta_intervenants');
+  var metaSep = $('pv_meta_sep');
+  var casesIntervenants = document.querySelectorAll('input[name="intervenants[]"]');
+  function updateMetaIntervenant() {
+    var premiere = null;
+    casesIntervenants.forEach(function (c) { if (!premiere && c.checked) premiere = c; });
+    if (premiere) {
+      metaNom.textContent = premiere.dataset.nom;
+      metaSep.hidden = false;
+      if (premiere.dataset.photo) {
+        metaAvatar.src = premiere.dataset.photo;
+        metaAvatar.hidden = false;
+      } else {
+        metaAvatar.hidden = true;
+      }
+    } else {
+      metaNom.textContent = '';
+      metaSep.hidden = true;
+      metaAvatar.hidden = true;
+    }
+  }
+  casesIntervenants.forEach(function (c) { c.addEventListener('change', updateMetaIntervenant); });
+  updateMetaIntervenant();
 })();
 </script>
 <?php admin_footer(); ?>
