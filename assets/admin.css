@@ -52,8 +52,18 @@ a { color: var(--mavka-color-purple); }
   background: #fff; color: var(--mavka-color-ink);
 }
 .mavka-btn--primary { background: var(--mavka-color-purple); border-color: var(--mavka-color-purple); color: #fff; }
-.mavka-btn--danger { background: var(--mavka-color-danger-bg); border-color: var(--mavka-color-danger-text); color: var(--mavka-color-danger-text); }
 .mavka-btn--sm { padding: 6px 14px; font-size: 13px; }
+/* Supprimer : volontairement discret au repos (pas de couleur d'alerte, plus petit, décalé de
+   ses voisins) pour qu'un clic dessus soit un choix, pas un réflexe — le rouge n'apparaît qu'au
+   survol, juste avant le clic. Placé après .mavka-btn--sm pour gagner sur son padding/taille,
+   les deux classes étant toujours combinées ensemble dans le HTML. */
+.mavka-btn--danger {
+  background: transparent; border-color: transparent; color: var(--mavka-color-text-muted);
+  font-weight: 400; padding: 5px 10px; font-size: 12.5px; margin-left: 14px;
+}
+.mavka-btn--danger:hover, .mavka-btn--danger:focus-visible {
+  background: var(--mavka-color-danger-bg); border-color: var(--mavka-color-danger-text); color: var(--mavka-color-danger-text);
+}
 
 .mavka-card { background: #fff; border: 2px solid var(--mavka-color-teal); border-radius: var(--mavka-radius-card); padding: 24px; }
 
