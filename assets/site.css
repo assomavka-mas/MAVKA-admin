@@ -161,7 +161,7 @@ section.tight{padding:44px 0}
 /* team */
 .team{display:grid;grid-template-columns:repeat(4,1fr);gap:22px 18px}
 .person{display:grid;gap:8px}
-.person img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:var(--r);background:var(--mint)}
+.person img{width:100%;aspect-ratio:1;object-fit:contain;border-radius:var(--r);background:var(--mint)}
 .person b{font-family:var(--display);font-weight:600;font-size:1.05rem}
 .person span{color:var(--ink-2);font-size:.92rem;line-height:1.4}
 .person .role{color:var(--teal-deep);font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
