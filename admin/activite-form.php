@@ -304,7 +304,7 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
 /* @import doit précéder toute autre règle dans une feuille de style, sinon les navigateurs
    l'ignorent silencieusement (aucune erreur, aucune requête réseau) — donc ces deux imports
    viennent en tout premier, avant même les règles de mise en page ci-dessous. */
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Figtree:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&family=Nunito+Sans:wght@400;600;700&display=swap');
 @import url('/assets/event-card.css');
 
 .mavka-activite-layout { display: flex; align-items: flex-start; gap: 24px; flex-wrap: wrap; }

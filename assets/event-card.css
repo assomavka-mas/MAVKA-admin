@@ -10,8 +10,8 @@
   --ec-ink:#1E2A3A; --ec-ink-2:#4B5A68; --ec-ink-3:#7C8994;
   --ec-teal:#1FAE93; --ec-teal-deep:#158A74;
   --ec-sun:#FFD84D; --ec-sun-pale:#FFF6D6; --ec-violet:#7B4FB5; --ec-violet-tint:#EBDFF7;
-  --ec-r:22px; --ec-display:"Bricolage Grotesque","Avenir Next",Avenir,"Helvetica Neue",Arial,sans-serif;
-  --ec-body:Figtree,"Helvetica Neue",Arial,sans-serif;
+  --ec-r:22px; --ec-display:"PT Serif",Georgia,"Times New Roman",serif;
+  --ec-body:"Nunito Sans","Helvetica Neue",Arial,sans-serif;
 }
 .event{
   font-family:var(--ec-body); display:grid; grid-template-rows:auto auto 1fr;

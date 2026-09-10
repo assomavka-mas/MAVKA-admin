@@ -34,7 +34,7 @@ if ($iv) {
 <title><?= $iv ? htmlspecialchars($iv['nom']) . ' — MAVKA' : 'Volontaire introuvable — MAVKA' ?></title>
 <meta name="description" content="<?= $iv ? htmlspecialchars($iv['nom'] . ' à MAVKA. ' . ($iv['resume'] ?? '')) : '' ?>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Figtree:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&family=Nunito+Sans:wght@400;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap">
 <link rel="stylesheet" href="/assets/site.css?v=<?= @filemtime(__DIR__ . '/assets/site.css') ?: time() ?>">
 <link rel="stylesheet" href="/assets/event-card.css?v=<?= @filemtime(__DIR__ . '/assets/event-card.css') ?: time() ?>">
 <style>
