@@ -108,31 +108,18 @@ $site_activites_bienetre = site_enrichir_avec_photo_intervenant(site_activites_p
             <div><h3>Initiatives</h3><p>Vous avez une compétence, une passion ou une idée à partager ? MAVKA vous accompagne pour la tester, construire un atelier et la faire évoluer progressivement.</p></div>
           </div>
         </div>
-        <p style="margin-top:22px"><a href="#activites">Tout voir, avec les infos pratiques →</a></p>
       </div>
       <div class="dir-art"><img src="/assets/site-img/img-06-3bc40d08fc.webp" alt="Mavka assise, en train de lire"></div>
     </div>
   </section>
 
-  <div class="trust">
-    <div class="wrap row" style="justify-content:center">
-      <div class="logos" aria-label="Partenaires">
-        <img src="/assets/site-img/img-08-3aa13012b1.webp" alt="Commune de Garat">
-        <img src="/assets/site-img/img-09-0214dc1e39.webp" alt="Ville de Soyaux">
-        <img src="/assets/site-img/img-10-0b0315c840.webp" alt="FLEP Soyaux">
-        <img src="/assets/site-img/img-11-6a6681c6fb.webp" alt="FCOL">
-      </div>
-    </div>
-  </div>
-
   <section class="agenda-teaser">
     <div class="wrap">
       <div class="head">
-        <span class="eyebrow">Agenda</span>
         <h2>Prochaines dates</h2>
         <p class="lede">Découvrez nos prochains ateliers, rencontres et événements.</p>
       </div>
-      <?= render_events_grid($site_agenda_teaser, 'three') ?>
+      <?= render_events_grid($site_agenda_teaser, 'three compact') ?>
       <p style="margin-top:22px"><a class="btn btn-ghost" href="#agenda">Voir tout l'agenda</a></p>
     </div>
   </section>

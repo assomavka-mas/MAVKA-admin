@@ -159,6 +159,13 @@ section.tight{padding:44px 0}
 @media (max-width:1000px){.events.three{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:820px){.events,.events.three{grid-template-columns:1fr}}
 
+/* Mini-Actívité : variante compacte de la carte Activité (photo/habillage, plashka date,
+   avatars des intervenant·e·s, titre) — sans description ni bouton. Sert aux aperçus
+   (accueil) où plusieurs cartes tiennent sans allonger la page ; la carte complète reste
+   utilisée sur Agenda/Activités. */
+.events.compact .event-body p,
+.events.compact .event-body .btn{display:none}
+
 /* directions */
 .dir-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
 .dirs{display:grid;gap:0}
