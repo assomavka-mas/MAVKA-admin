@@ -54,9 +54,9 @@
 /* Bandeau vert sous la photo (même vert que les boutons) : un pavé carré vert vif
    (date/heure, ou récurrence) posé dessus, puis lieu/ville juste à côté sur le pâle —
    toujours visible, sur le site comme en admin (où ce sont les mêmes champs, modifiables
-   sur place). --ec-line (pas --ec-teal-tint, identique à --mint) : sinon le bandeau se noie
-   dans une section déjà vert pâle (ex. .agenda-teaser sur l'accueil). */
-.strip{background:var(--ec-line); padding:12px 16px; display:flex; align-items:center; gap:14px; color:var(--ec-ink)}
+   sur place). Mix 42% avec du blanc (ni --ec-teal-tint ni --ec-line, tous deux essayés et
+   rejetés — ils se noient dans une section déjà vert pâle comme .agenda-teaser). */
+.strip{background:color-mix(in srgb, var(--ec-teal) 42%, white); padding:12px 16px; display:flex; align-items:center; gap:14px; color:var(--ec-ink)}
 .strip__row{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap}
 .strip__badge{
   background:var(--ec-teal); color:#fff; border-radius:14px; flex:none; width:58px; height:58px;
@@ -67,7 +67,7 @@
 .strip__date--text{font-size:.68rem; text-transform:uppercase; letter-spacing:.02em; max-width:92px; line-height:1.15}
 .strip__date-unit{display:block; font-size:.6rem; text-transform:uppercase; letter-spacing:.04em; font-weight:700; margin-top:-2px}
 .strip__time{font-family:var(--ec-body); font-weight:700; font-size:.68rem; margin-top:2px}
-.strip__loc{font-size:.92rem; color:var(--ec-ink); opacity:.85; display:flex; flex-direction:column; gap:2px; min-width:0}
+.strip__loc{font-size:1rem; color:var(--ec-ink); opacity:.85; display:flex; flex-direction:column; gap:2px; min-width:0}
 
 .event-row{display:grid; gap:8px; align-content:start; padding:22px}
 .event-title-row{display:flex; align-items:center; gap:8px}
@@ -77,7 +77,7 @@
   border:2px solid var(--ec-card); margin-left:-10px; box-shadow:0 1px 2px rgba(30,42,58,.15);
 }
 .event-avatar:first-child{margin-left:0}
-.event-row h3{font-family:var(--ec-display); font-weight:700; font-size:1.15rem; line-height:1.2; color:var(--ec-ink); margin:0}
+.event-row h3{font-family:var(--ec-display); font-weight:700; font-size:1.25rem; line-height:1.2; color:var(--ec-ink); margin:0}
 .event-body{display:grid; gap:8px; align-content:start}
 .event-body .meta{font-size:.9rem; color:var(--ec-ink-3); display:flex; align-items:center; gap:8px}
 .event-body p{color:var(--ec-ink-2); font-size:.95rem; line-height:1.5; white-space:pre-line}
