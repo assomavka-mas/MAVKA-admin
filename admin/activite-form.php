@@ -183,7 +183,7 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
       <div>
         <label>Catégorie</label>
         <select id="f_categorie" name="categorie">
-          <?php foreach (['Culture', 'Éducation', 'Bien-être', 'Développement personnel'] as $cat): ?>
+          <?php foreach (['Culture', 'Éducation', 'Bien-être', 'Développement personnel', 'Événementiel'] as $cat): ?>
           <option value="<?= $cat ?>" <?= $a['categorie'] === $cat ? 'selected' : '' ?>><?= $cat ?></option>
           <?php endforeach; ?>
         </select>
@@ -200,7 +200,7 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
         <label>Type d'activité</label>
         <select id="f_format" name="format">
           <option value="">—</option>
-          <?php foreach (['Collectif', 'Individuel', 'Événementiel'] as $f): ?>
+          <?php foreach (['Collectif', 'Individuel'] as $f): ?>
           <option value="<?= $f ?>" <?= $a['format'] === $f ? 'selected' : '' ?>><?= $f ?></option>
           <?php endforeach; ?>
         </select>

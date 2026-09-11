@@ -4,7 +4,7 @@ require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/site_functions.php';
 
 $site_intervenants = site_intervenants_actifs();
-$site_agenda_teaser = site_enrichir_avec_photo_intervenant(site_activites_a_venir(3, ['Collectif', 'Événementiel']));
+$site_agenda_teaser = site_enrichir_avec_photo_intervenant(site_activites_a_venir(3, ['Collectif']));
 $site_agenda_toutes = site_enrichir_avec_photo_intervenant(site_activites_a_venir());
 $site_activites_culture = site_enrichir_avec_photo_intervenant(site_activites_par_categorie('Culture'));
 $site_activites_education = site_enrichir_avec_photo_intervenant(site_activites_par_categorie('Éducation'));

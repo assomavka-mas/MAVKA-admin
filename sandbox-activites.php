@@ -13,12 +13,17 @@ $activites = site_enrichir_avec_photo_intervenant(site_activites_par_categorie('
 // Pour la comparaison, on complète ici (aperçu seulement, rien n'est écrit en base) les
 // activités qui n'ont pas encore de Type d'activité / Public / Nombre de places renseignés,
 // pour voir les trois plashkas ensemble sur chaque carte.
-$exemplesFormat = ['Collectif', 'Individuel', 'Événementiel'];
+$exemplesFormat = ['Collectif', 'Individuel'];
 $exemplesPublic = ['Familial', 'Enfants et adultes', 'Adultes'];
 foreach ($activites as $i => &$a) {
-    if (empty($a['format'])) $a['format'] = $exemplesFormat[$i % 3];
+    if (empty($a['format'])) $a['format'] = $exemplesFormat[$i % 2];
     if (empty($a['public'])) $a['public'] = $exemplesPublic[$i % 3];
-    if ($a['nombre_places'] === null || $a['nombre_places'] === '') $a['nombre_places'] = 8 + $i * 4;
+    // Individuel = pas de nombre de places (même règle que admin/activite-form.php).
+    if ($a['format'] === 'Individuel') {
+        $a['nombre_places'] = null;
+    } elseif ($a['nombre_places'] === null || $a['nombre_places'] === '') {
+        $a['nombre_places'] = 8 + $i * 4;
+    }
 }
 unset($a);
 if ($activites) {

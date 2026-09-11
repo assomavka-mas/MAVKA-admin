@@ -29,14 +29,14 @@ $activites = $stmt->fetchAll();
 //        fill (aperçu d'un texte long) · photo · lien · date
 $colonnes = [
     'intervenants_noms'  => ['Intervenant·e·s', true, 'text', null],
-    'categorie'          => ['Catégorie', true, 'select_plain', ['Culture' => 'Culture', 'Éducation' => 'Éducation', 'Bien-être' => 'Bien-être', 'Développement personnel' => 'Développement personnel']],
+    'categorie'          => ['Catégorie', true, 'select_plain', ['Culture' => 'Culture', 'Éducation' => 'Éducation', 'Bien-être' => 'Bien-être', 'Développement personnel' => 'Développement personnel', 'Événementiel' => 'Événementiel']],
     'date'                => ['Date', true, 'edit_date', null],
     'lieu'                => ['Lieu', true, 'edit_text', null],
     'nombre_places'       => ['Places', true, 'edit_nombre', null],
     'statut'              => ['Statut', true, 'select', ['publie' => 'Publié', 'brouillon' => 'Brouillon']],
     'statut_activite'     => ['État', true, 'select', ['ouvert' => 'Ouvert', 'complet' => 'Complet', 'annule' => 'Annulé', 'termine' => 'Terminé']],
     'categorie_display'  => ['Sous-catégorie', false, 'text', null],
-    'format'              => ['Format', false, 'select_plain', ['' => '—', 'Collectif' => 'Collectif', 'Individuel' => 'Individuel', 'Événementiel' => 'Événementiel']],
+    'format'              => ['Format', false, 'select_plain', ['' => '—', 'Collectif' => 'Collectif', 'Individuel' => 'Individuel']],
     'public'              => ['Public', false, 'select_plain', ['' => '—', 'Enfant' => 'Enfant', 'Familial' => 'Familial', 'Adultes' => 'Adultes']],
     'ville'               => ['Ville', false, 'edit_text', null],
     'heure'               => ['Heure', false, 'edit_text', null],

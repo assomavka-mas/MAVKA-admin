@@ -2,8 +2,8 @@
 // Fonctions du site public — activités publiées et équipe active, lues depuis la même
 // base que l'admin (adresse le besoin : voir dans la vitrine ce qui a été saisi en admin).
 
-// $formats restreint aux formats donnés (ex. teaser de l'accueil : Collectif + Événementiel,
-// pour ne pas y montrer les cours individuels) ; null = tous formats, comme sur la page Agenda.
+// $formats restreint aux formats donnés (ex. teaser de l'accueil : Collectif, pour ne pas y
+// montrer les cours individuels) ; null = tous formats, comme sur la page Agenda.
 function site_activites_a_venir(?int $limit = null, ?array $formats = null): array {
     $sql = "SELECT * FROM activites_publiques
             WHERE statut_activite NOT IN ('annule','termine')";

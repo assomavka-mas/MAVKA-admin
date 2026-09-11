@@ -27,8 +27,8 @@ $champs_nombre = ['nombre_places', 'ordre'];
 $champs_select = [
     'statut' => ['publie', 'brouillon'],
     'statut_activite' => ['ouvert', 'complet', 'annule', 'termine'],
-    'categorie' => ['Culture', 'Éducation', 'Bien-être', 'Développement personnel'],
-    'format' => ['', 'Collectif', 'Individuel', 'Événementiel'],
+    'categorie' => ['Culture', 'Éducation', 'Bien-être', 'Développement personnel', 'Événementiel'],
+    'format' => ['', 'Collectif', 'Individuel'],
     'public' => ['', 'Enfant', 'Familial', 'Adultes'],
 ];
 
@@ -68,7 +68,21 @@ if (in_array($field, $champs_texte, true)) {
     fail('Ce champ ne se modifie pas depuis le tableau.');
 }
 
+// Individuel = pas de nombre de places (voir aussi activite-form.php) : mise à jour d'un
+// seul champ à la fois ici, donc on vérifie l'autre côté à chaque fois.
+if ($field === 'nombre_places' && $value !== null) {
+    $stmt = db()->prepare('SELECT format FROM activites WHERE id = ?');
+    $stmt->execute([$id]);
+    if ($stmt->fetchColumn() === 'Individuel') {
+        fail('Type d\'activité « Individuel » : pas de nombre de places.');
+    }
+}
+
 $stmt = db()->prepare("UPDATE activites SET `$field` = ? WHERE id = ?");
 $stmt->execute([$value, $id]);
+
+if ($field === 'format' && $value === 'Individuel') {
+    db()->prepare('UPDATE activites SET nombre_places = NULL WHERE id = ?')->execute([$id]);
+}
 
 echo json_encode(['ok' => true, 'value' => $value]);
