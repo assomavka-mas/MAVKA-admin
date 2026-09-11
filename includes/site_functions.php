@@ -32,8 +32,26 @@ function site_activites_par_categorie(string $categorie): array {
     return $stmt->fetchAll();
 }
 
+// Ordre d'affichage (liste "L'équipe" et aperçus) : Larysa (présidente/Mavka-admin) d'abord,
+// puis les intervenant·e·s qui animent réellement un atelier (activite_intervenant ou
+// intervenant_ateliers), puis les bénévoles qui ont signé la Charte du bénévole, puis le
+// reste — un seul classement, pas de sections séparées sur la page.
+function site_intervenant_rang(array $iv, array $enseigne): int {
+    if ($iv['email'] === 'mas.larysa@gmail.com' || stripos((string)($iv['role_titre'] ?? ''), 'président') !== false) return 0;
+    if (isset($enseigne[$iv['id']])) return 1;
+    if (!empty($iv['charte_benevolat_lien']) || !empty($iv['charte_benevolat_fichier'])) return 2;
+    return 3;
+}
+
 function site_intervenants_actifs(): array {
-    return db()->query('SELECT * FROM intervenants WHERE actif = 1 ORDER BY nom ASC')->fetchAll();
+    $intervenants = db()->query('SELECT * FROM intervenants WHERE actif = 1')->fetchAll();
+    $enseigne = array_fill_keys(array_merge(
+        db()->query('SELECT DISTINCT intervenant_id FROM intervenant_ateliers')->fetchAll(PDO::FETCH_COLUMN),
+        db()->query('SELECT DISTINCT intervenant_id FROM activite_intervenant')->fetchAll(PDO::FETCH_COLUMN)
+    ), true);
+    usort($intervenants, fn($a, $b) =>
+        site_intervenant_rang($a, $enseigne) <=> site_intervenant_rang($b, $enseigne) ?: strcmp($a['nom'], $b['nom']));
+    return $intervenants;
 }
 
 function site_intervenant_ateliers(int $intervenant_id): array {
@@ -182,13 +200,16 @@ function render_person_card(array $iv): string {
     $photoUrl = ($iv['photo'] && $iv['dossier'])
         ? '/assets/uploads/intervenants/' . rawurlencode($iv['dossier']) . '/' . rawurlencode($iv['photo'])
         : '/assets/site-img/img-01-017fac3c9d.webp';
-    $domaine = htmlspecialchars(explode(',', (string)($iv['domaine'] ?? ''))[0] ?? '');
+    $tags = '';
+    foreach (array_filter(array_map('trim', explode(',', (string)($iv['domaine'] ?? '')))) as $d) {
+        $tags .= '<span>' . htmlspecialchars($d) . '</span>';
+    }
     $resume = htmlspecialchars($iv['resume'] ?? '');
-    return '<div class="person">'
-        . '<img src="' . htmlspecialchars($photoUrl) . '" alt="' . htmlspecialchars($iv['nom']) . '">'
-        . '<b>' . htmlspecialchars($iv['nom']) . '</b>'
+    return '<a class="person" href="' . htmlspecialchars(intervenant_page_url((int)$iv['id'])) . '">'
+        . '<div class="person-cover"><img src="' . htmlspecialchars($photoUrl) . '" alt="">'
+        . ($tags !== '' ? '<div class="person-tags">' . $tags . '</div>' : '')
+        . '</div>'
+        . '<b>' . htmlspecialchars($iv['nom']) . ' <span class="arrow">→</span></b>'
         . ($resume !== '' ? '<span>' . $resume . '</span>' : '')
-        . ($domaine !== '' ? '<span class="meta">' . $domaine . '</span>' : '')
-        . '<a href="' . htmlspecialchars(intervenant_page_url((int)$iv['id'])) . '">Voir sa page →</a>'
-        . '</div>';
+        . '</a>';
 }
