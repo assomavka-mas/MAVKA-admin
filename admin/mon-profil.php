@@ -39,10 +39,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $iv['bio'] = trim($_POST['bio'] ?? '');
     $iv['parcours_personnel'] = trim($_POST['parcours_personnel'] ?? '');
     $iv['vision'] = trim($_POST['vision'] ?? '');
-    $iv['email'] = trim($_POST['email'] ?? '');
     $iv['cv_lien'] = trim($_POST['cv_lien'] ?? '');
 
-    $fields = ['resume', 'domaine', 'adresse', 'bio', 'parcours_personnel', 'vision', 'email', 'cv_lien', 'cv_fichier', 'photo'];
+    $fields = ['resume', 'domaine', 'adresse', 'bio', 'parcours_personnel', 'vision', 'cv_lien', 'cv_fichier', 'photo'];
 
     if (empty($iv['dossier'])) {
         $iv['dossier'] = intervenant_dossier($intervenant_id, $iv['nom']);
@@ -144,9 +143,6 @@ admin_header('Mon profil', $user, 'mon-profil');
 
     <label>Adresse</label>
     <input type="text" name="adresse" placeholder="16000 Angoulême" value="<?= htmlspecialchars($iv['adresse'] ?? '') ?>">
-
-    <label>Email de contact</label>
-    <input type="email" name="email" value="<?= htmlspecialchars($iv['email'] ?? '') ?>">
     </div>
   </details>
 
@@ -192,22 +188,25 @@ admin_header('Mon profil', $user, 'mon-profil');
     </div>
   </details>
 
-  <?php if (!empty($iv['projet_developpement']) || !empty($iv['projet_developpement_fichier']) || !empty($iv['objectifs_mavka'])): ?>
+  <?php $projet_defini = !empty($iv['projet_developpement']) || !empty($iv['projet_developpement_fichier']) || !empty($iv['objectifs_mavka']); ?>
   <details class="mavka-form-section" open>
     <summary class="mavka-form-section__header">
       <h3 class="mavka-form-section__title">🤝 Mon projet de développement avec MAVKA</h3>
       <svg class="mavka-form-section__chevron" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </summary>
     <div class="mavka-form-section__body">
+    <?php if ($projet_defini): ?>
     <p class="mavka-form-section__hint">Ce que Larysa et toi avez convenu — pas encore forcément écrit ailleurs. Visible seulement par vous deux, jamais publié sur le site. Pour le mettre à jour, parles-en à Larysa.</p>
     <?php if (!empty($iv['objectifs_mavka'])): ?>
     <label>Mes objectifs avec MAVKA</label>
     <p style="white-space:pre-line; margin:0 0 16px;"><?= htmlspecialchars($iv['objectifs_mavka']) ?></p>
     <?php endif; ?>
     <?php mon_profil_document_statut('Mon projet de développement', $iv['projet_developpement'] ?? null, $file_url('projet_developpement_fichier')); ?>
+    <?php else: ?>
+    <p class="mavka-form-section__hint">— Pas encore défini. C'est la prochaine étape de ton Parcours MAVKA : parles-en avec Larysa pour le construire ensemble.</p>
+    <?php endif; ?>
     </div>
   </details>
-  <?php endif; ?>
 
   <button type="submit" class="mavka-btn mavka-btn--primary" style="margin-top:16px;">Enregistrer</button>
 </form>
