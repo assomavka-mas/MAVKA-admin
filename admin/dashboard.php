@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/site_functions.php';
 
 $user = auth_require();
 
@@ -63,34 +64,39 @@ admin_header('Tableau de bord', $user, 'dashboard');
   <?php endif; ?>
 <?php if ($intervenant_id): ?>
   <h2 style="margin-top:<?= $voit_stats ? '32px' : '20px' ?>;">Mes activités</h2>
-  <p style="color:var(--mavka-color-text-muted); font-size:13.5px;">Les activités où vous êtes intervenant·e. Une activité en rouge n'est pas encore visible sur le site public : il lui manque le lien d'inscription, ou votre accord sur les conditions et la description.</p>
-  <table class="mavka-table" style="margin-top:16px;">
-    <tr><th>Titre</th><th>Date</th><th>Lieu</th><th>Statut</th><th>Validation</th></tr>
+  <p style="color:var(--mavka-color-text-muted); font-size:13.5px;">Les activités où vous êtes intervenant·e, telles qu'elles apparaîtront sur le site (photo, description, lien d'inscription compris). Une activité encadrée en rouge n'est pas encore visible sur le site public : il lui manque le lien d'inscription, ou votre accord sur les conditions et la description.</p>
+  <div class="mavka-mes-activites-grid">
     <?php foreach ($mes_activites as $a): ?>
     <?php $incomplet = activite_incomplete($a, true); ?>
-    <tr<?= $incomplet ? ' class="mavka-row--incomplete"' : '' ?>>
-      <td><?= htmlspecialchars($a['titre']) ?></td>
-      <td><?= htmlspecialchars($a['date_debut'] ?: $a['recurrence']) ?></td>
-      <td><?= htmlspecialchars($a['lieu']) ?></td>
-      <td><span class="mavka-badge mavka-badge--<?= $a['statut'] ?>"><?= $a['statut'] ?></span></td>
-      <td>
+    <div class="mavka-mes-activite-item<?= $incomplet ? ' mavka-mes-activite-item--incomplet' : '' ?>">
+      <?= render_event_card($a) ?>
+      <div class="mavka-mes-activite-validation">
+        <span class="mavka-badge mavka-badge--<?= $a['statut'] ?>"><?= $a['statut'] ?></span>
         <?php if (empty($a['lien_inscription'])): ?>
           <span class="mavka-tag-alerte">⚠ En attente du lien d'inscription</span>
         <?php elseif (empty($a['accepte_intervenant'])): ?>
-          <form method="post" action="/admin/activite-accepter.php" style="display:inline;" onsubmit="return confirm('Confirmez-vous les conditions et la description de « <?= htmlspecialchars(addslashes($a['titre'])) ?> » ?');">
+          <form method="post" action="/admin/activite-accepter.php" onsubmit="return confirm('Confirmez-vous les conditions et la description de « <?= htmlspecialchars(addslashes($a['titre'])) ?> » ?');">
             <input type="hidden" name="id" value="<?= $a['id'] ?>">
             <button type="submit" class="mavka-btn mavka-btn--sm mavka-btn--primary">Accepter cette activité</button>
           </form>
         <?php else: ?>
           <span class="mavka-fill-yes">✓ Acceptée</span>
         <?php endif; ?>
-      </td>
-    </tr>
+      </div>
+    </div>
     <?php endforeach; ?>
     <?php if (!$mes_activites): ?>
-    <tr><td colspan="5" style="color:var(--mavka-color-text-muted);">Aucune activité pour l'instant.</td></tr>
+    <p style="color:var(--mavka-color-text-muted);">Aucune activité pour l'instant.</p>
     <?php endif; ?>
-  </table>
+  </div>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&family=Nunito+Sans:wght@400;600;700&display=swap');
+    @import url('/assets/event-card.css?v=<?= @filemtime(__DIR__ . '/../assets/event-card.css') ?: time() ?>');
+    .mavka-mes-activites-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 18px; }
+    .mavka-mes-activite-item { border-radius: 26px; padding: 4px; }
+    .mavka-mes-activite-item--incomplet { background: var(--mavka-color-danger-bg); border: 2px solid var(--mavka-color-danger-text); }
+    .mavka-mes-activite-validation { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 14px 10px 8px; }
+  </style>
 <?php elseif (!$voit_stats): ?>
   <p style="color:var(--mavka-color-text-muted);">Aucun profil intervenant lié à ce compte pour l'instant.</p>
 <?php endif; ?>
