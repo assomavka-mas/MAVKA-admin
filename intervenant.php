@@ -51,7 +51,7 @@ if ($iv) {
 .tabpanel h2{margin-bottom:14px}
 .tabpanel p{color:var(--ink-2);max-width:44em;white-space:pre-line}
 
-.tabs-pill{display:inline-flex;gap:2px;padding:4px;border-radius:999px;background:var(--card);border:2px solid var(--mint);margin-bottom:28px}
+.tabs-pill{display:inline-flex;gap:2px;padding:4px;border-radius:999px;background:var(--card);border:1px solid var(--card-line);margin-bottom:28px}
 .tabs-pill button{border:0;background:transparent;border-radius:999px;padding:10px 22px;font:inherit;font-family:var(--display);font-weight:700;font-size:.95rem;color:var(--ink-2);cursor:pointer}
 .tabs-pill button[aria-selected="true"]{background:var(--teal);color:#fff}
 </style>
@@ -85,7 +85,7 @@ if ($iv) {
     </div>
   </section>
 <?php else: ?>
-  <section>
+  <section class="white">
     <div class="wrap">
       <a class="back" href="/index.php#equipe">← Toute l'équipe</a>
       <div class="iv-hero">

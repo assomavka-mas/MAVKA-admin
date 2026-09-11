@@ -78,6 +78,7 @@ section.tight{padding:44px 0}
 .sand{background:var(--mint)}
 .violet{background:var(--lilac)}
 .cream{background:var(--cream)}
+.white{background:var(--card)}
 .head{display:grid;gap:12px;max-width:44em;margin-bottom:40px}
 
 /* hero */
