@@ -13,6 +13,9 @@ function admin_header(string $title, array $user, string $active = ''): void {
   <div class="mavka-admin-sidebar">
     <div class="brand">MAVKA</div>
     <a href="/admin/dashboard.php" class="<?= $active === 'dashboard' ? 'active' : '' ?>">Tableau de bord</a>
+    <?php if ($user['role'] === 'benevole'): ?>
+    <a href="/admin/mon-profil.php" class="<?= $active === 'mon-profil' ? 'active' : '' ?>">Mon profil</a>
+    <?php endif; ?>
     <?php if (in_array($user['role'], ['super_admin', 'mavka_admin', 'partenaire'], true)): ?>
     <a href="/admin/activites.php" class="<?= $active === 'activites' ? 'active' : '' ?>">Activités</a>
     <a href="/admin/intervenants.php" class="<?= $active === 'intervenants' ? 'active' : '' ?>">Intervenants</a>
