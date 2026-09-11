@@ -279,12 +279,12 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
       </div>
     </div>
 
-    <div>
-      <label style="display:flex; align-items:center; gap:8px; font-weight:400;">
-        <input type="checkbox" name="accepte_intervenant" value="1" style="width:auto;" <?= !empty($a['accepte_intervenant']) ? 'checked' : '' ?>>
-        Acceptée par l'intervenant·e lié·e
+    <div id="f_acceptation_box" class="mavka-acceptation-box <?= !empty($a['accepte_intervenant']) ? 'mavka-acceptation-box--oui' : 'mavka-acceptation-box--non' ?>">
+      <label style="display:flex; align-items:center; gap:8px; font-weight:700;">
+        <input type="checkbox" id="f_accepte_intervenant" name="accepte_intervenant" value="1" style="width:auto;" <?= !empty($a['accepte_intervenant']) ? 'checked' : '' ?>>
+        <span id="f_acceptation_label"><?= !empty($a['accepte_intervenant']) ? '✓ Acceptée par l\'intervenant·e lié·e' : '⏳ En attente d\'acceptation par l\'intervenant·e lié·e' ?></span>
       </label>
-      <p class="mavka-form-section__hint" style="margin-top:4px;">
+      <p class="mavka-form-section__hint" style="margin-top:6px;">
         Tant que ce n'est pas coché, l'activité n'apparaît pas sur le site public si elle est liée à un·e intervenant·e (même avec un lien d'inscription) — visible seulement ici et dans l'espace bénévole de la personne concernée. Elle peut l'accepter elle-même depuis son tableau de bord ; ne coche ici que si vous avez son accord autrement (ex. par téléphone) ou si elle n'a pas encore d'accès à son espace.
         <?php if (!empty($a['accepte_le'])): ?><br>Acceptée le <?= htmlspecialchars(date('d/m/Y à H:i', strtotime($a['accepte_le']))) ?>.<?php endif; ?>
       </p>
@@ -354,6 +354,15 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
   display: block; font-size: 12.5px; font-weight: 700; color: var(--mavka-color-text-muted); margin: 0 0 6px;
 }
 .mavka-form-section--parametres { --section-color: var(--mavka-color-purple-dark); }
+
+/* Case "Acceptée par l'intervenant·e" : doit se voir au premier coup d'œil (rouge tant que ce
+   n'est pas coché, vert une fois coché) plutôt que se fondre parmi les autres champs — c'est
+   la seule chose de cette page qui détermine si l'activité sort en ligne ou pas. */
+.mavka-acceptation-box { border-radius: 10px; padding: 14px 16px; border: 2px solid; transition: background-color .15s, border-color .15s; }
+.mavka-acceptation-box--non { background: var(--mavka-color-danger-bg); border-color: var(--mavka-color-danger-text); }
+.mavka-acceptation-box--non label { color: var(--mavka-color-danger-text); }
+.mavka-acceptation-box--oui { background: var(--mavka-color-success-bg); border-color: var(--mavka-color-success-text); }
+.mavka-acceptation-box--oui label { color: var(--mavka-color-success-text); }
 
 /* La carte publique réutilise les classes exactes de assets/event-card.css (.event, .cover,
    .corner, .strip, .event-row...) — le fichier partagé avec includes/site_functions.php →
@@ -557,6 +566,18 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
   }
   casesIntervenants.forEach(function (c) { c.addEventListener('change', updateAvatars); });
   updateAvatars();
+
+  // Bascule immédiatement la couleur de la case Acceptation (rouge/vert) au clic, sans
+  // attendre l'enregistrement — retour visuel instantané sur ce qui détermine la publication.
+  var acceptationBox = $('f_acceptation_box');
+  var acceptationLabel = $('f_acceptation_label');
+  $('f_accepte_intervenant').addEventListener('change', function () {
+    acceptationBox.classList.toggle('mavka-acceptation-box--oui', this.checked);
+    acceptationBox.classList.toggle('mavka-acceptation-box--non', !this.checked);
+    acceptationLabel.textContent = this.checked
+      ? '✓ Acceptée par l\'intervenant·e lié·e'
+      : '⏳ En attente d\'acceptation par l\'intervenant·e lié·e';
+  });
 })();
 </script>
 <?php admin_footer(); ?>
