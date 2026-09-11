@@ -270,8 +270,12 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
 
     <div>
       <div id="f_lien_inscription_wrap">
-        <label>Lien d'inscription</label>
+        <label style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+          <span>Lien d'inscription</span>
+          <a id="f_lien_ouvrir" href="<?= htmlspecialchars($a['lien_inscription']) ?>" target="_blank" rel="noopener" style="font-weight:700; font-size:12.5px;" <?= $a['lien_inscription'] ? '' : 'hidden' ?>>↗ Ouvrir le lien</a>
+        </label>
         <input type="url" id="f_lien_inscription" name="lien_inscription" placeholder="https://helloasso.com/..." value="<?= htmlspecialchars($a['lien_inscription']) ?>">
+        <p class="mavka-form-section__hint" style="margin-top:4px;">Le lien vers HelloAsso (ou autre) reste la description complète — sans les limites de la carte publique. « ↗ Ouvrir le lien » ci-dessus l'ouvre dans un nouvel onglet pour vérifier ou relire.</p>
       </div>
       <div id="f_lien_equipe_hint" class="mavka-form-section__hint" style="margin:14px 0 0; display:none;">
         <label>Lien d'inscription</label>
@@ -468,6 +472,15 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
   }
   boutonSelect.addEventListener('change', applyBoutonMode);
   applyBoutonMode();
+
+  // "↗ Ouvrir le lien" suit ce qui est tapé, pour pouvoir vérifier/relire la page HelloAsso
+  // (description complète, sans les limites de la carte) sans quitter le formulaire.
+  var lienOuvrir = $('f_lien_ouvrir');
+  lienInput.addEventListener('input', function () {
+    var val = lienInput.value.trim();
+    lienOuvrir.href = val;
+    lienOuvrir.hidden = val === '';
+  });
 
   $('f_photo').addEventListener('change', function (e) {
     var file = e.target.files && e.target.files[0];
