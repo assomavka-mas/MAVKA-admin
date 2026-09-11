@@ -114,9 +114,12 @@ section.tight{padding:44px 0}
 @media (max-width:820px){.doors{grid-template-columns:1fr}}
 
 /* events : grille de mise en page seulement — le style de la carte elle-même vit dans
-   assets/event-card.css, partagé avec l'admin. */
+   assets/event-card.css, partagé avec l'admin. auto-fit (pas repeat(3,1fr) fixe) : avec
+   moins de 3 cartes (ex. les activités d'un seul volontaire), la ou les colonnes vides se
+   réduisent à 0 et les cartes existantes s'étirent pour remplir la ligne, au lieu de
+   laisser un vide à droite. */
 .events{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
-.events.three{grid-template-columns:repeat(3,1fr)}
+.events.three{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
 @media (max-width:1000px){.events.three{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:820px){.events,.events.three{grid-template-columns:1fr}}
 

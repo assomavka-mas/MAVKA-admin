@@ -128,7 +128,7 @@ if ($iv) {
         <span class="eyebrow">Concret, dès maintenant</span>
         <h2>Ses activités</h2>
       </div>
-      <?= render_events_grid($activitesVolontaire) ?>
+      <?= render_events_grid($activitesVolontaire, 'three') ?>
     </div>
   </section>
   <?php endif; ?>
