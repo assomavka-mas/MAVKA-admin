@@ -1,53 +1,25 @@
+/* Palette de marque de Larysa (document design-system fourni) — seule palette du site,
+   depuis l'abandon de Vif et Ta version. --card-line (obwodka de la carte Activité,
+   distincte de --mint) en vert plus affirmé que --mint, pour que la carte blanche ne se
+   noie pas quand la section autour est déjà vert pâle (.sand). */
 :root{
-  --ground:#FFFFFF; --mint:#E6F6F0; --cream:#FFF6D6; --lilac:#F1E9FA; --card:#FFFFFF; --line:#D9EFE8;
-  --card-line:#E6F6F0;
-  --ink:#1E2A3A; --ink-2:#4B5A68; --ink-3:#7C8994;
-  --teal:#1FAE93; --teal-deep:#158A74; --teal-tint:#D6F2EA;
-  --violet:#7B4FB5; --violet-tint:#EBDFF7;
-  --sun:#FFCB4D; --sun-deep:#E8A716;
-  --on-teal:#FFFFFF; --press:4px;
-  --shadow:0 2px 0 rgba(30,42,58,.04),0 16px 40px -18px rgba(31,174,147,.35);
-  --r:22px;
-  --display:"PT Serif",Georgia,"Times New Roman",serif;
-  --body:"Nunito Sans","Helvetica Neue",Arial,sans-serif;
-}
-
-/* ---- Palette "Ma palette" — la palette de marque de Larysa telle quelle (document
-   design-system fourni). --sun reprend le jaune commun au site (voir :root) : l'orange
-   essayé ici pour les boutons était une erreur (boutons orange = à corriger), abandonné.
-   --lilac (fond de la section "Pourquoi Mavka", .violet) en vert doux plutôt que mauve —
-   et --card-line (obwodka de la carte Activité, distincte de --mint) en un vert plus
-   affirmé, pour que la carte blanche ne se noie pas quand la section autour est déjà
-   vert pâle (.sand). ---- */
-:root[data-style="mapalette"]{
   --ground:#FAF7F6; --mint:#DFF1EE; --cream:#F3ECE7; --lilac:#EAF3E4; --card:#FFFFFF; --line:#E5D9E8;
   --card-line:#A9D8C4;
   --ink:#241B28; --ink-2:#3D2B35; --ink-3:#6B5B63;
   --teal:#3DA298; --teal-deep:#276A62; --teal-tint:#DFF1EE;
   --violet:#8D5D99; --violet-tint:#F0E9F1;
+  --sun:#FFCB4D; --sun-deep:#E8A716;
   --on-teal:#FFFFFF; --press:2px;
   --shadow:0 2px 0 rgba(36,27,40,.04),0 16px 40px -18px rgba(61,162,152,.35);
-}
-/* ---- Palette "Ta version" — même famille (teal/violet de la marque), mais je garde le
-   jaune : il porte bien les pastilles d'attention de la carte Activité, et un fond plus
-   chaud que le blanc pur. ---- */
-:root[data-style="taverse"]{
-  --ground:#FBF6EF; --mint:#E3F1EC; --cream:#FBEDD9; --lilac:#F1E7EF; --card:#FFFFFF; --line:#E9DFCE;
-  --card-line:#E3F1EC;
-  --ink:#2A2130; --ink-2:#4A3A45; --ink-3:#7A6B72;
-  --teal:#2F9184; --teal-deep:#1F6F63; --teal-tint:#E3F1EC;
-  --violet:#8D5D99; --violet-tint:#F1E7EF;
-  --sun:#FFCB4D; --sun-deep:#E8A716;
-  --on-teal:#FFFFFF; --press:3px;
-  --shadow:0 2px 0 rgba(42,33,48,.04),0 16px 40px -18px rgba(47,145,132,.35);
+  --r:22px;
+  --display:"PT Serif",Georgia,"Times New Roman",serif;
+  --body:"Nunito Sans","Helvetica Neue",Arial,sans-serif;
 }
 
-/* Bloc "Prochaines dates" (accueil) sous Ma palette : fond --mint (repris du bloc "Par où
-   commencer" supprimé) et bordure de carte plus fine (1px au lieu de 2px). Le jaune des
-   plashkas vient maintenant de --sun (commun à tout le site, voir :root) — plus besoin de
-   l'emprunter ici spécifiquement. */
-:root[data-style="mapalette"] .agenda-teaser{ background:var(--mint); }
-:root[data-style="mapalette"] .agenda-teaser .event{ border-width:1px; }
+/* Bloc "Prochaines dates" (accueil) : fond --mint (repris du bloc "Par où commencer"
+   supprimé) et bordure de carte plus fine (1px au lieu de 2px). */
+.agenda-teaser{ background:var(--mint); }
+.agenda-teaser .event{ border-width:1px; }
 
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -87,11 +59,6 @@ nav a[aria-current="page"]{color:var(--teal-deep);background:var(--mint)}
 .btn-ghost{background:var(--sun);color:var(--ink);border-color:var(--sun);box-shadow:0 var(--press) 0 var(--sun-deep)}
 .btn-ghost:hover{transform:translateY(1px);box-shadow:0 calc(var(--press) - 1px) 0 var(--sun-deep)}
 .btn-sm{padding:9px 16px;font-size:.9rem}
-.styles{display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--mint)}
-.styles button{border:0;background:transparent;border-radius:999px;padding:5px 10px;font:inherit;font-size:.78rem;font-weight:700;color:var(--ink-2);cursor:pointer}
-.styles button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
-.styles button i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:-1px}
-@media (max-width:1200px){.styles button{padding:6px 7px;font-size:0}.styles button i{margin:0;width:12px;height:12px}}
 .lang{background:var(--ground);border:2px solid var(--mint);border-radius:999px;padding:7px 12px;font:inherit;font-weight:700;font-size:.85rem;color:var(--teal-deep);cursor:pointer}
 .lang:hover{background:var(--mint)}
 .menu-btn{display:none;background:var(--mint);border:1.5px solid var(--mint);font-weight:700;border-radius:999px;padding:8px 14px;font:inherit;color:var(--ink);cursor:pointer}

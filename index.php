@@ -11,7 +11,7 @@ $site_activites_education = site_enrichir_avec_photo_intervenant(site_activites_
 $site_activites_bienetre = site_enrichir_avec_photo_intervenant(site_activites_par_categorie('Bien-être'));
 ?>
 <!DOCTYPE html>
-<html lang="fr" data-style="mapalette">
+<html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -38,11 +38,6 @@ $site_activites_bienetre = site_enrichir_avec_photo_intervenant(site_activites_p
       <a href="#collectivites" data-route="collectivites">Collectivités</a>
     </nav>
     <a class="btn btn-primary btn-sm" href="#contact">Contact</a>
-    <div class="styles" id="styles" role="group" aria-label="Style du site">
-      <button type="button" data-style="vif" aria-pressed="false"><i style="background:#1FAE93"></i>Vif</button>
-      <button type="button" data-style="mapalette" aria-pressed="true"><i style="background:#3DA298"></i>Ma palette</button>
-      <button type="button" data-style="taverse" aria-pressed="false"><i style="background:#2F9184"></i>Ta version</button>
-    </div>
     <button class="lang" id="langBtn" type="button" aria-label="Змінити мову">УКР</button>
     <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="nav">Menu</button>
   </div>
@@ -515,16 +510,6 @@ $site_activites_bienetre = site_enrichir_avec_photo_intervenant(site_activites_p
   window.addEventListener('hashchange',()=>go(location.hash.slice(1)));
   go((location.hash||'#accueil').slice(1));
   btn.addEventListener('click',()=>{const o=nav.classList.toggle('open');btn.setAttribute('aria-expanded',String(o));});
-})();
-// ---- style switch ----
-(function(){
-  const box=document.getElementById('styles');
-  function set(s){ if(s==='vif') document.documentElement.removeAttribute('data-style'); else document.documentElement.setAttribute('data-style',s);
-    box.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.style===s)));
-    try{localStorage.setItem('mavka-style',s)}catch(e){} }
-  let s='mapalette'; try{s=localStorage.getItem('mavka-style')||'mapalette'}catch(e){}
-  set(s);
-  box.addEventListener('click',e=>{const b=e.target.closest('button[data-style]'); if(b) set(b.dataset.style);});
 })();
 // ---- FR / UK switch ----
 (function(){
