@@ -4,15 +4,18 @@
 -- être acceptée par cette personne (conditions, description...) ET avoir un lien d'inscription
 -- pour apparaître sur le site public. Tant que l'un des deux manque, l'activité reste visible
 -- uniquement dans l'admin et dans l'espace du·de la volontaire concerné·e, mise en évidence
--- en rouge. Les activités déjà en ligne aujourd'hui sont considérées acceptées (elles ont été
--- convenues avant la mise en place de ce workflow) : seules les activités créées ou modifiées
--- à partir de maintenant repassent par une acceptation explicite.
+-- en rouge.
+--
+-- ATTENTION : pas de "grandfathering" — toutes les activités déjà en ligne, liées à un·e
+-- intervenant·e, repassent elles aussi par une acceptation explicite (accepte_intervenant = 0
+-- par défaut). Dès l'exécution de cette migration, une activité liée à un·e intervenant·e qui
+-- n'a pas encore accepté disparaît du site public jusqu'à son acceptation (depuis son espace
+-- bénévole) ou une case cochée manuellement par l'admin (admin/activite-form.php) — voulu
+-- explicitement, pour repasser en revue toute l'équipe même sur les activités déjà existantes.
 
 ALTER TABLE activites
   ADD COLUMN accepte_intervenant TINYINT(1) NOT NULL DEFAULT 0 AFTER lien_inscription,
   ADD COLUMN accepte_le DATETIME NULL AFTER accepte_intervenant;
-
-UPDATE activites SET accepte_intervenant = 1, accepte_le = NOW();
 
 CREATE OR REPLACE VIEW activites_publiques AS
 SELECT
