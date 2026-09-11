@@ -11,7 +11,7 @@
 .event{
   --ec-card:var(--card,#fff); --ec-mint:var(--mint,#DFF1EE); --ec-line:var(--card-line,#A9D8C4);
   --ec-ink:var(--ink,#241B28); --ec-ink-2:var(--ink-2,#3D2B35); --ec-ink-3:var(--ink-3,#6B5B63);
-  --ec-teal:var(--teal,#3DA298); --ec-teal-deep:var(--teal-deep,#276A62); --ec-teal-tint:var(--teal-tint,#DFF1EE);
+  --ec-teal:var(--teal,#3DA298); --ec-teal-deep:var(--teal-deep,#276A62);
   --ec-sun:var(--sun,#FFCB4D); --ec-sun-pale:color-mix(in srgb, var(--ec-sun) 22%, white);
   --ec-violet:var(--violet,#8D5D99); --ec-violet-tint:var(--violet-tint,#F0E9F1);
   --ec-r:22px; --ec-display:"PT Serif",Georgia,"Times New Roman",serif;
@@ -51,11 +51,12 @@
 .corner--br{right:10px; bottom:10px; background:rgba(255,255,255,.92); color:var(--ec-ink)}
 .corner--br2{right:10px; bottom:38px; background:rgba(255,255,255,.92); color:var(--ec-ink)}
 
-/* Bandeau vert pâle sous la photo (même vert que les boutons) : un pavé carré vert vif
+/* Bandeau vert sous la photo (même vert que les boutons) : un pavé carré vert vif
    (date/heure, ou récurrence) posé dessus, puis lieu/ville juste à côté sur le pâle —
    toujours visible, sur le site comme en admin (où ce sont les mêmes champs, modifiables
-   sur place). */
-.strip{background:var(--ec-teal-tint); padding:12px 16px; display:flex; align-items:center; gap:14px; color:var(--ec-ink)}
+   sur place). --ec-line (pas --ec-teal-tint, identique à --mint) : sinon le bandeau se noie
+   dans une section déjà vert pâle (ex. .agenda-teaser sur l'accueil). */
+.strip{background:var(--ec-line); padding:12px 16px; display:flex; align-items:center; gap:14px; color:var(--ec-ink)}
 .strip__row{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap}
 .strip__badge{
   background:var(--ec-teal); color:#fff; border-radius:14px; flex:none; width:58px; height:58px;
