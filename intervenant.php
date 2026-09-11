@@ -43,7 +43,7 @@ if ($iv) {
 @media (max-width:640px){.iv-hero{grid-template-columns:1fr;justify-items:start}.iv-hero img{width:160px;height:160px}}
 .iv-ateliers{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
 @media (max-width:820px){.iv-ateliers{grid-template-columns:1fr}}
-.iv-atelier{padding:22px;border-radius:var(--r);background:var(--card);border:2px solid var(--mint)}
+.iv-atelier{padding:22px;border-radius:var(--r);background:var(--card);border:1px solid var(--card-line)}
 .iv-atelier p{margin-top:8px;font-size:.96rem;white-space:pre-line}
 .back{display:inline-flex;gap:6px;color:var(--ink-2);font-weight:600;font-size:.92rem;margin-bottom:8px}
 #a-propos{scroll-margin-top:88px}
