@@ -133,19 +133,8 @@ if ($iv) {
   </section>
   <?php endif; ?>
 
-  <section class="tight">
-    <div class="wrap cta-band">
-      <div>
-        <h3>Envie de participer à un atelier de <?= htmlspecialchars($iv['nom']) ?> ?</h3>
-        <p>Écrivez-nous, nous vous mettrons en relation ou vous préviendrons de la prochaine date.</p>
-        <div class="actions"><a class="btn btn-primary" href="/index.php#contact">Nous écrire</a></div>
-      </div>
-      <svg class="mascot" viewBox="0 0 310 769" style="aspect-ratio:310/769"><use href="#m-stand"/></svg>
-    </div>
-  </section>
-
   <?php if ($sections): ?>
-  <section class="sand" id="a-propos">
+  <section id="a-propos">
     <div class="wrap">
       <div class="tabset">
         <div class="tabs-pill" role="tablist" data-tablist aria-label="Sections du profil">
