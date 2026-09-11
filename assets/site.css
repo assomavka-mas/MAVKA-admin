@@ -154,19 +154,21 @@ section.tight{padding:44px 0}
 @media (max-width:640px){.story{grid-template-columns:1fr;justify-items:start}}
 
 /* team — carte cliquable en entier (photo + nom). Catégories déplacées sous le nom, en
-   capsules vertes (--teal-tint/--teal-deep, même vert que .eyebrow) au-dessus du mini-
-   descriptif — pas sur la photo (essayé, écarté). */
+   pilules fines au-dessus du mini-descriptif — même style que les liens actifs de nav
+   (poids normal, pas de majuscules ni de gras — pas un badge). */
 .team{display:grid;grid-template-columns:repeat(4,1fr);gap:22px 18px}
 .person{display:grid;gap:10px;color:inherit;text-decoration:none}
 .person:hover{text-decoration:none}
 .person-cover{position:relative;aspect-ratio:4/3;border-radius:var(--r);overflow:hidden;background:var(--mint)}
 .person-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .person-tags{display:flex;flex-wrap:wrap;gap:6px}
-.person-tags span{font-family:var(--body);font-size:11px;font-weight:700;letter-spacing:.02em;padding:4px 9px;border-radius:999px;background:var(--teal-tint);color:var(--teal-deep)}
 .person b{display:flex;align-items:center;gap:6px;font-family:var(--display);font-weight:600;font-size:1.05rem;color:var(--teal-deep)}
 .person b .arrow{transition:transform .15s}
 .person:hover b .arrow{transform:translateX(3px)}
 .person span{color:var(--ink-2);font-size:.92rem;line-height:1.4}
+/* Spécificité (.person-tags span) = (.person span) : placée après pour gagner le
+   conflit de couleur, sinon .person span (générique, sert la description) l'emporte. */
+.person-tags span{font-family:var(--body);font-size:.82rem;font-weight:500;padding:5px 12px;border-radius:999px;background:var(--mint);color:var(--teal-deep)}
 .faces{display:flex;align-items:center}
 .faces img{width:56px;height:56px;border-radius:50%;object-fit:cover;border:3px solid var(--ground);margin-left:-12px;background:var(--mint)}
 .faces img:first-child{margin-left:0}

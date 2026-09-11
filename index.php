@@ -473,7 +473,7 @@ $site_activites_bienetre = site_enrichir_avec_photo_intervenant(site_activites_p
       </div>
       <div class="cols">
         <div class="col"><b>Découvrir</b><a href="#agenda">Agenda</a><a href="#activites">Activités</a><a href="#equipe">L'équipe</a></div>
-        <div class="col"><b>Rejoindre</b><a href="#intervenants">Devenir intervenant</a><a href="#collectivites">Collectivités</a><a href="#contact">Contact</a></div>
+        <div class="col"><b>Rejoindre</b><a href="#intervenants">Devenir intervenant</a><a href="#collectivites">Collectivités</a><a href="#contact">Contact</a><a href="/admin/login.php">Espace bénévole</a></div>
         <div class="col"><b>Nous joindre</b><a href="tel:+33656682153">+33 6 56 68 21 53</a><a href="mailto:asso.mavka@gmail.com">asso.mavka@gmail.com</a><span>Lundi au samedi, 10h à 17h</span></div>
       </div>
     </div>
