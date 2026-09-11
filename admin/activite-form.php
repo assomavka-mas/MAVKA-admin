@@ -189,7 +189,8 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
       </div>
       <div>
         <label>Sous-titre affiché (facultatif)</label>
-        <input type="text" id="f_categorie_display" name="categorie_display" placeholder="Bien-être · Art-thérapie" value="<?= htmlspecialchars($a['categorie_display'] ?? '') ?>">
+        <input type="text" id="f_categorie_display" name="categorie_display" placeholder="Nouveau cours" value="<?= htmlspecialchars($a['categorie_display'] ?? '') ?>">
+        <p class="mavka-form-section__hint">Plashka en haut à gauche de la photo, pour signaler quelque chose (ex. « Nouveau cours »). Vide = pas de plashka.</p>
       </div>
     </div>
 
@@ -444,13 +445,12 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
     reader.readAsDataURL(file);
   });
 
-  // Plashka provisoire sur la photo — reprend le sous-titre affiché, sinon la catégorie.
+  // Plashka provisoire sur la photo — sous-titre affiché uniquement (plus de repli sur la
+  // catégorie : la plashka Direction est retirée définitivement de la carte).
   var badgeCategorie = $('pv_badge_categorie');
   function updateBadgeCategorie() {
-    var sousTitre = $('f_categorie_display').value.trim();
-    badgeCategorie.textContent = sousTitre || $('f_categorie').value;
+    badgeCategorie.textContent = $('f_categorie_display').value.trim();
   }
-  $('f_categorie').addEventListener('change', updateBadgeCategorie);
   $('f_categorie_display').addEventListener('input', updateBadgeCategorie);
   updateBadgeCategorie();
 

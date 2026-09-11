@@ -120,7 +120,9 @@ function render_event_strip(array $a): string {
 
 function render_event_card(array $a): string {
     $habillage = site_categorie_habillage($a['categorie']);
-    $corners = '<span class="corner corner--tl">' . htmlspecialchars($a['categorie_display'] ?: $a['categorie']) . '</span>'
+    // corner--tl : sous-titre affiché uniquement (ex. "Nouveau cours") — n'affiche plus la
+    // catégorie (Culture/Éducation/Bien-être) en repli ; vide = pas de plashka (retiré définitivement).
+    $corners = '<span class="corner corner--tl">' . htmlspecialchars($a['categorie_display'] ?? '') . '</span>'
         . '<span class="corner corner--tr">' . htmlspecialchars($a['format'] ?? '') . '</span>'
         . '<span class="corner corner--br">' . htmlspecialchars($a['public'] ?? '') . '</span>'
         . '<span class="corner corner--br2">' . ($a['nombre_places'] !== null && $a['nombre_places'] !== '' ? htmlspecialchars($a['nombre_places'] . ' places') : '') . '</span>';

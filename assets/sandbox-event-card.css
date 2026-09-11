@@ -16,7 +16,7 @@
 .event{
   --ec-card:var(--card,#fff); --ec-mint:var(--mint,#DFF1EE); --ec-line:var(--card-line,#A9D8C4);
   --ec-ink:var(--ink,#241B28); --ec-ink-2:var(--ink-2,#3D2B35); --ec-ink-3:var(--ink-3,#6B5B63);
-  --ec-teal:var(--teal,#3DA298); --ec-teal-deep:var(--teal-deep,#276A62);
+  --ec-teal:var(--teal,#3DA298); --ec-teal-deep:var(--teal-deep,#276A62); --ec-teal-tint:var(--teal-tint,#DFF1EE);
   --ec-sun:var(--sun,#FFCB4D); --ec-sun-pale:color-mix(in srgb, var(--ec-sun) 22%, white);
   --ec-violet:var(--violet,#8D5D99); --ec-violet-tint:var(--violet-tint,#F0E9F1);
   --ec-r:22px; --ec-display:"PT Serif",Georgia,"Times New Roman",serif;
@@ -41,27 +41,32 @@
 .cover.photo-cover>img{position:absolute; inset:0; width:100%; height:100%; object-fit:contain; display:block}
 .cover .mascot{position:absolute; right:8%; bottom:-6%; height:104%; width:auto}
 
-/* Catégorie / Format / Public / Places : sur les coins de la photo, fond jaune — volontairement
-   voyant, pour attirer l'œil (visiteur comme volontaire qui saisit la fiche). */
+/* corner--tl : plashka "sous-titre" (ex. "Nouveau cours") — reste jaune, volontairement
+   voyant, c'est son rôle (signaler). Direction/catégorie retirée définitivement (plus de
+   repli dessus). Format/Public/Places (tr/br/br2) passent à une couleur neutre — 3
+   variantes ci-dessous (.v-white/.v-cream/.v-dark) pour comparaison, une seule à garder. */
 .corner{
   position:absolute; z-index:1; max-width:calc(50% - 24px);
   font-family:var(--ec-body); font-size:11px; font-weight:700; letter-spacing:.02em;
-  padding:4px 9px; border-radius:999px; background:var(--ec-sun); color:var(--ec-ink);
+  padding:4px 9px; border-radius:999px;
   box-shadow:0 1px 3px rgba(30,42,58,.2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
 .corner:empty{display:none}
-.corner--tl{top:10px; left:10px}
+.corner--tl{top:10px; left:10px; background:var(--ec-sun); color:var(--ec-ink)}
 .corner--tr{top:10px; right:10px}
 .corner--br{right:10px; bottom:10px}
 .corner--br2{right:10px; bottom:38px}
 
-/* Bandeau jaune pâle sous la photo : un pavé carré jaune vif (date/heure, ou récurrence) posé
-   dessus, puis lieu/ville juste à côté sur le pâle — toujours visible, sur le site comme en
-   admin (où ce sont les mêmes champs, modifiables sur place). */
-.strip{background:var(--ec-sun-pale); padding:12px 16px; display:flex; align-items:center; gap:14px; color:var(--ec-ink)}
+.v-white .corner--tr, .v-white .corner--br, .v-white .corner--br2{background:rgba(255,255,255,.92); color:var(--ec-ink)}
+.v-cream .corner--tr, .v-cream .corner--br, .v-cream .corner--br2{background:var(--ec-card); color:var(--ec-ink-2); border:1px solid rgba(30,42,58,.12); box-shadow:none}
+.v-dark .corner--tr, .v-dark .corner--br, .v-dark .corner--br2{background:rgba(36,27,40,.78); color:#fff}
+
+/* Bandeau vert sous la photo (même vert que les boutons) : pavé carré vert pour la
+   date/heure (ou récurrence), lieu/ville juste à côté sur le fond vert pâle. */
+.strip{background:var(--ec-teal-tint); padding:12px 16px; display:flex; align-items:center; gap:14px; color:var(--ec-ink)}
 .strip__row{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap}
 .strip__badge{
-  background:var(--ec-sun); border-radius:14px; flex:none; width:58px; height:58px;
+  background:var(--ec-teal); color:#fff; border-radius:14px; flex:none; width:58px; height:58px;
   display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; line-height:1.05;
 }
 .strip__badge--wide{width:auto; min-width:58px; padding:8px 10px}
