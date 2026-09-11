@@ -46,6 +46,7 @@ if ($iv) {
 .iv-atelier{padding:22px;border-radius:var(--r);background:var(--card);border:2px solid var(--mint)}
 .iv-atelier p{margin-top:8px;font-size:.96rem;white-space:pre-line}
 .back{display:inline-flex;gap:6px;color:var(--ink-2);font-weight:600;font-size:.92rem;margin-bottom:8px}
+#a-propos{scroll-margin-top:88px}
 
 .tabpanel h2{margin-bottom:14px}
 .tabpanel p{color:var(--ink-2);max-width:44em;white-space:pre-line}
@@ -90,34 +91,15 @@ if ($iv) {
       <div class="iv-hero">
         <img src="<?= htmlspecialchars($photoUrl) ?>" alt="<?= htmlspecialchars($iv['nom']) ?>">
         <div>
-          <span class="eyebrow">Membre de l'équipe</span>
+          <span class="eyebrow"><?= htmlspecialchars(site_intervenant_statut_label($iv)) ?></span>
           <h1 style="margin-top:12px"><?= htmlspecialchars($iv['nom']) ?></h1>
           <?php if ($iv['resume']): ?><p class="lede" style="margin-top:12px"><?= htmlspecialchars($iv['resume']) ?></p><?php endif; ?>
           <?php if ($iv['domaine']): ?><p style="margin-top:10px;color:var(--ink-3);font-size:.92rem"><?= htmlspecialchars($iv['domaine']) ?></p><?php endif; ?>
+          <?php if ($sections): ?><p style="margin-top:14px"><a href="#a-propos">Plus d'informations →</a></p><?php endif; ?>
         </div>
       </div>
     </div>
   </section>
-
-  <?php if ($sections): ?>
-  <section class="sand">
-    <div class="wrap">
-      <div class="tabset">
-        <div class="tabs-pill" role="tablist" data-tablist aria-label="Sections du profil">
-          <?php foreach ($sections as $i => $s): ?>
-          <button type="button" role="tab" data-tab="<?= $s['key'] ?>" aria-selected="<?= $i === 0 ? 'true' : 'false' ?>"><?= htmlspecialchars($s['label']) ?></button>
-          <?php endforeach; ?>
-        </div>
-        <?php foreach ($sections as $i => $s): ?>
-        <div class="tabpanel" data-panel="<?= $s['key'] ?>"<?= $i === 0 ? '' : ' hidden' ?>>
-          <h2><?= htmlspecialchars($s['title']) ?></h2>
-          <p><?= htmlspecialchars($s['text']) ?></p>
-        </div>
-        <?php endforeach; ?>
-      </div>
-    </div>
-  </section>
-  <?php endif; ?>
 
   <?php if ($ateliers): ?>
   <section>
@@ -161,6 +143,26 @@ if ($iv) {
       <svg class="mascot" viewBox="0 0 310 769" style="aspect-ratio:310/769"><use href="#m-stand"/></svg>
     </div>
   </section>
+
+  <?php if ($sections): ?>
+  <section class="sand" id="a-propos">
+    <div class="wrap">
+      <div class="tabset">
+        <div class="tabs-pill" role="tablist" data-tablist aria-label="Sections du profil">
+          <?php foreach ($sections as $i => $s): ?>
+          <button type="button" role="tab" data-tab="<?= $s['key'] ?>" aria-selected="<?= $i === 0 ? 'true' : 'false' ?>"><?= htmlspecialchars($s['label']) ?></button>
+          <?php endforeach; ?>
+        </div>
+        <?php foreach ($sections as $i => $s): ?>
+        <div class="tabpanel" data-panel="<?= $s['key'] ?>"<?= $i === 0 ? '' : ' hidden' ?>>
+          <h2><?= htmlspecialchars($s['title']) ?></h2>
+          <p><?= htmlspecialchars($s['text']) ?></p>
+        </div>
+        <?php endforeach; ?>
+      </div>
+    </div>
+  </section>
+  <?php endif; ?>
 <?php endif; ?>
 </main>
 
@@ -169,11 +171,11 @@ if ($iv) {
     <div class="row">
       <div>
         <a class="brand" href="/index.php#accueil"><img src="/assets/site-img/img-01-017fac3c9d.webp" alt=""><b>MAVKA</b></a>
-        <p style="margin-top:12px;max-width:26em">Association loi 1901, Charente. Culture, éducation, bien-être et développement personnel, dans sept communes autour d'Angoulême.</p>
+        <p style="margin-top:12px;max-width:26em">Notre mascotte : Mavka, esprit protecteur de la forêt dans le folklore ukrainien.</p>
       </div>
       <div class="cols">
         <div class="col"><b>Découvrir</b><a href="/index.php#agenda">Agenda</a><a href="/index.php#activites">Activités</a><a href="/index.php#equipe">L'équipe</a></div>
-        <div class="col"><b>Rejoindre</b><a href="/index.php#intervenants">Devenir intervenant</a><a href="/index.php#collectivites">Collectivités</a><a href="/index.php#contact">Contact</a></div>
+        <div class="col"><b>Rejoindre</b><a href="/index.php#intervenants">Devenir intervenant</a><a href="/index.php#collectivites">Collectivités</a><a href="/index.php#contact">Contact</a><a href="/admin/login.php">Espace bénévole</a></div>
         <div class="col"><b>Nous joindre</b><a href="tel:+33656682153">+33 6 56 68 21 53</a><a href="mailto:asso.mavka@gmail.com">asso.mavka@gmail.com</a><span>Lundi au samedi, 10h à 17h</span></div>
       </div>
     </div>

@@ -43,6 +43,17 @@ function site_intervenant_rang(array $iv, array $enseigne): int {
     return 3;
 }
 
+// Étiquette affichée en haut de la page publique d'un·e intervenant·e (remplace le fixe
+// "Membre de l'équipe") — selon les documents signés, pas selon ce qui est programmé :
+// contrat d'intervention signé = collaboration rémunérée établie (dernière étape du
+// Parcours MAVKA) ; charte du bénévole seule = engagement bénévole officiel ; rien encore
+// signé = en cours d'accompagnement.
+function site_intervenant_statut_label(array $iv): string {
+    if (!empty($iv['contrat_intervention_lien']) || !empty($iv['contrat_intervention_fichier'])) return 'Intervenant·e';
+    if (!empty($iv['charte_benevolat_lien']) || !empty($iv['charte_benevolat_fichier'])) return 'Bénévole';
+    return 'Volontaire';
+}
+
 function site_intervenants_actifs(): array {
     $intervenants = db()->query('SELECT * FROM intervenants WHERE actif = 1')->fetchAll();
     $enseigne = array_fill_keys(array_merge(
