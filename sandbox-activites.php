@@ -29,6 +29,7 @@ unset($a);
 if ($activites) {
     $activites[0]['categorie_display'] = 'Nouveau cours';
 }
+$exemple = $activites[0] ?? null;
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -44,12 +45,30 @@ if ($activites) {
   .sandbox-banner b{color:#FFCB4D}
   .variant-block{margin-bottom:56px;padding-bottom:56px;border-bottom:1px solid var(--line)}
   .variant-block h3{font-size:1.1rem;margin-bottom:16px}
+  .dark-compare{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;max-width:760px;margin-bottom:56px;padding-bottom:56px;border-bottom:1px solid var(--line)}
+  .dark-compare h3{font-size:1.1rem;margin-bottom:16px}
+  /* Simule une photo sombre (portrait pris en intérieur, vêtements foncés...) pour juger la
+     lisibilité des plashkas translucides dans le pire des cas — pas une vraie photo. */
+  .dark-photo .cover{background:linear-gradient(160deg,#2a2130,#4a3550)}
+  .dark-photo .cover::after{content:"";position:absolute;inset:0;z-index:0;background:radial-gradient(circle at 30% 20%,rgba(0,0,0,.15),rgba(0,0,0,.55) 80%)}
+  .dark-photo .cover .mascot{opacity:.35}
 </style>
 </head>
 <body>
 <div class="sandbox-banner"><b>Пісочниця</b> — тут можна вільно міняти вигляд картки Activité (assets/sandbox-event-card.css), не займаючи реальний сайт. Type d'activité / Public / Nombre de places, де порожні в базі, тут дозаповнені прикладом лише для перегляду — в базу нічого не пишеться.</div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="m-stand" viewBox="0 0 310 769"><image href="/assets/site-img/img-02-33b2e93d45.webp" width="310" height="769"/></symbol><symbol id="m-wave" viewBox="0 0 626 722"><image href="/assets/site-img/img-03-1d459c08a4.webp" width="626" height="722"/></symbol><symbol id="m-magnify" viewBox="0 0 552 756"><image href="/assets/site-img/img-04-3b8dc488ec.webp" width="552" height="756"/></symbol><symbol id="m-jump" viewBox="0 0 469 734"><image href="/assets/site-img/img-05-10df6582b6.webp" width="469" height="734"/></symbol><symbol id="m-read" viewBox="0 0 549 767"><image href="/assets/site-img/img-06-3bc40d08fc.webp" width="549" height="767"/></symbol><symbol id="m-point" viewBox="0 0 687 768"><image href="/assets/site-img/img-07-00875b060b.webp" width="687" height="768"/></symbol><symbol id="m-logo" viewBox="0 0 574 587"><image href="/assets/site-img/img-01-017fac3c9d.webp" width="574" height="587"/></symbol></svg>
 <div class="wrap" style="padding:40px 0">
+
+  <?php if ($exemple): ?>
+  <div>
+    <h2 style="margin-bottom:8px">v-white vs v-dark, sur une photo sombre simulée</h2>
+    <p class="lede" style="margin-bottom:24px">Fond de photo assombri artificiellement (pas une vraie photo) pour juger la lisibilité dans le pire des cas.</p>
+    <div class="dark-compare">
+      <div><h3>v-white — blanc translucide</h3><div class="v-white dark-photo"><?= render_event_card($exemple) ?></div></div>
+      <div><h3>v-dark — encre translucide</h3><div class="v-dark dark-photo"><?= render_event_card($exemple) ?></div></div>
+    </div>
+  </div>
+  <?php endif; ?>
 
   <div class="variant-block v-white">
     <h3>v-white — blanc translucide</h3>
