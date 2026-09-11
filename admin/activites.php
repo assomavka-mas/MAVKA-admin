@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/layout.php';
+require_once __DIR__ . '/../includes/functions.php';
 
 $user = auth_require(['super_admin', 'mavka_admin', 'partenaire']);
 
@@ -22,6 +23,20 @@ $stmt = db()->prepare($sql);
 $stmt->execute($params);
 $activites = $stmt->fetchAll();
 
+// Une activité liée à un·e intervenant·e ne sort en ligne que si elle a un lien d'inscription
+// ET a été acceptée par cette personne (voir activite_incomplete() et la vue activites_publiques) —
+// on le calcule une fois ici pour la surligner en rouge dans le tableau et pour le filtre ci-dessous.
+foreach ($activites as &$a) {
+    $a['_incomplete'] = activite_incomplete($a, $a['intervenants_noms'] !== null && $a['intervenants_noms'] !== '');
+}
+unset($a);
+$nb_incomplet = count(array_filter($activites, fn($a) => $a['_incomplete']));
+
+$filtre_incomplet = isset($_GET['incomplet']);
+if ($filtre_incomplet) {
+    $activites = array_values(array_filter($activites, fn($a) => $a['_incomplete']));
+}
+
 // Colonnes configurables : clé => [libellé, visible par défaut, type d'affichage, options].
 // type : text (lecture seule) · edit_text · edit_nombre · edit_date (date_debut) ·
 //        select (édition rapide, pastille colorée — Statut/État) ·
@@ -42,7 +57,7 @@ $colonnes = [
     'heure'               => ['Heure', false, 'edit_text', null],
     'recurrence'          => ['Récurrence', false, 'edit_text', null],
     'texte_bouton'       => ['Texte du bouton', false, 'edit_text', null],
-    'lien_inscription'   => ['Lien', false, 'lien', null],
+    'lien_inscription'   => ['Lien & acceptation', true, 'lien', null],
     'description'         => ['Description', false, 'fill', null],
     'ordre'               => ['Ordre', false, 'edit_nombre', null],
     'created_at'          => ['Créé le', false, 'date', null],
@@ -64,9 +79,21 @@ function act_apercu_photo(?string $photo): string {
         . '<img src="' . htmlspecialchars($url) . '" alt="" style="width:32px;height:32px;object-fit:cover;border-radius:6px;display:block;"></a>';
 }
 
-function act_apercu_lien(?string $lien): string {
-    if (!$lien) return '<span class="mavka-fill-no">—</span>';
-    return '<a class="mavka-fill-yes" href="' . htmlspecialchars($lien) . '" target="_blank">🔗 Lien</a>';
+// Lien d'inscription + statut d'acceptation par l'intervenant·e lié·e (accepte_intervenant) —
+// les deux conditions qui déterminent si l'activité peut sortir en ligne (activite_incomplete()).
+function act_apercu_lien(array $a): string {
+    $lien = $a['lien_inscription'] ?? null;
+    $a_intervenant = $a['intervenants_noms'] !== null && $a['intervenants_noms'] !== '';
+    $lignes = [];
+    $lignes[] = $lien
+        ? '<a class="mavka-fill-yes" href="' . htmlspecialchars($lien) . '" target="_blank">🔗 Lien</a>'
+        : '<span class="mavka-tag-alerte">⚠ Pas de lien</span>';
+    if ($a_intervenant) {
+        $lignes[] = !empty($a['accepte_intervenant'])
+            ? '<span class="mavka-fill-yes" title="' . htmlspecialchars($a['accepte_le'] ? date('d/m/Y', strtotime($a['accepte_le'])) : '') . '">✓ Acceptée</span>'
+            : '<span class="mavka-tag-alerte">⏳ En attente d\'accord</span>';
+    }
+    return implode('<br>', $lignes);
 }
 
 function act_sort_value(array $a, string $col) {
@@ -109,6 +136,17 @@ admin_header('Activités', $user, 'activites');
   ?>
   <h1>Activités<?php if ($filtre_intervenant): ?><span style="font-weight:400; color:var(--mavka-color-text-muted); font-size:18px;"> — <?= count($activites) ?> pour <?= htmlspecialchars($nom_filtre) ?></span><?php endif; ?></h1>
   <div style="display:flex; gap:10px; align-items:center;">
+    <?php
+      $params_toggle = [];
+      if ($filtre_intervenant) $params_toggle['intervenant'] = $filtre_intervenant;
+      if (!$filtre_incomplet) $params_toggle['incomplet'] = 1;
+      $url_toggle = '?' . http_build_query($params_toggle);
+    ?>
+    <?php if ($nb_incomplet > 0 || $filtre_incomplet): ?>
+    <a href="<?= htmlspecialchars($url_toggle) ?>" class="mavka-btn mavka-btn--sm<?= $filtre_incomplet ? ' mavka-btn--alerte-actif' : ' mavka-btn--alerte' ?>">
+      <?= $filtre_incomplet ? '✕ Voir tout' : '⚠ Incomplètes (' . $nb_incomplet . ')' ?>
+    </a>
+    <?php endif; ?>
     <select id="filtreIntervenant" class="mavka-btn mavka-btn--sm" style="cursor:pointer;" onchange="location.href = this.value ? '?intervenant=' + this.value : location.pathname;">
       <option value="">— Tou·te·s les volontaires —</option>
       <?php foreach ($tous_intervenants as $iv): ?>
@@ -133,6 +171,7 @@ admin_header('Activités', $user, 'activites');
   <?php flash('ok', 'Enregistré avec succès.'); ?>
 <?php endif; ?>
 <p style="font-size:12.5px; color:var(--mavka-color-text-muted); margin:8px 0 0;">Clique un titre de colonne pour trier · clique une cellule (Catégorie, Date, Format, Public, Récurrence, Texte du bouton, Lieu, Ville, Heure, Places, Ordre, Statut, État) pour la corriger directement ici.</p>
+<p style="font-size:12.5px; color:var(--mavka-color-text-muted); margin:4px 0 0;">Lignes en rouge : sans lien d'inscription, ou en attente d'acceptation par l'intervenant·e lié·e — elles n'apparaissent pas encore sur le site public (colonne « Lien & acceptation »).</p>
 
 <table class="mavka-table" style="margin-top:12px;">
   <tr>
@@ -144,7 +183,7 @@ admin_header('Activités', $user, 'activites');
     <th></th>
   </tr>
   <?php foreach ($activites as $a): ?>
-  <tr>
+  <tr<?= $a['_incomplete'] ? ' class="mavka-row--incomplete"' : '' ?>>
     <td><?= act_apercu_photo($a['photo']) ?></td>
     <td><?= htmlspecialchars($a['titre']) ?></td>
     <?php foreach ($colonnes as $cle => [$libelle, $defaut, $type, $options]): ?>
@@ -182,7 +221,7 @@ admin_header('Activités', $user, 'activites');
       <?php elseif ($type === 'fill'): ?>
         <?= act_apercu_texte((string)($a[$cle] ?? '')) ?>
       <?php elseif ($type === 'lien'): ?>
-        <?= act_apercu_lien($a['lien_inscription']) ?>
+        <?= act_apercu_lien($a) ?>
       <?php elseif ($type === 'date'): ?>
         <?= $a[$cle] ? htmlspecialchars(date('d/m/Y H:i', strtotime($a[$cle]))) : '' ?>
       <?php elseif (($type === 'edit_text' || $type === 'edit_nombre') && peut_editer($user)): ?>

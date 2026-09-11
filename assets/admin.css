@@ -81,6 +81,15 @@ table.mavka-table th a { color: inherit; text-decoration: none; white-space: now
 table.mavka-table th a:hover { text-decoration: underline; }
 .mavka-fill-yes { color: var(--mavka-color-success-text); font-weight: 700; }
 .mavka-fill-no { color: var(--mavka-color-text-muted); }
+
+/* Activité incomplète (pas de lien d'inscription, ou en attente d'acceptation par
+   l'intervenant·e lié·e) : n'apparaît pas encore sur le site public — voir activite_incomplete()
+   (includes/functions.php) et la vue activites_publiques. */
+.mavka-tag-alerte { color: var(--mavka-color-danger-text); font-weight: 700; white-space: nowrap; }
+tr.mavka-row--incomplete td { background: var(--mavka-color-danger-bg); }
+tr.mavka-row--incomplete .mavka-editable:hover { background: rgba(255,255,255,.6); }
+.mavka-btn--alerte { background: var(--mavka-color-danger-bg); border-color: var(--mavka-color-danger-text); color: var(--mavka-color-danger-text); }
+.mavka-btn--alerte-actif { background: var(--mavka-color-danger-text); border-color: var(--mavka-color-danger-text); color: #fff; }
 .mavka-editable { cursor: text; border-radius: 6px; padding: 3px 6px; margin: -3px -6px; }
 .mavka-editable:hover { background: var(--mavka-color-teal-light); }
 .mavka-editable input[type="text"], .mavka-editable input[type="email"], .mavka-editable input[type="number"] {

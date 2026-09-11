@@ -1,4 +1,15 @@
 <?php
+// Une activité liée à un·e intervenant·e n'est prête pour le site public que si elle a un
+// lien d'inscription ET que l'intervenant·e l'a acceptée (accepte_intervenant) — voir la vue
+// activites_publiques. Sert à la mettre en évidence dans l'admin et dans l'espace du·de la
+// volontaire tant que l'un des deux manque. $a_intervenant : au moins un·e intervenant·e est
+// lié·e à cette activité (sinon l'acceptation ne s'applique pas — seul le lien compte).
+function activite_incomplete(array $a, bool $a_intervenant): bool {
+    $manque_lien = trim((string)($a['lien_inscription'] ?? '')) === '';
+    $attente_acceptation = $a_intervenant && empty($a['accepte_intervenant']);
+    return $manque_lien || $attente_acceptation;
+}
+
 // Statut calculé automatiquement à partir des documents signés (jamais saisi à la main).
 function intervenant_statuts(array $iv): array {
     $statuts = [];

@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/layout.php';
+require_once __DIR__ . '/../includes/functions.php';
 
 $user = auth_require();
 
@@ -57,21 +58,37 @@ admin_header('Tableau de bord', $user, 'dashboard');
   <?php endif; ?>
 <?php endif; ?>
 
+  <?php if (isset($_GET['accepte'])): ?>
+    <?php flash('ok', 'Activité acceptée — merci !'); ?>
+  <?php endif; ?>
 <?php if ($intervenant_id): ?>
   <h2 style="margin-top:<?= $voit_stats ? '32px' : '20px' ?>;">Mes activités</h2>
-  <p style="color:var(--mavka-color-text-muted); font-size:13.5px;">Les activités où vous êtes intervenant·e.</p>
+  <p style="color:var(--mavka-color-text-muted); font-size:13.5px;">Les activités où vous êtes intervenant·e. Une activité en rouge n'est pas encore visible sur le site public : il lui manque le lien d'inscription, ou votre accord sur les conditions et la description.</p>
   <table class="mavka-table" style="margin-top:16px;">
-    <tr><th>Titre</th><th>Date</th><th>Lieu</th><th>Statut</th></tr>
+    <tr><th>Titre</th><th>Date</th><th>Lieu</th><th>Statut</th><th>Validation</th></tr>
     <?php foreach ($mes_activites as $a): ?>
-    <tr>
+    <?php $incomplet = activite_incomplete($a, true); ?>
+    <tr<?= $incomplet ? ' class="mavka-row--incomplete"' : '' ?>>
       <td><?= htmlspecialchars($a['titre']) ?></td>
       <td><?= htmlspecialchars($a['date_debut'] ?: $a['recurrence']) ?></td>
       <td><?= htmlspecialchars($a['lieu']) ?></td>
       <td><span class="mavka-badge mavka-badge--<?= $a['statut'] ?>"><?= $a['statut'] ?></span></td>
+      <td>
+        <?php if (empty($a['lien_inscription'])): ?>
+          <span class="mavka-tag-alerte">⚠ En attente du lien d'inscription</span>
+        <?php elseif (empty($a['accepte_intervenant'])): ?>
+          <form method="post" action="/admin/activite-accepter.php" style="display:inline;" onsubmit="return confirm('Confirmez-vous les conditions et la description de « <?= htmlspecialchars(addslashes($a['titre'])) ?> » ?');">
+            <input type="hidden" name="id" value="<?= $a['id'] ?>">
+            <button type="submit" class="mavka-btn mavka-btn--sm mavka-btn--primary">Accepter cette activité</button>
+          </form>
+        <?php else: ?>
+          <span class="mavka-fill-yes">✓ Acceptée</span>
+        <?php endif; ?>
+      </td>
     </tr>
     <?php endforeach; ?>
     <?php if (!$mes_activites): ?>
-    <tr><td colspan="4" style="color:var(--mavka-color-text-muted);">Aucune activité pour l'instant.</td></tr>
+    <tr><td colspan="5" style="color:var(--mavka-color-text-muted);">Aucune activité pour l'instant.</td></tr>
     <?php endif; ?>
   </table>
 <?php elseif (!$voit_stats): ?>

@@ -84,6 +84,8 @@ function site_activites_intervenant(int $intervenant_id): array {
         JOIN activite_intervenant ai ON ai.activite_id = a.id
         WHERE ai.intervenant_id = ? AND a.statut = 'publie' AND a.statut_activite NOT IN ('annule','termine')
           AND a.texte_bouton != 'Voir sa page'
+          AND a.lien_inscription IS NOT NULL AND a.lien_inscription != ''
+          AND a.accepte_intervenant = 1
         ORDER BY (a.date_debut IS NULL) ASC, a.date_debut ASC, a.ordre ASC");
     $stmt->execute([$intervenant_id]);
     return $stmt->fetchAll();

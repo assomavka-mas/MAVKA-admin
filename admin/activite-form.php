@@ -11,7 +11,8 @@ $a = [
     'format' => '', 'public' => '', 'description' => '',
     'date_debut' => '', 'heure' => '', 'recurrence' => '',
     'lieu' => '', 'nombre_places' => '', 'ville' => '', 'texte_bouton' => 'Préinscription gratuite',
-    'lien_inscription' => '', 'photo' => null, 'statut' => 'publie', 'statut_activite' => 'ouvert',
+    'lien_inscription' => '', 'accepte_intervenant' => 0, 'accepte_le' => null, 'photo' => null,
+    'statut' => 'publie', 'statut_activite' => 'ouvert',
     'visible_accueil' => 1, 'ordre' => 0,
 ];
 $selected_intervenants = [];
@@ -30,6 +31,11 @@ $intervenants = db()->query('SELECT * FROM intervenants WHERE actif = 1 ORDER BY
 
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Capturé avant que le POST n'écrase $a['accepte_intervenant'] plus bas : sert à savoir si
+    // l'activité était déjà acceptée (pour garder sa date d'acceptation plutôt que la renouveler).
+    $etait_accepte = !empty($a['accepte_intervenant']);
+    $ancien_accepte_le = $a['accepte_le'] ?? null;
+
     $a['titre'] = trim($_POST['titre'] ?? '');
     $a['categorie'] = trim($_POST['categorie'] ?? '');
     $a['categorie_display'] = trim($_POST['categorie_display'] ?? '');
@@ -67,6 +73,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $a['lien_inscription'] = trim($_POST['lien_inscription'] ?? '');
     }
 
+    // Case à cocher manuelle — sert surtout quand l'intervenant·e n'a pas (encore) d'accès à
+    // son espace bénévole pour accepter elle-même depuis son tableau de bord ; sinon iel accepte
+    // directement là-bas (admin/activite-accepter.php). Décochée = redemande son accord (ex. après
+    // un changement de conditions/description) ; recochée après = nouvelle date d'acceptation.
+    $a['accepte_intervenant'] = isset($_POST['accepte_intervenant']) ? 1 : 0;
+    $a['accepte_le'] = $a['accepte_intervenant'] ? ($etait_accepte ? $ancien_accepte_le : date('Y-m-d H:i:s')) : null;
+
     $new_photo = handle_upload('photo', 'activites');
     if ($new_photo) {
         $a['photo'] = $new_photo;
@@ -76,11 +89,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Le titre est obligatoire.';
     } else {
         if ($id) {
-            $stmt = db()->prepare('UPDATE activites SET titre=?, categorie=?, categorie_display=?, format=?, public=?, description=?, date_debut=?, heure=?, recurrence=?, lieu=?, nombre_places=?, ville=?, texte_bouton=?, lien_inscription=?, photo=?, statut=?, statut_activite=?, visible_accueil=?, ordre=? WHERE id=?');
-            $stmt->execute([$a['titre'], $a['categorie'], $a['categorie_display'], $a['format'], $a['public'], $a['description'], $a['date_debut'], $a['heure'], $a['recurrence'], $a['lieu'], $a['nombre_places'], $a['ville'], $a['texte_bouton'], $a['lien_inscription'], $a['photo'], $a['statut'], $a['statut_activite'], $a['visible_accueil'], $a['ordre'], $id]);
+            $stmt = db()->prepare('UPDATE activites SET titre=?, categorie=?, categorie_display=?, format=?, public=?, description=?, date_debut=?, heure=?, recurrence=?, lieu=?, nombre_places=?, ville=?, texte_bouton=?, lien_inscription=?, accepte_intervenant=?, accepte_le=?, photo=?, statut=?, statut_activite=?, visible_accueil=?, ordre=? WHERE id=?');
+            $stmt->execute([$a['titre'], $a['categorie'], $a['categorie_display'], $a['format'], $a['public'], $a['description'], $a['date_debut'], $a['heure'], $a['recurrence'], $a['lieu'], $a['nombre_places'], $a['ville'], $a['texte_bouton'], $a['lien_inscription'], $a['accepte_intervenant'], $a['accepte_le'], $a['photo'], $a['statut'], $a['statut_activite'], $a['visible_accueil'], $a['ordre'], $id]);
         } else {
-            $stmt = db()->prepare('INSERT INTO activites (titre, categorie, categorie_display, format, public, description, date_debut, heure, recurrence, lieu, nombre_places, ville, texte_bouton, lien_inscription, photo, statut, statut_activite, visible_accueil, ordre) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
-            $stmt->execute([$a['titre'], $a['categorie'], $a['categorie_display'], $a['format'], $a['public'], $a['description'], $a['date_debut'], $a['heure'], $a['recurrence'], $a['lieu'], $a['nombre_places'], $a['ville'], $a['texte_bouton'], $a['lien_inscription'], $a['photo'], $a['statut'], $a['statut_activite'], $a['visible_accueil'], $a['ordre']]);
+            $stmt = db()->prepare('INSERT INTO activites (titre, categorie, categorie_display, format, public, description, date_debut, heure, recurrence, lieu, nombre_places, ville, texte_bouton, lien_inscription, accepte_intervenant, accepte_le, photo, statut, statut_activite, visible_accueil, ordre) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
+            $stmt->execute([$a['titre'], $a['categorie'], $a['categorie_display'], $a['format'], $a['public'], $a['description'], $a['date_debut'], $a['heure'], $a['recurrence'], $a['lieu'], $a['nombre_places'], $a['ville'], $a['texte_bouton'], $a['lien_inscription'], $a['accepte_intervenant'], $a['accepte_le'], $a['photo'], $a['statut'], $a['statut_activite'], $a['visible_accueil'], $a['ordre']]);
             $id = (int)db()->lastInsertId();
         }
 
@@ -264,6 +277,17 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
         <label>Lien d'inscription</label>
         Généré automatiquement — page "Notre équipe" de la première personne cochée ci-dessous.
       </div>
+    </div>
+
+    <div>
+      <label style="display:flex; align-items:center; gap:8px; font-weight:400;">
+        <input type="checkbox" name="accepte_intervenant" value="1" style="width:auto;" <?= !empty($a['accepte_intervenant']) ? 'checked' : '' ?>>
+        Acceptée par l'intervenant·e lié·e
+      </label>
+      <p class="mavka-form-section__hint" style="margin-top:4px;">
+        Tant que ce n'est pas coché, l'activité n'apparaît pas sur le site public si elle est liée à un·e intervenant·e (même avec un lien d'inscription) — visible seulement ici et dans l'espace bénévole de la personne concernée. Elle peut l'accepter elle-même depuis son tableau de bord ; ne coche ici que si vous avez son accord autrement (ex. par téléphone) ou si elle n'a pas encore d'accès à son espace.
+        <?php if (!empty($a['accepte_le'])): ?><br>Acceptée le <?= htmlspecialchars(date('d/m/Y à H:i', strtotime($a['accepte_le']))) ?>.<?php endif; ?>
+      </p>
     </div>
 
     <label>Intervenant·e·s</label>
