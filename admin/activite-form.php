@@ -39,7 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $a['date_debut'] = $_POST['date_debut'] ?: null;
     $a['heure'] = trim($_POST['heure'] ?? '');
     $a['lieu'] = trim($_POST['lieu'] ?? '');
-    $a['nombre_places'] = $_POST['nombre_places'] !== '' ? (int)$_POST['nombre_places'] : null;
+    // Individuel = pas de "nombre de places" (ça ne s'applique qu'aux activités collectives).
+    $a['nombre_places'] = ($a['format'] !== 'Individuel' && $_POST['nombre_places'] !== '') ? (int)$_POST['nombre_places'] : null;
     $a['ville'] = trim($_POST['ville'] ?? '');
     $a['texte_bouton'] = trim($_POST['texte_bouton'] ?? '') ?: 'Préinscription gratuite';
     // La récurrence n'a de sens que pour un "Événement régulier" — pour tout autre
@@ -243,9 +244,10 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
     </div>
 
     <div class="row mavka-row--nombres">
-      <div>
+      <div id="f_nombre_places_field">
         <label>Nombre de places <span class="mavka-form-section__hint" style="margin:0; font-weight:400;">(vide = illimité)</span></label>
         <input type="number" min="0" id="f_nombre_places" class="mavka-input-court" name="nombre_places" value="<?= htmlspecialchars((string)($a['nombre_places'] ?? '')) ?>">
+        <p class="mavka-form-section__hint" id="f_nombre_places_hint" style="margin-top:4px; display:none;">Ne s'applique pas à un Type d'activité « Individuel ».</p>
       </div>
       <div>
         <label>Ordre d'affichage <span class="mavka-form-section__hint" style="margin:0; font-weight:400;">(0 = premier)</span><sup class="mavka-footnote-ref">1</sup></label>
@@ -457,8 +459,17 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
   // Même principe pour Type d'activité, Public (sur la photo) et Nombre de places (dans
   // l'encadré date/lieu) — vide si le champ n'est pas rempli, la plashka disparaît d'elle-même.
   var badgeFormat = $('pv_badge_format');
-  $('f_format').addEventListener('change', function () { badgeFormat.textContent = this.value; });
-  badgeFormat.textContent = $('f_format').value;
+  var placesInput = $('f_nombre_places');
+  var placesHint = $('f_nombre_places_hint');
+  function updateFormatDependants() {
+    badgeFormat.textContent = $('f_format').value;
+    var individuel = $('f_format').value === 'Individuel';
+    placesInput.disabled = individuel;
+    placesHint.style.display = individuel ? '' : 'none';
+    if (individuel) { placesInput.value = ''; }
+    updateBadgePlaces();
+  }
+  $('f_format').addEventListener('change', updateFormatDependants);
 
   var badgePublic = $('pv_badge_public');
   $('f_public').addEventListener('change', function () { badgePublic.textContent = this.value; });
@@ -466,11 +477,11 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
 
   var badgePlaces = $('pv_badge_places');
   function updateBadgePlaces() {
-    var places = $('f_nombre_places').value.trim();
+    var places = placesInput.value.trim();
     badgePlaces.textContent = places ? places + ' places' : '';
   }
   $('f_nombre_places').addEventListener('input', updateBadgePlaces);
-  updateBadgePlaces();
+  updateFormatDependants();
 
   // Aperçu en gros dans le pavé carré : reproduit exactement render_event_strip() côté PHP
   // (includes/site_functions.php), classes comprises, pour que ce qu'on voit ici soit ce que
