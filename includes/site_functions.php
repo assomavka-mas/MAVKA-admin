@@ -206,10 +206,9 @@ function render_person_card(array $iv): string {
     }
     $resume = htmlspecialchars($iv['resume'] ?? '');
     return '<a class="person" href="' . htmlspecialchars(intervenant_page_url((int)$iv['id'])) . '">'
-        . '<div class="person-cover"><img src="' . htmlspecialchars($photoUrl) . '" alt="">'
-        . ($tags !== '' ? '<div class="person-tags">' . $tags . '</div>' : '')
-        . '</div>'
+        . '<div class="person-cover"><img src="' . htmlspecialchars($photoUrl) . '" alt=""></div>'
         . '<b>' . htmlspecialchars($iv['nom']) . ' <span class="arrow">→</span></b>'
+        . ($tags !== '' ? '<div class="person-tags">' . $tags . '</div>' : '')
         . ($resume !== '' ? '<span>' . $resume . '</span>' : '')
         . '</a>';
 }
