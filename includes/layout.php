@@ -1,5 +1,11 @@
 <?php
 function admin_header(string $title, array $user, string $active = ''): void {
+    // Sert à afficher "Mon profil"/"Mes activités" pour QUICONQUE est lié à un profil
+    // intervenant — pas seulement le rôle "benevole" : super_admin/mavka_admin peuvent
+    // l'être aussi (ex. Larysa elle-même est aussi intervenante).
+    $stmt = db()->prepare('SELECT intervenant_id FROM admins WHERE id = ?');
+    $stmt->execute([$user['id']]);
+    $intervenant_id = $stmt->fetchColumn();
     ?>
 <!doctype html>
 <html lang="fr">
@@ -13,7 +19,8 @@ function admin_header(string $title, array $user, string $active = ''): void {
   <div class="mavka-admin-sidebar">
     <div class="brand">MAVKA</div>
     <a href="/admin/dashboard.php" class="<?= $active === 'dashboard' ? 'active' : '' ?>">Tableau de bord</a>
-    <?php if ($user['role'] === 'benevole'): ?>
+    <?php if ($intervenant_id): ?>
+    <a href="/admin/mes-activites.php" class="<?= $active === 'mes-activites' ? 'active' : '' ?>">Mes activités</a>
     <a href="/admin/mon-profil.php" class="<?= $active === 'mon-profil' ? 'active' : '' ?>">Mon profil</a>
     <?php endif; ?>
     <?php if (in_array($user['role'], ['super_admin', 'mavka_admin', 'partenaire'], true)): ?>

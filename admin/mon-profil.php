@@ -76,16 +76,23 @@ $cv_historique = $stmt->fetchAll();
 $file_url = fn(string $f) => !empty($iv[$f]) ? '/assets/uploads/intervenants/' . $iv['dossier'] . '/' . $iv[$f] : null;
 
 // Documents officiels : lecture seule ici, juste de quoi vérifier que c'est bien fourni —
-// modifiables uniquement par un·e admin dans admin/intervenant-form.php.
-function mon_profil_document_statut(string $label, ?string $lien, ?string $file_url): void {
+// modifiables uniquement par un·e admin dans admin/intervenant-form.php. $modele_url : modèle
+// vierge (même pour tout le monde) à imprimer, signer, puis rapporter à Larysa — pas encore
+// fourni = c'est le prochain geste concret pour cette personne.
+function mon_profil_document_statut(string $label, ?string $lien, ?string $file_url, ?string $modele_url = null): void {
     $fourni = !empty($lien) || !empty($file_url);
     ?>
-    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 0; border-bottom:1px solid var(--mavka-color-cream-soft);">
-      <span><?= htmlspecialchars($label) ?></span>
-      <?php if ($fourni): ?>
-        <span class="mavka-fill-yes">✓ Fourni <?php if ($lien): ?><a href="<?= htmlspecialchars($lien) ?>" target="_blank" rel="noopener">(lien)</a><?php endif; ?><?php if ($file_url): ?> <a href="<?= htmlspecialchars($file_url) ?>" target="_blank" rel="noopener">(fichier)</a><?php endif; ?></span>
-      <?php else: ?>
-        <span class="mavka-fill-no">— Pas encore</span>
+    <div style="padding:10px 0; border-bottom:1px solid var(--mavka-color-cream-soft);">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+        <span><?= htmlspecialchars($label) ?></span>
+        <?php if ($fourni): ?>
+          <span class="mavka-fill-yes">✓ Fourni <?php if ($lien): ?><a href="<?= htmlspecialchars($lien) ?>" target="_blank" rel="noopener">(lien)</a><?php endif; ?><?php if ($file_url): ?> <a href="<?= htmlspecialchars($file_url) ?>" target="_blank" rel="noopener">(fichier)</a><?php endif; ?></span>
+        <?php else: ?>
+          <span class="mavka-fill-no">— Pas encore</span>
+        <?php endif; ?>
+      </div>
+      <?php if ($modele_url): ?>
+      <p class="mavka-form-section__hint" style="margin:4px 0 0;"><a href="<?= htmlspecialchars($modele_url) ?>" target="_blank" rel="noopener">📄 Télécharger le modèle vierge</a> — à imprimer, signer, puis à donner à Larysa.</p>
       <?php endif; ?>
     </div>
     <?php
@@ -177,8 +184,8 @@ admin_header('Mon profil', $user, 'mon-profil');
     <div class="mavka-form-section__body">
     <p class="mavka-form-section__hint">Gérés par Larysa — écris-lui pour les fournir ou les mettre à jour.</p>
     <?php
-      mon_profil_document_statut('Charte du bénévolat', $iv['charte_benevolat_lien'] ?? null, $file_url('charte_benevolat_fichier'));
-      mon_profil_document_statut("Contrat d'intervention", $iv['contrat_intervention_lien'] ?? null, $file_url('contrat_intervention_fichier'));
+      mon_profil_document_statut('Charte du bénévolat', $iv['charte_benevolat_lien'] ?? null, $file_url('charte_benevolat_fichier'), MAVKA_MODELE_CHARTE_BENEVOLAT_URL);
+      mon_profil_document_statut("Contrat d'intervention", $iv['contrat_intervention_lien'] ?? null, $file_url('contrat_intervention_fichier'), MAVKA_MODELE_CONTRAT_INTERVENTION_URL);
       mon_profil_document_statut('RIB (coordonnées bancaires)', $iv['rib_lien'] ?? null, $file_url('rib_fichier'));
       mon_profil_document_statut('Assurance professionnelle', $iv['assurance_lien'] ?? null, $file_url('assurance_fichier'));
     ?>

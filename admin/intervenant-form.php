@@ -248,7 +248,11 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
     <p class="mavka-form-section__hint">Pour chaque document : un lien Google Drive, un fichier téléversé ici, ou les deux.</p>
 
     <?php champ_document('Charte du bénévolat', 'charte_benevolat_lien', 'charte_benevolat_fichier', $iv, $file_url('charte_benevolat_fichier'), $iv['dossier'] ?? null, $hist('charte_benevolat_fichier')); ?>
-    <div style="margin-top:18px;"><?php champ_document("Contrat d'intervention", 'contrat_intervention_lien', 'contrat_intervention_fichier', $iv, $file_url('contrat_intervention_fichier'), $iv['dossier'] ?? null, $hist('contrat_intervention_fichier')); ?></div>
+    <p class="mavka-form-section__hint" style="margin-top:4px;"><a href="<?= MAVKA_MODELE_CHARTE_BENEVOLAT_URL ?>" target="_blank" rel="noopener">📄 Modèle vierge</a> — la personne le voit aussi depuis son "Mon profil".</p>
+    <div style="margin-top:18px;">
+      <?php champ_document("Contrat d'intervention", 'contrat_intervention_lien', 'contrat_intervention_fichier', $iv, $file_url('contrat_intervention_fichier'), $iv['dossier'] ?? null, $hist('contrat_intervention_fichier')); ?>
+      <p class="mavka-form-section__hint" style="margin-top:4px;"><a href="<?= MAVKA_MODELE_CONTRAT_INTERVENTION_URL ?>" target="_blank" rel="noopener">📄 Modèle vierge</a> — la personne le voit aussi depuis son "Mon profil".</p>
+    </div>
 
     <label style="margin-top:18px;">Date signée</label>
     <div class="mavka-date-field"><input type="date" name="date_signee" value="<?= htmlspecialchars($iv['date_signee'] ?? '') ?>"></div>

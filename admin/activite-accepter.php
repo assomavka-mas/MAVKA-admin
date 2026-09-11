@@ -7,7 +7,7 @@ require_once __DIR__ . '/../includes/auth.php';
 $user = auth_require();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: /admin/dashboard.php');
+    header('Location: /admin/mes-activites.php');
     exit;
 }
 
@@ -25,5 +25,5 @@ if ($id && $intervenant_id) {
     }
 }
 
-header('Location: /admin/dashboard.php?accepte=1');
+header('Location: /admin/mes-activites.php?accepte=1');
 exit;

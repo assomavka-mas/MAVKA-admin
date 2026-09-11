@@ -1,4 +1,10 @@
 <?php
+// Modèles vierges (Google Docs) à imprimer, signer, puis rapporter à Larysa — distincts de la
+// version signée elle-même (charte_benevolat_lien/fichier, contrat_intervention_lien/fichier
+// sur `intervenants`), qui est propre à chaque personne. Ceux-ci sont communs à tout le monde.
+const MAVKA_MODELE_CHARTE_BENEVOLAT_URL = 'https://docs.google.com/document/d/1LyGOTT19kAvVHCHUgAY6ut4QiwOpwdJTKR5rTZaH0zE/edit?usp=sharing';
+const MAVKA_MODELE_CONTRAT_INTERVENTION_URL = 'https://docs.google.com/document/d/1u0cvCNCnOfa3CI_OWb2FXYORGVuDYeFq2Gy52laZiwY/edit?usp=sharing';
+
 // Une activité liée à un·e intervenant·e n'est prête pour le site public que si elle a un
 // lien d'inscription ET que l'intervenant·e l'a acceptée (accepte_intervenant) — voir la vue
 // activites_publiques. Sert à la mettre en évidence dans l'admin et dans l'espace du·de la
