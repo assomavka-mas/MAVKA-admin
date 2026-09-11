@@ -157,7 +157,7 @@ $site_activites_bienetre = site_enrichir_avec_photo_intervenant(site_activites_p
         <h1 style="font-size:clamp(2rem,4vw,3.2rem)">Toutes les prochaines dates</h1>
         <p class="lede">Chaque rendez-vous indique la commune, la salle et pour qui il est fait. La préinscription est gratuite et sans engagement.</p>
       </div>
-      <?= render_events_grid($site_agenda_toutes) ?>
+      <?= render_events_grid($site_agenda_toutes, 'three') ?>
     </div>
   </section>
   <section class="sand">

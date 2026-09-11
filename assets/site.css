@@ -16,10 +16,10 @@
   --body:"Nunito Sans","Helvetica Neue",Arial,sans-serif;
 }
 
-/* Bloc "Prochaines dates" (accueil) : fond --mint (repris du bloc "Par où commencer"
-   supprimé) et bordure de carte plus fine (1px au lieu de 2px). */
+/* Bloc "Prochaines dates" (accueil) : fond --mint, repris du bloc "Par où commencer"
+   supprimé. La bordure 1px de la carte Activité est maintenant le défaut partout
+   (assets/event-card.css) — plus besoin de l'emprunter ici spécifiquement. */
 .agenda-teaser{ background:var(--mint); }
-.agenda-teaser .event{ border-width:1px; }
 
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}

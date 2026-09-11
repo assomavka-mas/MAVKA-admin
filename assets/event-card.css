@@ -22,7 +22,7 @@
   /* Bordure sur --ec-line (dédiée), pas --ec-mint (le fond de la photo de secours) — sinon
      la carte se fond dans une section déjà vert pâle (.sand) quand les deux tokens sont
      identiques. */
-  border-radius:var(--ec-r); background:var(--ec-card); border:2px solid var(--ec-line); overflow:hidden;
+  border-radius:var(--ec-r); background:var(--ec-card); border:1px solid var(--ec-line); overflow:hidden;
 }
 
 /* Photo (ou habillage de secours par catégorie, si pas de photo) */
