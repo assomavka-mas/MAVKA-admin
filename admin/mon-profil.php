@@ -5,9 +5,11 @@ require_once __DIR__ . '/../includes/functions.php';
 
 // Profil "hybride" : le·la volontaire modifie lui/elle-même ses données de contact et sa page
 // publique (nom excepté) + peut téléverser son propre CV. Les documents officiels (Charte,
-// Contrat, RIB, Assurance) restent en lecture seule ici — c'est admin/intervenant-form.php,
-// réservé à super_admin/mavka_admin, qui les gère. Le suivi interne (projet de développement,
-// objectifs — jamais affiché sur le site) n'apparaît pas du tout sur cette page.
+// Contrat, RIB, Assurance) et le projet de développement/objectifs restent en lecture seule
+// ici — c'est admin/intervenant-form.php, réservé à super_admin/mavka_admin, qui les gère —
+// mais bien visibles : le projet de développement et les objectifs concernent directement
+// cette personne (ce sont ses objectifs, convenus avec Larysa), seule la publication sur le
+// site public en est exclue, pas la personne elle-même.
 $user = auth_require();
 
 $stmt = db()->prepare('SELECT intervenant_id FROM admins WHERE id = ?');
@@ -182,6 +184,23 @@ admin_header('Mon profil', $user, 'mon-profil');
     ?>
     </div>
   </details>
+
+  <?php if (!empty($iv['projet_developpement']) || !empty($iv['projet_developpement_fichier']) || !empty($iv['objectifs_mavka'])): ?>
+  <details class="mavka-form-section" open>
+    <summary class="mavka-form-section__header">
+      <h3 class="mavka-form-section__title">🤝 Mon projet de développement avec MAVKA</h3>
+      <svg class="mavka-form-section__chevron" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </summary>
+    <div class="mavka-form-section__body">
+    <p class="mavka-form-section__hint">Ce que Larysa et toi avez convenu — pas encore forcément écrit ailleurs. Visible seulement par vous deux, jamais publié sur le site. Pour le mettre à jour, parles-en à Larysa.</p>
+    <?php if (!empty($iv['objectifs_mavka'])): ?>
+    <label>Mes objectifs avec MAVKA</label>
+    <p style="white-space:pre-line; margin:0 0 16px;"><?= htmlspecialchars($iv['objectifs_mavka']) ?></p>
+    <?php endif; ?>
+    <?php mon_profil_document_statut('Mon projet de développement', $iv['projet_developpement'] ?? null, $file_url('projet_developpement_fichier')); ?>
+    </div>
+  </details>
+  <?php endif; ?>
 
   <button type="submit" class="mavka-btn mavka-btn--primary" style="margin-top:16px;">Enregistrer</button>
 </form>
