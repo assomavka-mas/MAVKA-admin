@@ -199,21 +199,21 @@ $site_activites_bienetre = site_enrichir_avec_photo_intervenant(site_activites_p
   <section class="sand">
     <div class="wrap">
       <div class="head"><span class="eyebrow">Culture</span><h2>Créer de ses mains, découvrir une tradition</h2></div>
-      <?= render_events_grid($site_activites_culture) ?>
+      <?= render_events_grid($site_activites_culture, 'three') ?>
     </div>
   </section>
 
   <section>
     <div class="wrap">
       <div class="head"><span class="eyebrow">Éducation</span><h2>Apprendre un savoir-faire concret</h2></div>
-      <?= render_events_grid($site_activites_education) ?>
+      <?= render_events_grid($site_activites_education, 'three') ?>
     </div>
   </section>
 
   <section class="sand">
     <div class="wrap">
       <div class="head"><span class="eyebrow">Bien-être</span><h2>Prendre soin de soi, simplement</h2></div>
-      <?= render_events_grid($site_activites_bienetre) ?>
+      <?= render_events_grid($site_activites_bienetre, 'three') ?>
     </div>
   </section>
 
