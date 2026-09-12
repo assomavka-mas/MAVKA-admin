@@ -170,8 +170,12 @@ section.tight{padding:44px 0}
 .dir .ic{width:44px;height:44px;border-radius:14px;background:var(--sun);display:grid;place-items:center;color:var(--ink)}
 .dir p{color:var(--ink-2);font-size:.98rem;margin-top:4px}
 .dir-art{display:flex;justify-content:center}
-.dir-art img,.dir-art .mascot{width:min(100%,340px);height:auto}
-@media (max-width:820px){.dir-grid{grid-template-columns:1fr}.dir-art img,.dir-art .mascot{width:200px}}
+/* max-height en plus de width : sans ça, une illustration au ratio plus étroit/haut (ex.
+   la mascotte pleine longueur, plus haute que large) gonfle tout le bloc .split — le ratio
+   CSS (aspect-ratio, sur l'élément) fait rétrécir la largeur en retour pour rester cohérent
+   avec les autres illustrations .dir-art, plus larges que hautes. */
+.dir-art img,.dir-art .mascot{width:min(100%,340px);height:auto;max-height:480px}
+@media (max-width:820px){.dir-grid{grid-template-columns:1fr}.dir-art img,.dir-art .mascot{width:200px;max-height:280px}}
 
 /* stats strip (sous le Hero) : détachée du Hero (fond blanc + fine bordure verte, comme
    .cta-card), plus le même fond --mint qui la fondait dans le Hero juste au-dessus. */
@@ -274,6 +278,7 @@ figure{margin:0}
 .fact b{font-family:var(--display);font-size:1.25rem;font-weight:700}
 .fact span{color:var(--ink-2);font-size:.95rem}
 @media (max-width:820px){.facts-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.facts-grid{grid-template-columns:1fr}}
 /* docs */
 .docs{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:0;margin:0;list-style:none}
 .docs li{border-radius:10px;background:var(--card);border:2px solid var(--mint);overflow:hidden}
