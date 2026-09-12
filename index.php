@@ -358,17 +358,16 @@ $site_activites_evenementiel = site_enrichir_avec_photo_intervenant(site_activit
         <p class="lede">Pour garantir un fonctionnement clair, voici les documents que nous mettons à disposition des collectivités.</p>
       </div>
       <ul class="docs">
-        <li>Statuts de l'association <span class="st">Disponible</span></li>
-        <li>Règlement intérieur <span class="st">Disponible</span></li>
-        <li>Récépissé de déclaration en préfecture <span class="st">Disponible</span></li>
-        <li>Publication au JOAFE <span class="st">Disponible</span></li>
-        <li>Charte du bénévolat <span class="st">Disponible</span></li>
-        <li>Modèles de conventions et d'engagement <span class="st">Disponible</span></li>
-        <li>Projet associatif <span class="st">Disponible</span></li>
-        <li>Attestation d'assurance responsabilité civile (MAIF) <span class="st">Disponible</span></li>
-        <li>Accompagnement Guid'Asso <span class="st soon">En cours</span></li>
+        <li><a href="/assets/docs/statuts-mavka.pdf" target="_blank" rel="noopener"><svg class="doc-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/></svg><span>Statuts de l'association</span><span class="st">PDF</span></a></li>
+        <li><a href="/assets/docs/reglement-interieur.pdf" target="_blank" rel="noopener"><svg class="doc-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/></svg><span>Règlement intérieur</span><span class="st">PDF</span></a></li>
+        <li class="doc-soon"><svg class="doc-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/></svg><span>Récépissé de déclaration en préfecture</span><span class="st">Disponible</span></li>
+        <li><a href="/assets/docs/publication-joafe.pdf" target="_blank" rel="noopener"><svg class="doc-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/></svg><span>Publication au JOAFE</span><span class="st">PDF</span></a></li>
+        <li class="doc-soon"><svg class="doc-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/></svg><span>Charte du bénévolat</span><span class="st">Disponible</span></li>
+        <li class="doc-soon"><svg class="doc-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/></svg><span>Modèles de conventions et d'engagement</span><span class="st">Disponible</span></li>
+        <li><a href="/assets/docs/projet-associatif.pdf" target="_blank" rel="noopener"><svg class="doc-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/></svg><span>Projet associatif</span><span class="st">PDF</span></a></li>
+        <li><a href="/assets/docs/attestation-assurance-maif.pdf" target="_blank" rel="noopener"><svg class="doc-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/></svg><span>Attestation d'assurance responsabilité civile (MAIF)</span><span class="st">PDF</span></a></li>
+        <li class="doc-soon"><svg class="doc-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/></svg><span>Accompagnement Guid'Asso</span><span class="st soon">En cours</span></li>
       </ul>
-      <p class="note" style="margin-top:14px">Documents transmis sur simple demande à <a href="mailto:asso.mavka@gmail.com">asso.mavka@gmail.com</a>.</p>
     </div>
   </section>
 
