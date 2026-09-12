@@ -51,6 +51,10 @@ admin_header('Tableau de bord', $user, 'dashboard');
       <div style="font-family:var(--mavka-font-display); font-size:20px; color:var(--mavka-color-ink);">Mes activités →</div>
       <div style="font-size:13.5px; color:var(--mavka-color-text-muted); margin-top:6px;">Voir tes activités et accepter celles qui l'attendent.</div>
     </a>
+    <a href="/admin/mes-rapports.php" class="mavka-card" style="flex:1; min-width:220px; text-decoration:none;">
+      <div style="font-family:var(--mavka-font-display); font-size:20px; color:var(--mavka-color-ink);">Mes rapports →</div>
+      <div style="font-size:13.5px; color:var(--mavka-color-text-muted); margin-top:6px;">Comptes rendus, frais et bilans.</div>
+    </a>
     <a href="/admin/mon-profil.php" class="mavka-card" style="flex:1; min-width:220px; text-decoration:none;">
       <div style="font-family:var(--mavka-font-display); font-size:20px; color:var(--mavka-color-ink);">Mon profil →</div>
       <div style="font-size:13.5px; color:var(--mavka-color-text-muted); margin-top:6px;">Tes informations, ta page publique, tes documents.</div>
