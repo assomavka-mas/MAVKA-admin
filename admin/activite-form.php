@@ -11,31 +11,30 @@ $a = [
     'format' => '', 'public' => '', 'description' => '',
     'date_debut' => '', 'heure' => '', 'recurrence' => '',
     'lieu' => '', 'nombre_places' => '', 'ville' => '', 'texte_bouton' => 'Préinscription gratuite',
-    'lien_inscription' => '', 'accepte_intervenant' => 0, 'accepte_le' => null, 'photo' => null,
+    'lien_inscription' => '', 'photo' => null,
     'statut' => 'publie', 'statut_activite' => 'ouvert',
     'visible_accueil' => 1, 'ordre' => 0,
 ];
+// Chaque personne liée accepte pour elle-même — pas un seul drapeau global (voir
+// alter-champs-v14.sql) — donc on charge aussi son statut d'acceptation ici, par personne.
 $selected_intervenants = [];
+$liens_intervenants = [];
 if ($id) {
     $stmt = db()->prepare('SELECT * FROM activites WHERE id = ?');
     $stmt->execute([$id]);
     $found = $stmt->fetch();
     if (!$found) { http_response_code(404); exit('Activité introuvable.'); }
     $a = $found;
-    $stmt = db()->prepare('SELECT intervenant_id FROM activite_intervenant WHERE activite_id = ?');
+    $stmt = db()->prepare('SELECT iv.id, iv.nom, ai.accepte, ai.accepte_le FROM activite_intervenant ai JOIN intervenants iv ON iv.id = ai.intervenant_id WHERE ai.activite_id = ? ORDER BY iv.nom');
     $stmt->execute([$id]);
-    $selected_intervenants = array_column($stmt->fetchAll(), 'intervenant_id');
+    $liens_intervenants = $stmt->fetchAll();
+    $selected_intervenants = array_column($liens_intervenants, 'id');
 }
 
 $intervenants = db()->query('SELECT * FROM intervenants WHERE actif = 1 ORDER BY nom')->fetchAll();
 
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Capturé avant que le POST n'écrase $a['accepte_intervenant'] plus bas : sert à savoir si
-    // l'activité était déjà acceptée (pour garder sa date d'acceptation plutôt que la renouveler).
-    $etait_accepte = !empty($a['accepte_intervenant']);
-    $ancien_accepte_le = $a['accepte_le'] ?? null;
-
     $a['titre'] = trim($_POST['titre'] ?? '');
     $a['categorie'] = trim($_POST['categorie'] ?? '');
     $a['categorie_display'] = trim($_POST['categorie_display'] ?? '');
@@ -73,13 +72,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $a['lien_inscription'] = trim($_POST['lien_inscription'] ?? '');
     }
 
-    // Case à cocher manuelle — sert surtout quand l'intervenant·e n'a pas (encore) d'accès à
-    // son espace bénévole pour accepter elle-même depuis son tableau de bord ; sinon iel accepte
-    // directement là-bas (admin/activite-accepter.php). Décochée = redemande son accord (ex. après
-    // un changement de conditions/description) ; recochée après = nouvelle date d'acceptation.
-    $a['accepte_intervenant'] = isset($_POST['accepte_intervenant']) ? 1 : 0;
-    $a['accepte_le'] = $a['accepte_intervenant'] ? ($etait_accepte ? $ancien_accepte_le : date('Y-m-d H:i:s')) : null;
-
     $new_photo = handle_upload('photo', 'activites');
     if ($new_photo) {
         $a['photo'] = $new_photo;
@@ -89,18 +81,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Le titre est obligatoire.';
     } else {
         if ($id) {
-            $stmt = db()->prepare('UPDATE activites SET titre=?, categorie=?, categorie_display=?, format=?, public=?, description=?, date_debut=?, heure=?, recurrence=?, lieu=?, nombre_places=?, ville=?, texte_bouton=?, lien_inscription=?, accepte_intervenant=?, accepte_le=?, photo=?, statut=?, statut_activite=?, visible_accueil=?, ordre=? WHERE id=?');
-            $stmt->execute([$a['titre'], $a['categorie'], $a['categorie_display'], $a['format'], $a['public'], $a['description'], $a['date_debut'], $a['heure'], $a['recurrence'], $a['lieu'], $a['nombre_places'], $a['ville'], $a['texte_bouton'], $a['lien_inscription'], $a['accepte_intervenant'], $a['accepte_le'], $a['photo'], $a['statut'], $a['statut_activite'], $a['visible_accueil'], $a['ordre'], $id]);
+            $stmt = db()->prepare('UPDATE activites SET titre=?, categorie=?, categorie_display=?, format=?, public=?, description=?, date_debut=?, heure=?, recurrence=?, lieu=?, nombre_places=?, ville=?, texte_bouton=?, lien_inscription=?, photo=?, statut=?, statut_activite=?, visible_accueil=?, ordre=? WHERE id=?');
+            $stmt->execute([$a['titre'], $a['categorie'], $a['categorie_display'], $a['format'], $a['public'], $a['description'], $a['date_debut'], $a['heure'], $a['recurrence'], $a['lieu'], $a['nombre_places'], $a['ville'], $a['texte_bouton'], $a['lien_inscription'], $a['photo'], $a['statut'], $a['statut_activite'], $a['visible_accueil'], $a['ordre'], $id]);
         } else {
-            $stmt = db()->prepare('INSERT INTO activites (titre, categorie, categorie_display, format, public, description, date_debut, heure, recurrence, lieu, nombre_places, ville, texte_bouton, lien_inscription, accepte_intervenant, accepte_le, photo, statut, statut_activite, visible_accueil, ordre) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
-            $stmt->execute([$a['titre'], $a['categorie'], $a['categorie_display'], $a['format'], $a['public'], $a['description'], $a['date_debut'], $a['heure'], $a['recurrence'], $a['lieu'], $a['nombre_places'], $a['ville'], $a['texte_bouton'], $a['lien_inscription'], $a['accepte_intervenant'], $a['accepte_le'], $a['photo'], $a['statut'], $a['statut_activite'], $a['visible_accueil'], $a['ordre']]);
+            $stmt = db()->prepare('INSERT INTO activites (titre, categorie, categorie_display, format, public, description, date_debut, heure, recurrence, lieu, nombre_places, ville, texte_bouton, lien_inscription, photo, statut, statut_activite, visible_accueil, ordre) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
+            $stmt->execute([$a['titre'], $a['categorie'], $a['categorie_display'], $a['format'], $a['public'], $a['description'], $a['date_debut'], $a['heure'], $a['recurrence'], $a['lieu'], $a['nombre_places'], $a['ville'], $a['texte_bouton'], $a['lien_inscription'], $a['photo'], $a['statut'], $a['statut_activite'], $a['visible_accueil'], $a['ordre']]);
             $id = (int)db()->lastInsertId();
         }
 
-        db()->prepare('DELETE FROM activite_intervenant WHERE activite_id = ?')->execute([$id]);
+        // Retire les personnes décochées, ajoute les nouvelles (qui démarrent non acceptées),
+        // et NE TOUCHE PAS aux liens qui restent — un DELETE+reinsert de tout à chaque
+        // enregistrement remettrait l'acceptation de chacun·e à zéro à chaque modification.
+        $stmt = db()->prepare('SELECT intervenant_id, accepte, accepte_le FROM activite_intervenant WHERE activite_id = ?');
+        $stmt->execute([$id]);
+        $anciens_liens = [];
+        foreach ($stmt->fetchAll() as $row) {
+            $anciens_liens[(int)$row['intervenant_id']] = $row;
+        }
+        $anciens_intervenants = array_keys($anciens_liens);
+
+        $a_retirer = array_diff($anciens_intervenants, $posted_intervenants);
+        $a_ajouter = array_diff($posted_intervenants, $anciens_intervenants);
+        $a_garder = array_intersect($posted_intervenants, $anciens_intervenants);
+
+        if ($a_retirer) {
+            $placeholders = implode(',', array_fill(0, count($a_retirer), '?'));
+            db()->prepare("DELETE FROM activite_intervenant WHERE activite_id = ? AND intervenant_id IN ($placeholders)")
+                ->execute([$id, ...$a_retirer]);
+        }
         $ins = db()->prepare('INSERT INTO activite_intervenant (activite_id, intervenant_id) VALUES (?, ?)');
-        foreach ($posted_intervenants as $iid) {
+        foreach ($a_ajouter as $iid) {
             $ins->execute([$id, $iid]);
+        }
+
+        // Case à cocher manuelle par personne déjà liée — surtout utile quand l'intervenant·e
+        // n'a pas (encore) accès à son espace bénévole pour accepter elle-même ; sinon iel
+        // accepte directement là-bas (admin/activite-accepter.php). Décochée = redemande son
+        // accord (ex. après un changement de conditions/description) ; recochée après =
+        // nouvelle date. Une personne tout juste ajoutée ci-dessus n'a pas de case ici (elle
+        // n'apparaîtra qu'au prochain chargement) : elle démarre non acceptée.
+        $maj_accepte = db()->prepare('UPDATE activite_intervenant SET accepte = ?, accepte_le = ? WHERE activite_id = ? AND intervenant_id = ?');
+        foreach ($a_garder as $iid) {
+            $ligne = $anciens_liens[$iid];
+            $accepte = isset($_POST['accepte_intervenant'][$iid]) ? 1 : 0;
+            $accepte_le = $accepte ? ($ligne['accepte'] ? $ligne['accepte_le'] : date('Y-m-d H:i:s')) : null;
+            $maj_accepte->execute([$accepte, $accepte_le, $id, $iid]);
         }
 
         header('Location: /admin/activites.php?ok=1');
@@ -283,17 +308,6 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
       </div>
     </div>
 
-    <div id="f_acceptation_box" class="mavka-acceptation-box <?= !empty($a['accepte_intervenant']) ? 'mavka-acceptation-box--oui' : 'mavka-acceptation-box--non' ?>">
-      <label style="display:flex; align-items:center; gap:8px; font-weight:700;">
-        <input type="checkbox" id="f_accepte_intervenant" name="accepte_intervenant" value="1" style="width:auto;" <?= !empty($a['accepte_intervenant']) ? 'checked' : '' ?>>
-        <span id="f_acceptation_label"><?= !empty($a['accepte_intervenant']) ? '✓ Acceptée par l\'intervenant·e lié·e' : '⏳ En attente d\'acceptation par l\'intervenant·e lié·e' ?></span>
-      </label>
-      <p class="mavka-form-section__hint" style="margin-top:6px;">
-        Tant que ce n'est pas coché, l'activité n'apparaît pas sur le site public si elle est liée à un·e intervenant·e (même avec un lien d'inscription) — visible seulement ici et dans l'espace bénévole de la personne concernée. Elle peut l'accepter elle-même depuis son tableau de bord ; ne coche ici que si vous avez son accord autrement (ex. par téléphone) ou si elle n'a pas encore d'accès à son espace.
-        <?php if (!empty($a['accepte_le'])): ?><br>Acceptée le <?= htmlspecialchars(date('d/m/Y à H:i', strtotime($a['accepte_le']))) ?>.<?php endif; ?>
-      </p>
-    </div>
-
     <label>Intervenant·e·s</label>
     <div class="mavka-picklist">
       <?php if (!$intervenants): ?>
@@ -311,6 +325,22 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
       </label>
       <?php endforeach; ?>
     </div>
+
+    <?php if ($liens_intervenants): ?>
+    <label style="margin-top:18px;">Acceptation par personne</label>
+    <p class="mavka-form-section__hint" style="margin:0 0 10px;">Chaque personne liée doit accepter individuellement — l'accord d'une seule ne suffit pas pour les autres, même quand l'une d'elles est aussi ton propre compte. Chacune peut accepter elle-même depuis son espace bénévole ; ne coche ici que si tu as son accord autrement (ex. par téléphone) ou si elle n'a pas encore d'accès à son espace.</p>
+    <?php foreach ($liens_intervenants as $li): ?>
+    <div class="mavka-acceptation-box <?= $li['accepte'] ? 'mavka-acceptation-box--oui' : 'mavka-acceptation-box--non' ?>" style="margin-bottom:8px;">
+      <label style="display:flex; align-items:center; gap:8px; font-weight:700;">
+        <input type="checkbox" name="accepte_intervenant[<?= $li['id'] ?>]" value="1" style="width:auto;" <?= $li['accepte'] ? 'checked' : '' ?>>
+        <span><?= $li['accepte'] ? '✓' : '⏳' ?> <?= htmlspecialchars($li['nom']) ?></span>
+      </label>
+      <?php if ($li['accepte_le']): ?><p class="mavka-form-section__hint" style="margin:4px 0 0;">Acceptée le <?= htmlspecialchars(date('d/m/Y à H:i', strtotime($li['accepte_le']))) ?>.</p><?php endif; ?>
+    </div>
+    <?php endforeach; ?>
+    <?php elseif ($id && $intervenants): ?>
+    <p class="mavka-form-section__hint" style="margin-top:14px;">Coche une personne ci-dessus puis enregistre : son acceptation apparaîtra ici.</p>
+    <?php endif; ?>
     </div>
   </details>
 
@@ -580,16 +610,19 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
   casesIntervenants.forEach(function (c) { c.addEventListener('change', updateAvatars); });
   updateAvatars();
 
-  // Bascule immédiatement la couleur de la case Acceptation (rouge/vert) au clic, sans
+  // Bascule immédiatement la couleur de chaque case Acceptation (rouge/vert) au clic, sans
   // attendre l'enregistrement — retour visuel instantané sur ce qui détermine la publication.
-  var acceptationBox = $('f_acceptation_box');
-  var acceptationLabel = $('f_acceptation_label');
-  $('f_accepte_intervenant').addEventListener('change', function () {
-    acceptationBox.classList.toggle('mavka-acceptation-box--oui', this.checked);
-    acceptationBox.classList.toggle('mavka-acceptation-box--non', !this.checked);
-    acceptationLabel.textContent = this.checked
-      ? '✓ Acceptée par l\'intervenant·e lié·e'
-      : '⏳ En attente d\'acceptation par l\'intervenant·e lié·e';
+  // Une case par personne liée, chacune indépendante des autres.
+  document.querySelectorAll('.mavka-acceptation-box').forEach(function (box) {
+    var checkbox = box.querySelector('input[type="checkbox"]');
+    var label = box.querySelector('label span');
+    if (!checkbox || !label) return;
+    var nom = label.textContent.replace(/^[✓⏳]\s*/, '');
+    checkbox.addEventListener('change', function () {
+      box.classList.toggle('mavka-acceptation-box--oui', this.checked);
+      box.classList.toggle('mavka-acceptation-box--non', !this.checked);
+      label.textContent = (this.checked ? '✓ ' : '⏳ ') + nom;
+    });
   });
 })();
 </script>

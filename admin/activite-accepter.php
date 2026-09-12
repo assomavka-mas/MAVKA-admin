@@ -17,12 +17,11 @@ $stmt = db()->prepare('SELECT intervenant_id FROM admins WHERE id = ?');
 $stmt->execute([$user['id']]);
 $intervenant_id = $stmt->fetchColumn();
 
+// Met à jour SA PROPRE ligne dans activite_intervenant — l'acceptation d'une autre personne
+// liée à la même activité (s'il y en a) n'est ni touchée ni remplacée par celle-ci.
 if ($id && $intervenant_id) {
-    $stmt = db()->prepare('SELECT 1 FROM activite_intervenant WHERE activite_id = ? AND intervenant_id = ?');
-    $stmt->execute([$id, $intervenant_id]);
-    if ($stmt->fetchColumn()) {
-        db()->prepare('UPDATE activites SET accepte_intervenant = 1, accepte_le = NOW() WHERE id = ?')->execute([$id]);
-    }
+    db()->prepare('UPDATE activite_intervenant SET accepte = 1, accepte_le = NOW() WHERE activite_id = ? AND intervenant_id = ?')
+        ->execute([$id, $intervenant_id]);
 }
 
 header('Location: /admin/mes-activites.php?accepte=1');

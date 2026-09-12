@@ -79,13 +79,16 @@ function site_intervenant_ateliers(int $intervenant_id): array {
 // sans encombrer l'accueil de plusieurs cartes par personne.
 // texte_bouton = 'Voir sa page' exclu : c'est justement la carte-vitrine dont le seul rôle
 // est de renvoyer vers CETTE page — l'y afficher aussi la rendrait auto-référentielle.
+// N'affiche que ce qui est déjà public "en vrai" (toutes les personnes liées ont accepté, pas
+// seulement celle-ci) — sa propre page ne doit pas montrer une activité que ses co-intervenant·e·s
+// n'ont pas encore acceptée.
 function site_activites_intervenant(int $intervenant_id): array {
     $stmt = db()->prepare("SELECT a.* FROM activites a
         JOIN activite_intervenant ai ON ai.activite_id = a.id
         WHERE ai.intervenant_id = ? AND a.statut = 'publie' AND a.statut_activite NOT IN ('annule','termine')
           AND a.texte_bouton != 'Voir sa page'
           AND a.lien_inscription IS NOT NULL AND a.lien_inscription != ''
-          AND a.accepte_intervenant = 1
+          AND NOT EXISTS (SELECT 1 FROM activite_intervenant ai2 WHERE ai2.activite_id = a.id AND ai2.accepte = 0)
         ORDER BY (a.date_debut IS NULL) ASC, a.date_debut ASC, a.ordre ASC");
     $stmt->execute([$intervenant_id]);
     return $stmt->fetchAll();

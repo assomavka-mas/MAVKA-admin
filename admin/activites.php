@@ -11,7 +11,10 @@ $filtre_intervenant = isset($_GET['intervenant']) ? (int)$_GET['intervenant'] : 
 $tous_intervenants = db()->query('SELECT id, nom FROM intervenants ORDER BY nom ASC')->fetchAll();
 
 $sql = "SELECT a.*,
-        (SELECT GROUP_CONCAT(iv.nom SEPARATOR ', ') FROM activite_intervenant ai JOIN intervenants iv ON iv.id = ai.intervenant_id WHERE ai.activite_id = a.id) AS intervenants_noms
+        (SELECT GROUP_CONCAT(iv.nom SEPARATOR ', ') FROM activite_intervenant ai JOIN intervenants iv ON iv.id = ai.intervenant_id WHERE ai.activite_id = a.id) AS intervenants_noms,
+        (SELECT COUNT(*) FROM activite_intervenant ai WHERE ai.activite_id = a.id) AS nb_intervenants,
+        (SELECT COUNT(*) FROM activite_intervenant ai WHERE ai.activite_id = a.id AND ai.accepte = 1) AS nb_acceptes,
+        (SELECT GROUP_CONCAT(iv.nom SEPARATOR ', ') FROM activite_intervenant ai JOIN intervenants iv ON iv.id = ai.intervenant_id WHERE ai.activite_id = a.id AND ai.accepte = 0) AS en_attente_noms
     FROM activites a";
 $params = [];
 if ($filtre_intervenant) {
@@ -27,7 +30,7 @@ $activites = $stmt->fetchAll();
 // ET a été acceptée par cette personne (voir activite_incomplete() et la vue activites_publiques) —
 // on le calcule une fois ici pour la surligner en rouge dans le tableau et pour le filtre ci-dessous.
 foreach ($activites as &$a) {
-    $a['_incomplete'] = activite_incomplete($a, $a['intervenants_noms'] !== null && $a['intervenants_noms'] !== '');
+    $a['_incomplete'] = activite_incomplete($a);
 }
 unset($a);
 $nb_incomplet = count(array_filter($activites, fn($a) => $a['_incomplete']));
@@ -79,19 +82,21 @@ function act_apercu_photo(?string $photo): string {
         . '<img src="' . htmlspecialchars($url) . '" alt="" style="width:32px;height:32px;object-fit:cover;border-radius:6px;display:block;"></a>';
 }
 
-// Lien d'inscription + statut d'acceptation par l'intervenant·e lié·e (accepte_intervenant) —
-// les deux conditions qui déterminent si l'activité peut sortir en ligne (activite_incomplete()).
+// Lien d'inscription + statut d'acceptation — CHAQUE intervenant·e lié·e doit avoir accepté
+// individuellement (nb_acceptes/nb_intervenants, activite_intervenant.accepte), pas juste un·e
+// seul·e — voir activite_incomplete().
 function act_apercu_lien(array $a): string {
     $lien = $a['lien_inscription'] ?? null;
-    $a_intervenant = $a['intervenants_noms'] !== null && $a['intervenants_noms'] !== '';
+    $nb_intervenants = (int)($a['nb_intervenants'] ?? 0);
+    $nb_acceptes = (int)($a['nb_acceptes'] ?? 0);
     $lignes = [];
     $lignes[] = $lien
         ? '<a class="mavka-fill-yes" href="' . htmlspecialchars($lien) . '" target="_blank">🔗 Lien</a>'
         : '<span class="mavka-tag-alerte">⚠ Pas de lien</span>';
-    if ($a_intervenant) {
-        $lignes[] = !empty($a['accepte_intervenant'])
-            ? '<span class="mavka-fill-yes" title="' . htmlspecialchars($a['accepte_le'] ? date('d/m/Y', strtotime($a['accepte_le'])) : '') . '">✓ Acceptée</span>'
-            : '<span class="mavka-tag-alerte">⏳ En attente d\'accord</span>';
+    if ($nb_intervenants > 0) {
+        $lignes[] = $nb_acceptes >= $nb_intervenants
+            ? '<span class="mavka-fill-yes">✓ Acceptée par tou·te·s</span>'
+            : '<span class="mavka-tag-alerte">⏳ ' . $nb_acceptes . '/' . $nb_intervenants . ' — en attente de ' . htmlspecialchars($a['en_attente_noms'] ?? '') . '</span>';
     }
     return implode('<br>', $lignes);
 }

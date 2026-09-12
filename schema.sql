@@ -79,8 +79,6 @@ CREATE TABLE IF NOT EXISTS activites (
   ville VARCHAR(100) NULL,
   texte_bouton VARCHAR(100) NOT NULL DEFAULT 'En savoir plus',
   lien_inscription VARCHAR(500) NULL,
-  accepte_intervenant TINYINT(1) NOT NULL DEFAULT 0,  -- l'intervenant·e lié·e a accepté cette activité (conditions, description...) ; sans objet si aucun·e intervenant·e n'est lié·e
-  accepte_le DATETIME NULL,
   photo VARCHAR(255) NULL,               -- ім'я файлу в /assets/uploads/activites/
   statut ENUM('publie','brouillon') NOT NULL DEFAULT 'publie',
   statut_activite ENUM('ouvert','complet','annule','termine') NOT NULL DEFAULT 'ouvert',
@@ -90,9 +88,14 @@ CREATE TABLE IF NOT EXISTS activites (
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Acceptation par PERSONNE, pas par activité : une activité avec 3 intervenant·e·s lié·e·s
+-- a besoin des 3 accords, chacun distinct — même quand l'un·e des 3 est aussi super_admin,
+-- son propre accord ne vaut pas pour les 2 autres (pas d'exception, même pour Larysa elle-même).
 CREATE TABLE IF NOT EXISTS activite_intervenant (
   activite_id INT NOT NULL,
   intervenant_id INT NOT NULL,
+  accepte TINYINT(1) NOT NULL DEFAULT 0,
+  accepte_le DATETIME NULL,
   PRIMARY KEY (activite_id, intervenant_id),
   FOREIGN KEY (activite_id) REFERENCES activites(id) ON DELETE CASCADE,
   FOREIGN KEY (intervenant_id) REFERENCES intervenants(id) ON DELETE CASCADE
@@ -121,9 +124,10 @@ CREATE TABLE IF NOT EXISTS messages_contact (
 
 -- В'юшка з готовими даними для публічного сайту (тільки опубліковані активності),
 -- з полем intervenants_noms, зібраним автоматично зі зв'язаних волонтерів.
--- Ne montre jamais une activité sans lien d'inscription, ni une activité liée à un·e
--- intervenant·e qui ne l'a pas encore acceptée (accepte_intervenant) — ces deux cas restent
--- visibles uniquement dans l'admin et dans l'espace du·de la volontaire concerné·e.
+-- Ne montre jamais une activité sans lien d'inscription, ni une activité liée à au moins un·e
+-- intervenant·e qui ne l'a pas encore acceptée — TOU·TE·S les intervenant·e·s lié·e·s doivent
+-- avoir accepté, pas juste un·e (activite_intervenant.accepte, par personne) — ces deux cas
+-- restent visibles uniquement dans l'admin et dans l'espace du·de la volontaire concerné·e.
 CREATE OR REPLACE VIEW activites_publiques AS
 SELECT
   a.id, a.titre, a.heure, a.lieu, a.ville, a.format, a.public, a.nombre_places,
@@ -135,8 +139,5 @@ SELECT
 FROM activites a
 WHERE a.statut = 'publie' AND a.visible_accueil = 1
   AND a.lien_inscription IS NOT NULL AND a.lien_inscription != ''
-  AND (
-    a.accepte_intervenant = 1
-    OR NOT EXISTS (SELECT 1 FROM activite_intervenant ai2 WHERE ai2.activite_id = a.id)
-  )
+  AND NOT EXISTS (SELECT 1 FROM activite_intervenant ai2 WHERE ai2.activite_id = a.id AND ai2.accepte = 0)
 ORDER BY a.ordre ASC, a.date_debut ASC;

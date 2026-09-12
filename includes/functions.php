@@ -5,14 +5,14 @@
 const MAVKA_MODELE_CHARTE_BENEVOLAT_URL = 'https://docs.google.com/document/d/1LyGOTT19kAvVHCHUgAY6ut4QiwOpwdJTKR5rTZaH0zE/edit?usp=sharing';
 const MAVKA_MODELE_CONTRAT_INTERVENTION_URL = 'https://docs.google.com/document/d/1u0cvCNCnOfa3CI_OWb2FXYORGVuDYeFq2Gy52laZiwY/edit?usp=sharing';
 
-// Une activité liée à un·e intervenant·e n'est prête pour le site public que si elle a un
-// lien d'inscription ET que l'intervenant·e l'a acceptée (accepte_intervenant) — voir la vue
-// activites_publiques. Sert à la mettre en évidence dans l'admin et dans l'espace du·de la
-// volontaire tant que l'un des deux manque. $a_intervenant : au moins un·e intervenant·e est
-// lié·e à cette activité (sinon l'acceptation ne s'applique pas — seul le lien compte).
-function activite_incomplete(array $a, bool $a_intervenant): bool {
+// Une activité liée à un·e ou plusieurs intervenant·e·s n'est prête pour le site public que si
+// elle a un lien d'inscription ET que CHACUNE des personnes liées l'a acceptée — pas juste
+// une seule (voir alter-champs-v14.sql et la vue activites_publiques : acceptation par
+// personne, sur activite_intervenant, jamais par exception). $a doit contenir nb_intervenants
+// et nb_acceptes, calculés par la requête SQL (COUNT sur activite_intervenant).
+function activite_incomplete(array $a): bool {
     $manque_lien = trim((string)($a['lien_inscription'] ?? '')) === '';
-    $attente_acceptation = $a_intervenant && empty($a['accepte_intervenant']);
+    $attente_acceptation = (int)($a['nb_intervenants'] ?? 0) > (int)($a['nb_acceptes'] ?? 0);
     return $manque_lien || $attente_acceptation;
 }
 
