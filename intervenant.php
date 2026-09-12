@@ -48,8 +48,8 @@ if ($iv) {
 .iv-hero-wrap{padding-bottom:56px}
 .iv-hero{display:grid;grid-template-columns:220px 1fr;gap:36px;align-items:center}
 .iv-hero-photo{position:relative;width:220px;height:220px}
-.iv-hero-photo::before{content:"";position:absolute;inset:-14px;border-radius:50%;background:var(--sun);z-index:0}
-.iv-hero-photo img{position:relative;z-index:1;width:220px;height:220px;border-radius:50%;object-fit:cover;background:var(--card);display:block}
+.iv-hero-photo::before{content:"";position:absolute;width:82%;height:70%;right:-13%;bottom:-12%;border-radius:62% 38% 40% 60%/58% 42% 65% 35%;background:var(--sun);z-index:0}
+.iv-hero-photo img{position:relative;z-index:1;width:220px;height:220px;border-radius:20px;object-fit:cover;background:var(--card);display:block}
 .eyebrow--sun{background:var(--sun);color:var(--ink)}
 @media (max-width:640px){.iv-hero{grid-template-columns:1fr;justify-items:start}.iv-hero-photo{width:160px;height:160px}.iv-hero-photo img{width:160px;height:160px}}
 .iv-ateliers{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
