@@ -38,9 +38,20 @@ if ($iv) {
 <link rel="stylesheet" href="/assets/site.css?v=<?= @filemtime(__DIR__ . '/assets/site.css') ?: time() ?>">
 <link rel="stylesheet" href="/assets/event-card.css?v=<?= @filemtime(__DIR__ . '/assets/event-card.css') ?: time() ?>">
 <style>
+/* Même principe que le hero de l'accueil (index.php : .hero .wrap mint arrondi + plashka
+   jaune derrière l'illustration) — carte contenue, pas pleine largeur, plutôt qu'une bande
+   pleine largeur. .iv-hero-wrap rajoute le padding bas que .hero .wrap n'a pas par défaut
+   (prévu pour laisser une illustration "déborder" jusqu'en bas ; ici la photo est ronde et
+   contenue, donc pas de débordement à ménager).
+   .eyebrow--sun : l'eyebrow "Intervenant·e/Bénévole/Volontaire" utilise --teal-tint (~= --mint)
+   par défaut — invisible sur ce nouveau fond mint, donc jaune ici comme la plashka de la photo. */
+.iv-hero-wrap{padding-bottom:56px}
 .iv-hero{display:grid;grid-template-columns:220px 1fr;gap:36px;align-items:center}
-.iv-hero img{width:220px;height:220px;border-radius:50%;object-fit:cover;background:var(--mint)}
-@media (max-width:640px){.iv-hero{grid-template-columns:1fr;justify-items:start}.iv-hero img{width:160px;height:160px}}
+.iv-hero-photo{position:relative;width:220px;height:220px}
+.iv-hero-photo::before{content:"";position:absolute;inset:-14px;border-radius:50%;background:var(--sun);z-index:0}
+.iv-hero-photo img{position:relative;z-index:1;width:220px;height:220px;border-radius:50%;object-fit:cover;background:var(--card);display:block}
+.eyebrow--sun{background:var(--sun);color:var(--ink)}
+@media (max-width:640px){.iv-hero{grid-template-columns:1fr;justify-items:start}.iv-hero-photo{width:160px;height:160px}.iv-hero-photo img{width:160px;height:160px}}
 .iv-ateliers{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
 @media (max-width:820px){.iv-ateliers{grid-template-columns:1fr}}
 .iv-atelier{padding:22px;border-radius:var(--r);background:var(--card);border:1px solid var(--card-line)}
@@ -85,13 +96,15 @@ if ($iv) {
     </div>
   </section>
 <?php else: ?>
-  <section class="white">
-    <div class="wrap">
+  <section class="hero">
+    <div class="wrap iv-hero-wrap">
       <a class="back" href="/index.php#equipe">← Toute l'équipe</a>
       <div class="iv-hero">
-        <img src="<?= htmlspecialchars($photoUrl) ?>" alt="<?= htmlspecialchars($iv['nom']) ?>">
+        <div class="iv-hero-photo">
+          <img src="<?= htmlspecialchars($photoUrl) ?>" alt="<?= htmlspecialchars($iv['nom']) ?>">
+        </div>
         <div>
-          <span class="eyebrow"><?= htmlspecialchars(site_intervenant_statut_label($iv)) ?></span>
+          <span class="eyebrow eyebrow--sun"><?= htmlspecialchars(site_intervenant_statut_label($iv)) ?></span>
           <h1 style="margin-top:12px"><?= htmlspecialchars($iv['nom']) ?></h1>
           <?php if ($iv['resume']): ?><p class="lede" style="margin-top:12px"><?= htmlspecialchars($iv['resume']) ?></p><?php endif; ?>
           <?php if ($iv['domaine']): ?><p style="margin-top:10px;color:var(--ink-3);font-size:.92rem"><?= htmlspecialchars($iv['domaine']) ?></p><?php endif; ?>
