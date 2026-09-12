@@ -36,9 +36,16 @@ $stmt = db()->prepare('INSERT INTO messages_contact (nom, email, sujet, message)
 $stmt->execute([$nom, $email, $sujet, $message]);
 
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/includes/mailer.php';
 $subject = '[Site MAVKA] Nouveau message' . ($sujet ? " — $sujet" : '');
 $body = "Nom : $nom\nEmail : $email\nSujet : $sujet\n\n$message";
-$headers = "From: MAVKA Site <no-reply@" . parse_url(SITE_URL, PHP_URL_HOST) . ">\r\nReply-To: $email";
-@mail(CONTACT_EMAIL, $subject, $body, $headers);
+
+// SMTP (Gmail) si configuré dans config.php — bien plus fiable que mail() sur hébergement
+// mutualisé. Si SMTP_* n'est pas défini, on retombe sur mail() (peut ne rien envoyer du tout
+// selon l'hébergeur, mais le message reste de toute façon enregistré en base ci-dessus).
+if (!mavka_smtp_envoyer(CONTACT_EMAIL, $subject, $body, $email)) {
+    $headers = "From: MAVKA Site <no-reply@" . parse_url(SITE_URL, PHP_URL_HOST) . ">\r\nReply-To: $email";
+    @mail(CONTACT_EMAIL, $subject, $body, $headers);
+}
 
 echo json_encode(['ok' => true]);
