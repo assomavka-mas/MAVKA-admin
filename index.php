@@ -44,7 +44,7 @@ $site_activites_evenementiel = site_enrichir_avec_photo_intervenant(site_activit
   </div>
 </header>
 
-<main><svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="m-stand" viewBox="0 0 310 769"><image href="/assets/site-img/img-02-33b2e93d45.webp" width="310" height="769"/></symbol><symbol id="m-wave" viewBox="0 0 626 722"><image href="/assets/site-img/img-03-1d459c08a4.webp" width="626" height="722"/></symbol><symbol id="m-magnify" viewBox="0 0 552 756"><image href="/assets/site-img/img-04-3b8dc488ec.webp" width="552" height="756"/></symbol><symbol id="m-jump" viewBox="0 0 469 734"><image href="/assets/site-img/img-05-10df6582b6.webp" width="469" height="734"/></symbol><symbol id="m-read" viewBox="0 0 549 767"><image href="/assets/site-img/img-06-3bc40d08fc.webp" width="549" height="767"/></symbol><symbol id="m-point" viewBox="0 0 687 768"><image href="/assets/site-img/img-07-00875b060b.webp" width="687" height="768"/></symbol><symbol id="m-logo" viewBox="0 0 574 587"><image href="/assets/site-img/img-01-017fac3c9d.webp" width="574" height="587"/></symbol></svg>
+<main><svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="m-stand" viewBox="0 0 310 769"><image href="/assets/site-img/img-02-33b2e93d45.webp" width="310" height="769"/></symbol><symbol id="m-wave" viewBox="0 0 626 722"><image href="/assets/site-img/img-03-1d459c08a4.webp" width="626" height="722"/></symbol><symbol id="m-magnify" viewBox="0 0 552 756"><image href="/assets/site-img/img-04-3b8dc488ec.webp" width="552" height="756"/></symbol><symbol id="m-jump" viewBox="0 0 469 734"><image href="/assets/site-img/img-05-10df6582b6.webp" width="469" height="734"/></symbol><symbol id="m-read" viewBox="0 0 549 767"><image href="/assets/site-img/img-06-3bc40d08fc.webp" width="549" height="767"/></symbol><symbol id="m-point" viewBox="0 0 404 867"><image href="/assets/site-img/img-07-b2cfcc755b.webp" width="404" height="867"/></symbol><symbol id="m-logo" viewBox="0 0 574 587"><image href="/assets/site-img/img-01-017fac3c9d.webp" width="574" height="587"/></symbol></svg>
 
 <!-- ============ ACCUEIL ============ -->
 <div class="page" id="page-accueil">
@@ -232,7 +232,7 @@ $site_activites_evenementiel = site_enrichir_avec_photo_intervenant(site_activit
         <p class="lede">Cette direction s'adresse aux personnes qui veulent transmettre : le Parcours MAVKA accompagne chacun de l'idée au cours régulier, avec l'appui de Larysa Mas, présidente de l'association, et des approches comme l'art-thérapie.</p>
         <p style="margin-top:18px"><a class="btn btn-primary" href="#intervenants">Découvrir le Parcours</a></p>
       </div>
-      <div class="dir-art"><svg class="mascot tall" viewBox="0 0 687 768" style="aspect-ratio:687/768"><use href="#m-point"/></svg></div>
+      <div class="dir-art"><svg class="mascot tall" viewBox="0 0 404 867" style="aspect-ratio:404/867"><use href="#m-point"/></svg></div>
     </div>
   </section>
 </div>
@@ -250,7 +250,7 @@ $site_activites_evenementiel = site_enrichir_avec_photo_intervenant(site_activit
           <a class="btn btn-ghost" href="#steps">Voir les quatre étapes</a>
         </div>
       </div>
-      <div class="hero-art"><img src="/assets/site-img/img-07-00875b060b.webp" alt="Mavka pointant vers le haut"></div>
+      <div class="hero-art"><img src="/assets/site-img/img-07-b2cfcc755b.webp" alt="Mavka pointant vers le haut, debout, main sur la hanche"></div>
     </div>
   </section>
 
