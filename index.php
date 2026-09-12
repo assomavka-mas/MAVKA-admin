@@ -375,12 +375,12 @@ $site_activites_evenementiel = site_enrichir_avec_photo_intervenant(site_activit
     <div class="wrap">
       <div class="head" style="margin-bottom:24px"><span class="eyebrow">Ils travaillent déjà avec nous</span><h2>Partenaires et communautés</h2></div>
       <div class="logos" style="gap:36px">
-        <img src="/assets/site-img/img-08-3aa13012b1.webp" alt="Commune de Garat" style="height:44px">
-        <img src="/assets/site-img/img-09-0214dc1e39.webp" alt="Ville de Soyaux" style="height:44px">
-        <img src="/assets/site-img/img-10-0b0315c840.webp" alt="FLEP, centre socio-culturel et sportif de Soyaux" style="height:44px">
-        <img src="/assets/site-img/img-11-6a6681c6fb.webp" alt="FCOL, fédération charentaise des œuvres laïques" style="height:44px">
-        <img src="/assets/site-img/img-23-3526f012ca.webp" alt="Comité des fêtes et d'animations de Garat" style="height:44px">
-        <img src="/assets/site-img/img-24-18553ed39a.webp" alt="HelloAsso" style="height:32px">
+        <a href="https://www.garat.fr/" target="_blank" rel="noopener"><img src="/assets/site-img/img-08-3aa13012b1.webp" alt="Commune de Garat" style="height:44px"></a>
+        <a href="https://soyaux.fr/" target="_blank" rel="noopener"><img src="/assets/site-img/img-09-0214dc1e39.webp" alt="Ville de Soyaux" style="height:44px"></a>
+        <a href="https://cscsflep.com/" target="_blank" rel="noopener"><img src="/assets/site-img/img-10-0b0315c840.webp" alt="FLEP, centre socio-culturel et sportif de Soyaux" style="height:44px"></a>
+        <a href="https://www.fcol16.org/" target="_blank" rel="noopener"><img src="/assets/site-img/img-11-6a6681c6fb.webp" alt="FCOL, fédération charentaise des œuvres laïques" style="height:44px"></a>
+        <a href="https://www.facebook.com/people/Comit%C3%A9-des-F%C3%AAtes-et-danimations-de-Garat/61557262989400/" target="_blank" rel="noopener"><img src="/assets/site-img/img-23-3526f012ca.webp" alt="Comité des fêtes et d'animations de Garat" style="height:44px"></a>
+        <a href="https://www.helloasso.com/associations/mavka" target="_blank" rel="noopener"><img src="/assets/site-img/img-24-18553ed39a.webp" alt="HelloAsso" style="height:32px"></a>
       </div>
     </div>
   </section>
@@ -469,6 +469,112 @@ $site_activites_evenementiel = site_enrichir_avec_photo_intervenant(site_activit
   </section>
 </div>
 
+<!-- ============ CONFIDENTIALITE (RGPD) ============ -->
+<div class="page" id="page-confidentialite">
+  <section>
+    <div class="wrap">
+      <div class="head">
+        <span class="eyebrow">Vie privée</span>
+        <h1 style="font-size:clamp(2rem,4vw,3.2rem)">Politique de protection des données personnelles (RGPD)</h1>
+        <p class="lede">L'association MAVKA accorde une grande importance au respect de la vie privée et à la protection des données personnelles. Cette page explique quelles informations sont collectées, pourquoi elles sont utilisées, pendant combien de temps, et quels sont vos droits, conformément au Règlement Général sur la Protection des Données (RGPD) et à la loi française « Informatique et Libertés ».</p>
+      </div>
+      <div class="legal-doc">
+        <h2>1. Responsable du traitement</h2>
+        <p>Association MAVKA — association loi 1901, n° RNA W161010493 (Préfecture de la Charente).<br>
+        Adresse : 10 lotissement Hauts de Neuillac, 16410 Garat<br>
+        E-mail : <a href="mailto:contact@mavka16.fr">contact@mavka16.fr</a><br>
+        Site internet : <a href="https://mavka16.fr">https://mavka16.fr</a><br>
+        Représentante légale : Larysa Mas, présidente.</p>
+
+        <h2>2. Données collectées</h2>
+        <p>Selon les activités auxquelles vous participez, nous pouvons recueillir :</p>
+        <p><b>Identification</b></p>
+        <ul><li>nom, prénom</li><li>adresse e-mail</li><li>téléphone</li></ul>
+        <p><b>Participation</b></p>
+        <ul>
+          <li>inscription aux ateliers et événements</li>
+          <li>préinscriptions</li>
+          <li>adhésion à l'association</li>
+          <li>informations utiles à la sécurité des activités lorsque le participant choisit de nous les communiquer (par exemple, allergies ou précautions particulières)</li>
+        </ul>
+        <p><b>Bénévolat / intervenants</b></p>
+        <ul><li>parcours, compétences</li><li>CV (facultatif)</li><li>lettre de motivation</li></ul>
+        <p><b>Communication</b></p>
+        <ul><li>messages envoyés via le formulaire de contact</li><li>échanges par e-mail</li></ul>
+        <p><b>Photos et vidéos.</b> Lors des ateliers ou événements, des photographies ou vidéos peuvent être réalisées à des fins de communication (site, réseaux sociaux). Elles ne sont utilisées qu'avec l'accord de la personne concernée (ou de son représentant légal pour un mineur), conformément au règlement intérieur de l'association et aux autorisations éventuellement signées. Toute personne peut s'y opposer à tout moment, y compris a posteriori.</p>
+        <p><b>Mineurs.</b> Certaines de nos activités s'adressent à des enfants et adolescents. Dans ce cas, l'inscription et le recueil des données sont effectués avec l'autorisation préalable d'un parent ou du représentant légal, qui reste l'interlocuteur de l'association pour l'exercice des droits mentionnés à l'article 6 ci-dessous.</p>
+
+        <h2>3. Pourquoi utilisons-nous ces données ?</h2>
+        <table class="legal-table">
+          <thead><tr><th>Finalité</th><th>Base légale</th></tr></thead>
+          <tbody>
+            <tr><td>Gérer les inscriptions et préinscriptions aux ateliers/événements</td><td>Exécution d'une demande de votre part (préparation/exécution d'un service)</td></tr>
+            <tr><td>Organiser les activités et assurer leur suivi administratif</td><td>Intérêt légitime de l'association</td></tr>
+            <tr><td>Communiquer avec les participants (rappels, informations pratiques)</td><td>Exécution d'une demande de votre part</td></tr>
+            <tr><td>Répondre aux demandes de contact</td><td>Exécution d'une demande de votre part</td></tr>
+            <tr><td>Gérer les candidatures bénévoles/intervenants</td><td>Consentement (envoi volontaire du CV/motivation)</td></tr>
+            <tr><td>Publier des photos/vidéos</td><td>Consentement</td></tr>
+            <tr><td>Établir des statistiques anonymisées destinées à évaluer les besoins du territoire, développer les activités de l'association et préparer les demandes de subventions</td><td>Intérêt légitime — données anonymisées, non identifiantes</td></tr>
+            <tr><td>Respecter nos obligations légales et comptables</td><td>Obligation légale</td></tr>
+          </tbody>
+        </table>
+        <p>Nous ne revendons ni ne louons jamais vos données à des tiers à des fins commerciales.</p>
+
+        <h2>4. Durée de conservation</h2>
+        <table class="legal-table">
+          <thead><tr><th>Type de données</th><th>Durée</th></tr></thead>
+          <tbody>
+            <tr><td>Formulaires de contact</td><td>2 ans maximum à compter du dernier échange</td></tr>
+            <tr><td>Préinscriptions non confirmées</td><td>Jusqu'à la clôture de l'activité concernée, puis suppression</td></tr>
+            <tr><td>Adhérents et participants actifs</td><td>Durée de l'adhésion/participation + 1 an</td></tr>
+            <tr><td>Candidatures bénévoles non retenues</td><td>2 ans, puis suppression sauf accord de conservation</td></tr>
+            <tr><td>Documents comptables et justificatifs de subvention</td><td>Durée légale de conservation prévue par la réglementation française (en général 10 ans)</td></tr>
+            <tr><td>Photos/vidéos publiées</td><td>Jusqu'à retrait de consentement ou fin de leur usage de communication</td></tr>
+          </tbody>
+        </table>
+
+        <h2>5. Destinataires des données</h2>
+        <p>Vos données sont accessibles uniquement :</p>
+        <ul>
+          <li>aux membres habilités du Bureau de l'association ;</li>
+          <li>aux responsables d'ateliers concernés, dans la limite nécessaire à l'organisation de l'activité ;</li>
+          <li>aux prestataires techniques utilisés par l'association (hébergement du site, Google Workspace, outils de formulaires et de paiement en ligne).</li>
+        </ul>
+        <p>Ces prestataires n'agissent que sur instruction de MAVKA et sont eux-mêmes soumis à des obligations de protection des données.</p>
+        <p>Les services utilisés par MAVKA peuvent être amenés à traiter certaines données en dehors de l'Union européenne. Dans ce cas, ces traitements reposent sur les garanties prévues par la réglementation européenne (clauses contractuelles types ou autres mécanismes reconnus).</p>
+
+        <h2>6. Vos droits</h2>
+        <p>Conformément au RGPD, vous pouvez à tout moment demander :</p>
+        <ul>
+          <li>l'accès à vos données ;</li>
+          <li>leur rectification ;</li>
+          <li>leur suppression, lorsque cela est possible ;</li>
+          <li>la limitation de leur traitement ;</li>
+          <li>leur portabilité, lorsque la réglementation le prévoit ;</li>
+          <li>le retrait de votre consentement à tout moment (photos, candidatures bénévoles, etc.), sans effet rétroactif.</li>
+        </ul>
+        <p>Pour exercer ces droits : <a href="mailto:contact@mavka16.fr">contact@mavka16.fr</a></p>
+        <p>Si vous estimez, après nous avoir contactés, que vos droits ne sont pas respectés, vous pouvez introduire une réclamation auprès de la Commission Nationale de l'Informatique et des Libertés (CNIL) : <a href="https://www.cnil.fr" target="_blank" rel="noopener">www.cnil.fr</a></p>
+
+        <h2>7. Sécurité</h2>
+        <p>L'association met en œuvre des mesures raisonnables et proportionnées pour protéger les données personnelles contre la perte, l'accès non autorisé, la divulgation ou la modification : accès restreint aux membres habilités du Bureau, mots de passe sur les outils utilisés, et recours à des prestataires reconnus pour l'hébergement et la gestion des formulaires.</p>
+
+        <h2>8. Cookies</h2>
+        <p>Le site utilise, le cas échéant :</p>
+        <ul>
+          <li>des cookies strictement nécessaires à son fonctionnement (aucun consentement requis) ;</li>
+          <li>des outils de mesure d'audience ou de communication (ex. réseaux sociaux, statistiques), qui ne sont déposés qu'après votre consentement via le bandeau proposé lors de votre première visite.</li>
+        </ul>
+        <p>Vous pouvez à tout moment modifier vos préférences via ce bandeau ou directement dans les paramètres de votre navigateur.</p>
+
+        <h2>9. Modification de cette politique</h2>
+        <p>Cette politique peut évoluer afin de respecter les évolutions légales ou les besoins de l'association. La dernière version est toujours disponible sur : <a href="https://mavka16.fr">https://mavka16.fr</a></p>
+        <p class="note" style="margin-top:20px">Date de mise à jour : Août 2026</p>
+      </div>
+    </div>
+  </section>
+</div>
+
 </main>
 
 <footer>
@@ -486,17 +592,17 @@ $site_activites_evenementiel = site_enrichir_avec_photo_intervenant(site_activit
     </div>
     <div class="legal">
       <span>© 2026 MAVKA · mavka16.fr</span>
-      <a href="https://mavka16.fr/rgpd/">Mentions légales et protection des données</a>
+      <a href="#confidentialite">Mentions légales et protection des données</a>
     </div>
   </div>
 </footer>
 
 <script>
 (function(){
-  const routes=['accueil','agenda','activites','intervenants','collectivites','equipe','contact'];
+  const routes=['accueil','agenda','activites','intervenants','collectivites','equipe','contact','confidentialite'];
   const alias={ateliers:'agenda'};
   const nav=document.getElementById('nav'), btn=document.getElementById('menuBtn');
-  const titles={accueil:'MAVKA',agenda:'Agenda · MAVKA',activites:'Activités · MAVKA',intervenants:'Devenir intervenant · MAVKA',collectivites:'Collectivités · MAVKA',equipe:"L'équipe · MAVKA",contact:'Contact · MAVKA'};
+  const titles={accueil:'MAVKA',agenda:'Agenda · MAVKA',activites:'Activités · MAVKA',intervenants:'Devenir intervenant · MAVKA',collectivites:'Collectivités · MAVKA',equipe:"L'équipe · MAVKA",contact:'Contact · MAVKA',confidentialite:'Confidentialité (RGPD) · MAVKA'};
   function go(target){
     let h=alias[target]||target||'accueil', sub=null;
     if(!routes.includes(h)){

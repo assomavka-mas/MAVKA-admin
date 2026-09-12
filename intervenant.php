@@ -183,7 +183,7 @@ if ($iv) {
     </div>
     <div class="legal">
       <span>© 2026 MAVKA · mavka16.fr</span>
-      <a href="/index.php#contact">Mentions légales et protection des données</a>
+      <a href="/index.php#confidentialite">Mentions légales et protection des données</a>
     </div>
   </div>
 </footer>
