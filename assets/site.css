@@ -38,7 +38,7 @@ p{margin:0}
 :focus-visible{outline:3px solid var(--teal);outline-offset:3px;border-radius:4px}
 
 /* header */
-header{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--mint) 85%,transparent);backdrop-filter:blur(12px);border-bottom:2px solid var(--mint)}
+header{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--ground) 90%,transparent);backdrop-filter:blur(12px);border-bottom:2px solid var(--mint)}
 .bar{display:flex;align-items:center;justify-content:space-between;gap:14px;height:72px}
 .bar .brand{margin-right:auto}
 .brand{display:flex;align-items:center;gap:12px;color:var(--ink)}
@@ -47,8 +47,10 @@ header{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--mint)
 .brand b{font-family:var(--display);font-weight:700;font-size:1.35rem;letter-spacing:.06em}
 nav{display:flex;gap:4px;align-items:center}
 nav a{padding:8px 10px;border-radius:999px;color:var(--ink-2);font-weight:500;font-size:.92rem;white-space:nowrap}
-nav a:hover{text-decoration:none;background:var(--card);color:var(--teal-deep)}
-nav a[aria-current="page"]{color:var(--teal-deep);background:var(--card)}
+/* Capsule couleur footer (teal 42% + blanc) sur le lien survolé/actif — le header, lui, reste
+   translucide-beige comme le reste du site, seule cette pastille porte la couleur. */
+nav a:hover{text-decoration:none;background:color-mix(in srgb,var(--teal) 42%,white);color:var(--teal-deep)}
+nav a[aria-current="page"]{color:var(--teal-deep);background:color-mix(in srgb,var(--teal) 42%,white)}
 .btn{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:999px;font-weight:700;font-size:.98rem;border:1.5px solid transparent;cursor:pointer;font-family:var(--body);line-height:1.2;white-space:nowrap}
 .btn:hover{text-decoration:none}
 .btn-primary{background:var(--teal);color:var(--on-teal);border-color:var(--teal);box-shadow:0 var(--press) 0 var(--teal-deep)}

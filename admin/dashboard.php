@@ -11,7 +11,10 @@ $intervenant_id->execute([$user['id']]);
 $intervenant_id = $intervenant_id->fetchColumn();
 
 if ($voit_stats) {
-    $count = db()->query('SELECT COUNT(*) c FROM activites WHERE statut = "publie"')->fetch()['c'];
+    // Compte celles VRAIMENT visibles sur le site (vue activites_publiques : lien + acceptation
+    // de chacun·e comprise), pas juste celles marquées statut="publie" en base — sinon le
+    // chiffre ne reflète pas ce qu'un visiteur voit réellement.
+    $count = db()->query('SELECT COUNT(*) c FROM activites_publiques')->fetch()['c'];
     $count_intervenants = db()->query('SELECT COUNT(*) c FROM intervenants WHERE actif = 1')->fetch()['c'];
     if (peut_editer($user)) {
         $messages_non_lus = db()->query('SELECT COUNT(*) c FROM messages_contact WHERE lu = 0')->fetch()['c'];

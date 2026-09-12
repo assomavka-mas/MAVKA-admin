@@ -9,6 +9,7 @@ $site_agenda_toutes = site_enrichir_avec_photo_intervenant(site_activites_a_veni
 $site_activites_culture = site_enrichir_avec_photo_intervenant(site_activites_par_categorie('Culture'));
 $site_activites_education = site_enrichir_avec_photo_intervenant(site_activites_par_categorie('Éducation'));
 $site_activites_bienetre = site_enrichir_avec_photo_intervenant(site_activites_par_categorie('Bien-être'));
+$site_activites_evenementiel = site_enrichir_avec_photo_intervenant(site_activites_par_categorie('Événementiel'));
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -218,6 +219,13 @@ $site_activites_bienetre = site_enrichir_avec_photo_intervenant(site_activites_p
   </section>
 
   <section>
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">Événementiel</span><h2>Fêtes, festivals et rendez-vous ponctuels</h2></div>
+      <?= render_events_grid($site_activites_evenementiel, 'three') ?>
+    </div>
+  </section>
+
+  <section class="sand">
     <div class="wrap split">
       <div>
         <div class="head" style="margin-bottom:16px"><span class="eyebrow">Développement personnel</span><h2>Construire son propre projet</h2></div>
