@@ -31,10 +31,8 @@ h1, h2, h3 { font-family: var(--mavka-font-display); font-weight: 400; color: va
 a { color: var(--mavka-color-purple); }
 
 .mavka-admin-shell { display: flex; min-height: 100vh; }
-/* Fond vert plus présent (même mélange que le footer du site public : teal 42% + blanc) —
-   avant, le menu était blanc et ne se distinguait que par la pastille active, à peine visible. */
 .mavka-admin-sidebar {
-  width: 220px; flex-shrink: 0; background: color-mix(in srgb, var(--mavka-color-teal) 42%, white);
+  width: 220px; flex-shrink: 0; background: #fff;
   border-right: 2px solid var(--mavka-color-teal-light);
   padding: 24px 18px; display: flex; flex-direction: column; gap: 4px;
 }
@@ -43,7 +41,7 @@ a { color: var(--mavka-color-purple); }
   display: block; padding: 10px 12px; border-radius: 10px; text-decoration: none;
   color: var(--mavka-color-text); font-weight: 600; font-size: 14.5px;
 }
-.mavka-admin-sidebar a:hover, .mavka-admin-sidebar a.active { background: #fff; color: var(--mavka-color-teal); }
+.mavka-admin-sidebar a:hover, .mavka-admin-sidebar a.active { background: var(--mavka-color-teal-light); color: var(--mavka-color-teal); }
 /* Sépare "ce qui concerne cette personne" (Mes activités/Mes rapports/Mon profil) de
    "l'administration de l'association" (Activités/Intervenants/Messages/Accès) — deux mondes
    différents pour un compte bénévole qui a aussi ses propres activités à gérer. */
