@@ -90,17 +90,16 @@ section.tight{padding:44px 0}
 .hero .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:32px;align-items:end}
 .hero-copy{display:grid;gap:22px;padding-bottom:56px;align-self:center}
 .hero .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
-.hero-art{position:relative;display:flex;justify-content:center}
-.hero-art img{width:min(100%,400px);position:relative;z-index:1}
-/* Le cercle jaune doit rester proportionnel à l'ILLUSTRATION, pas au conteneur — sinon les deux
-   se désynchronisent dès que l'image atteint son plafond en px (min(100%,400px)) alors que le
-   cercle continue de grandir en %, ce qui le fait paraître énorme et mal centré à certaines
-   largeurs intermédiaires (bug visible entre le format mobile et le desktop). Même écriture
-   min(%, px) que l'image, à l'échelle (ratio 0.88, comme avant) aux deux paliers ; centré en
-   vrai (left:50% + translateX) plutôt qu'un décalage left:6% qui ne suit plus le centre une
-   fois le plafond en px atteint. */
-.hero-art::before{content:"";position:absolute;width:min(88%,352px);aspect-ratio:1;left:50%;bottom:-18%;transform:translateX(-50%);border-radius:50%;background:var(--sun);z-index:0}
-@media (max-width:820px){.hero .grid{grid-template-columns:1fr}.hero-art{order:-1}.hero-art img{width:min(70%,260px)}.hero-art::before{width:min(61.6%,228.8px)}.hero-copy{padding-bottom:40px}}
+/* Boîte à proportions FIXES, la même sur toutes les pages (accueil/Collectivités/Devenir
+   intervenant...) — l'image se contient dedans (object-fit:contain), quelle que soit sa propre
+   forme. Avant, la boîte prenait la hauteur naturelle de l'image (juste width plafonné) : une
+   illustration plus haute que large (ex. mascotte debout de face) donnait un hero bien plus
+   grand que les autres pages. Avec une boîte fixe, le cercle jaune peut aussi redevenir un
+   simple %, sans avoir besoin de suivre la forme de l'image à chaque fois. */
+.hero-art{position:relative;display:flex;justify-content:center;width:min(100%,400px);aspect-ratio:5/6;margin:0 auto}
+.hero-art img{position:relative;z-index:1;width:100%;height:100%;object-fit:contain;object-position:center bottom}
+.hero-art::before{content:"";position:absolute;width:88%;aspect-ratio:1;left:50%;bottom:-18%;transform:translateX(-50%);border-radius:50%;background:var(--sun);z-index:0}
+@media (max-width:820px){.hero .grid{grid-template-columns:1fr}.hero-art{order:-1;width:min(70%,260px)}.hero-copy{padding-bottom:40px}}
 .sprout{display:inline-block;width:1em;height:1em;vertical-align:-.1em}
 
 /* trust band */
