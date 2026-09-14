@@ -28,8 +28,10 @@ $projetFichierUrl = ($iv && !empty($iv['projet_developpement_fichier']) && $iv['
     : null;
 // Un seul bouton, jamais les deux : le fichier téléversé prime sur le lien (le fichier est
 // généralement la version la plus à jour — c'est le dernier geste que fait la personne/Larysa).
+// Libellé personnalisé (prénom+nom) plutôt qu'un "Voir le document" trop administratif — ce
+// bloc parle du parcours de quelqu'un, pas d'une formalité.
 $projetDocUrl = $projetFichierUrl ?: ($iv['projet_developpement'] ?? null);
-$projetDocLabel = $projetFichierUrl ? '📄 Voir le document' : '🔗 Consulter le document';
+$projetDocLabel = $iv ? 'Découvrir le projet de ' . $iv['nom'] : '';
 
 // Présentation / Parcours / Ma vision, affichés en onglets (pilule) sur la page publique.
 $sections = [];
@@ -184,7 +186,7 @@ if ($iv) {
       </div>
       <?php if ($iv['projet_developpement_description']): ?><p class="lede" style="white-space:pre-line"><?= htmlspecialchars($iv['projet_developpement_description']) ?></p><?php endif; ?>
       <?php if ($projetDocUrl): ?>
-      <p style="margin-top:16px"><a class="btn btn-ghost" href="<?= htmlspecialchars($projetDocUrl) ?>" target="_blank" rel="noopener"><?= $projetDocLabel ?></a></p>
+      <p style="margin-top:16px"><a class="btn btn-ghost" href="<?= htmlspecialchars($projetDocUrl) ?>" target="_blank" rel="noopener"><?= htmlspecialchars($projetDocLabel) ?></a></p>
       <?php endif; ?>
     </div>
   </section>
