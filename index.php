@@ -412,25 +412,13 @@ $site_activites_initiatives = site_enrichir_avec_photo_intervenant(site_activite
     </div>
   </section>
   <section class="sand">
-    <div class="wrap split">
-      <div>
-        <div class="head" style="margin-bottom:16px"><span class="eyebrow">Pourquoi MAVKA ?</span><h2>Un espace pour partager et faire évoluer ses compétences</h2></div>
-        <p class="lede">MAVKA permet aux bénévoles et intervenants de participer à la vie associative, de partager leurs savoir-faire et d'expérimenter progressivement de nouvelles activités. Pour ceux qui souhaitent aller plus loin, le Parcours MAVKA accompagne le développement d'un projet dans un cadre structuré.</p>
-        <p style="margin-top:18px"><a class="btn btn-primary" href="#intervenants">Découvrir le Parcours MAVKA →</a></p>
+    <div class="wrap">
+      <div class="head" style="margin-bottom:16px"><span class="eyebrow">Pourquoi MAVKA ?</span><h2>Un espace pour partager et faire évoluer ses compétences</h2></div>
+      <p class="lede">MAVKA permet aux bénévoles et intervenants de participer à la vie associative, de partager leurs savoir-faire et d'expérimenter progressivement de nouvelles activités. Pour ceux qui souhaitent aller plus loin, le Parcours MAVKA accompagne le développement d'un projet dans un cadre structuré.</p>
+      <div class="actions" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:18px">
+        <a class="btn btn-primary" href="#intervenants">Découvrir le Parcours MAVKA →</a>
+        <a class="btn btn-ghost" href="#contact">Prendre rendez-vous</a>
       </div>
-      <div>
-        <div class="head" style="margin-bottom:16px"><span class="eyebrow">Gouvernance</span><h2>Une association collégiale</h2></div>
-      </div>
-    </div>
-  </section>
-  <section class="tight">
-    <div class="wrap cta-band">
-      <div>
-        <h3>Vous aimeriez rejoindre l'équipe ?</h3>
-        <p>Une première rencontre informelle suffit pour commencer. Nous voulons d'abord écouter vos idées.</p>
-        <div class="actions"><a class="btn btn-primary" href="#contact">Prendre rendez-vous</a></div>
-      </div>
-      <svg class="mascot" viewBox="0 0 310 769" style="aspect-ratio:310/769"><use href="#m-stand"/></svg>
     </div>
   </section>
 </div>
