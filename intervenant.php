@@ -15,6 +15,7 @@ if (!$iv) {
 $ateliers = $iv ? site_intervenant_ateliers($iv['id']) : [];
 $activitesVolontaire = $iv ? site_activites_intervenant($iv['id']) : [];
 $galerie = $iv ? site_intervenant_galerie($iv['id']) : [];
+$prenom = $iv ? explode(' ', trim($iv['nom']))[0] : '';
 $photoUrl = ($iv && $iv['photo'] && $iv['dossier'])
     ? '/assets/uploads/intervenants/' . rawurlencode($iv['dossier']) . '/' . rawurlencode($iv['photo'])
     : '/assets/site-img/img-01-017fac3c9d.webp';
@@ -39,7 +40,7 @@ $sections = [];
 if ($iv) {
     if ($iv['bio']) $sections[] = ['key' => 'presentation', 'label' => 'Présentation', 'title' => 'Qui est ' . $iv['nom'], 'text' => $iv['bio']];
     if ($iv['parcours_personnel']) $sections[] = ['key' => 'parcours', 'label' => 'Parcours', 'title' => 'Son parcours', 'text' => $iv['parcours_personnel']];
-    if ($iv['vision']) $sections[] = ['key' => 'vision', 'label' => 'Ma vision', 'title' => 'Sa vision', 'text' => $iv['vision']];
+    if ($iv['vision']) $sections[] = ['key' => 'vision', 'label' => 'Ma vision', 'title' => 'Ma vision', 'text' => $iv['vision']];
 }
 ?>
 <!DOCTYPE html>
@@ -138,7 +139,7 @@ if ($iv) {
       <div class="head">
         <span class="eyebrow">Ce que <?= htmlspecialchars($iv['nom']) ?> propose</span>
         <h2>Ses savoir-faire</h2>
-        <p class="lede">Ses grands domaines — pas forcément programmés dans l'immédiat, mais ce vers quoi <?= htmlspecialchars($iv['nom']) ?> avance, pas à pas.</p>
+        <p class="lede">Les domaines que <?= htmlspecialchars($prenom) ?> souhaite partager et transmettre au sein de MAVKA.</p>
       </div>
       <div class="iv-ateliers">
         <?php foreach ($ateliers as $at): ?>
