@@ -293,7 +293,10 @@ figure{margin:0}
 .activites-jump .wrap{display:flex; gap:8px; flex-wrap:wrap}
 .activites-jump a{display:inline-flex; align-items:center; padding:8px 18px; border-radius:999px; background:var(--card); border:1px solid var(--card-line); font-family:var(--display); font-weight:700; font-size:.92rem; color:var(--ink-2); text-decoration:none; white-space:nowrap}
 .activites-jump a:hover{background:var(--mint); color:var(--teal-deep); text-decoration:none}
-@media (max-width:560px){.facts-grid{grid-template-columns:1fr}}
+/* Espace pour le header (72px) + cette barre elle-même (~66px) : sans ça, sauter à une section
+   (clic sur la capsule, ou lien direct depuis "Nos directions" sur l'accueil) la fait démarrer
+   cachée sous la barre collée. */
+#activites-culture,#activites-education,#activites-bienetre,#activites-evenementiel,#activites-initiatives{scroll-margin-top:150px}
 /* docs */
 .docs{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:0;margin:0;list-style:none}
 .docs li{border-radius:10px;background:var(--card);border:2px solid var(--mint);overflow:hidden}

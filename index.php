@@ -182,7 +182,7 @@ $site_activites_initiatives = site_enrichir_avec_photo_intervenant(site_activite
 
 <!-- ============ ACTIVITES ============ -->
 <div class="page" id="page-activites">
-  <section>
+  <section style="padding-bottom:0">
     <div class="wrap">
       <div class="head">
         <span class="eyebrow">Nos activités</span>
