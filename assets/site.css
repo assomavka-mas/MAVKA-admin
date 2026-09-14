@@ -289,7 +289,10 @@ figure{margin:0}
    d'ancre, pas des onglets : toutes les sections restent affichées en dessous, on saute juste
    à l'une d'elles. Collée sous le header principal (top = sa hauteur, .bar height:72px) pour
    rester joignable tout au long d'une page qui peut être longue une fois pleine d'activités. */
-.activites-jump{position:sticky; top:72px; z-index:15; background:color-mix(in srgb, var(--ground) 92%, transparent); backdrop-filter:blur(10px); border-bottom:1px solid var(--card-line); padding:14px 0}
+/* Fond opaque, pas de backdrop-filter : deux position:sticky superposées avec blur chacune
+   provoquent un bug de rendu connu sur mobile (Safari iOS surtout) — la barre se retrouve à
+   moitié ou totalement recouverte par le header pendant le scroll. Un fond uni règle ça. */
+.activites-jump{position:sticky; top:72px; z-index:15; background:var(--ground); border-bottom:1px solid var(--card-line); padding:14px 0}
 .activites-jump .wrap{display:flex; gap:8px; flex-wrap:wrap}
 .activites-jump a{display:inline-flex; align-items:center; padding:8px 18px; border-radius:999px; background:var(--card); border:1px solid var(--card-line); font-family:var(--display); font-weight:700; font-size:.92rem; color:var(--ink-2); text-decoration:none; white-space:nowrap}
 .activites-jump a:hover{background:var(--mint); color:var(--teal-deep); text-decoration:none}
