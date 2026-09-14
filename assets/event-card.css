@@ -59,7 +59,7 @@
 .strip{background:color-mix(in srgb, var(--ec-teal) 42%, white); padding:12px 16px; display:flex; align-items:center; gap:14px; color:var(--ec-ink)}
 .strip__row{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap}
 .strip__badge{
-  background:var(--ec-teal); color:#fff; border-radius:14px; flex:none; width:58px; height:58px;
+  background:var(--ec-sun); color:var(--ec-ink); border-radius:14px; flex:none; width:58px; height:58px;
   display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; line-height:1.05;
 }
 .strip__badge--wide{width:auto; min-width:58px; padding:8px 10px}
