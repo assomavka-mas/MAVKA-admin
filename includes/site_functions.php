@@ -205,7 +205,7 @@ function site_enrichir_avec_photo_intervenant(array $activites): array {
 
 function render_events_grid(array $activites, string $extraClass = ''): string {
     if (!$activites) {
-        return '<p class="lede">Aucune date pour le moment — revenez bientôt, ou <a href="#contact">écrivez-nous</a> pour être prévenu·e.</p>';
+        return '<p class="lede">Les premières activités sont en préparation. Découvrez les propositions et <a href="#contact">indiquez-nous</a> celles qui vous intéressent.</p>';
     }
     $html = '<div class="events ' . htmlspecialchars($extraClass) . '">';
     foreach ($activites as $a) {
