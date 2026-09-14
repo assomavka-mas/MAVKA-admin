@@ -2,15 +2,18 @@
 // Fonctions du site public — activités publiées et équipe active, lues depuis la même
 // base que l'admin (adresse le besoin : voir dans la vitrine ce qui a été saisi en admin).
 
-// $formats restreint aux formats donnés (ex. teaser de l'accueil : Collectif, pour ne pas y
-// montrer les cours individuels) ; null = tous formats, comme sur la page Agenda.
-function site_activites_a_venir(?int $limit = null, ?array $formats = null): array {
+// $formats_exclus retire les formats donnés (ex. teaser de l'accueil : Individuel, pour ne pas y
+// montrer les cours individuels) ; null = tous formats, comme sur la page Agenda. Bug corrigé
+// (sept. 2026) : filtrer par "format IN ('Collectif')" excluait aussi tout ce qui n'a pas de
+// format renseigné (ex. un événement comme "Festival du jeu Garat") — pas seulement les cours
+// individuels visés au départ. On exclut désormais explicitement, plutôt que de restreindre.
+function site_activites_a_venir(?int $limit = null, ?array $formats_exclus = null): array {
     $sql = "SELECT * FROM activites_publiques
             WHERE statut_activite NOT IN ('annule','termine')";
     $params = [];
-    if ($formats) {
-        $sql .= ' AND format IN (' . implode(',', array_fill(0, count($formats), '?')) . ')';
-        $params = $formats;
+    if ($formats_exclus) {
+        $sql .= ' AND (format IS NULL OR format NOT IN (' . implode(',', array_fill(0, count($formats_exclus), '?')) . '))';
+        $params = $formats_exclus;
     }
     $sql .= ' ORDER BY (date_debut IS NULL) ASC, date_debut ASC, ordre ASC';
     if ($limit) {
