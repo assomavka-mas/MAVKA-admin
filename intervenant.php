@@ -18,10 +18,12 @@ $photoUrl = ($iv && $iv['photo'] && $iv['dossier'])
     ? '/assets/uploads/intervenants/' . rawurlencode($iv['dossier']) . '/' . rawurlencode($iv['photo'])
     : '/assets/site-img/img-01-017fac3c9d.webp';
 
-// Bloc "Projet personnel" : seul le projet de développement (texte + fichier) est public —
-// les objectifs (admin/intervenant-form.php, section Suivi interne) restent, eux, privés.
-// Pas de projet renseigné = pas de bloc du tout, plutôt qu'un bloc vide.
-$projetPublic = $iv && (!empty($iv['projet_developpement']) || !empty($iv['projet_developpement_fichier']));
+// Bloc "Projet personnel" : projet_developpement_description (texte court, public) +
+// projet_developpement (lien) / projet_developpement_fichier (fichier) comme document complet
+// consultable en plus — les objectifs (admin/intervenant-form.php, section Suivi interne)
+// restent, eux, strictement privés. Rien de renseigné = pas de bloc du tout.
+$projetPublic = $iv && (!empty($iv['projet_developpement_description']) || !empty($iv['projet_developpement']) || !empty($iv['projet_developpement_fichier']));
+$projetLien = $iv['projet_developpement'] ?? null;
 $projetFichierUrl = ($iv && !empty($iv['projet_developpement_fichier']) && $iv['dossier'])
     ? '/assets/uploads/intervenants/' . rawurlencode($iv['dossier']) . '/' . rawurlencode($iv['projet_developpement_fichier'])
     : null;
@@ -177,8 +179,13 @@ if ($iv) {
         <span class="eyebrow">Projet personnel</span>
         <h2>En cours de construction</h2>
       </div>
-      <?php if ($iv['projet_developpement']): ?><p class="lede" style="white-space:pre-line"><?= htmlspecialchars($iv['projet_developpement']) ?></p><?php endif; ?>
-      <?php if ($projetFichierUrl): ?><p style="margin-top:16px"><a class="btn btn-ghost" href="<?= htmlspecialchars($projetFichierUrl) ?>" target="_blank" rel="noopener">📄 Voir le document complet</a></p><?php endif; ?>
+      <?php if ($iv['projet_developpement_description']): ?><p class="lede" style="white-space:pre-line"><?= htmlspecialchars($iv['projet_developpement_description']) ?></p><?php endif; ?>
+      <?php if ($projetLien || $projetFichierUrl): ?>
+      <div class="actions" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px">
+        <?php if ($projetLien): ?><a class="btn btn-ghost" href="<?= htmlspecialchars($projetLien) ?>" target="_blank" rel="noopener">🔗 Consulter le document</a><?php endif; ?>
+        <?php if ($projetFichierUrl): ?><a class="btn btn-ghost" href="<?= htmlspecialchars($projetFichierUrl) ?>" target="_blank" rel="noopener">📄 Voir le fichier</a><?php endif; ?>
+      </div>
+      <?php endif; ?>
     </div>
   </section>
   <?php endif; ?>

@@ -15,7 +15,7 @@ $iv = [
     'cv_lien' => '', 'cv_fichier' => null,
     'rib_lien' => '', 'rib_fichier' => null,
     'assurance_lien' => '', 'assurance_fichier' => null, 'assurance_date' => '',
-    'projet_developpement' => '', 'projet_developpement_fichier' => null, 'objectifs_mavka' => '',
+    'projet_developpement' => '', 'projet_developpement_fichier' => null, 'projet_developpement_description' => '', 'objectifs_mavka' => '',
     'photo' => null, 'email' => '', 'actif' => 1,
 ];
 $domaines_disponibles = ['Culture', 'Éducation', 'Bien-être', 'Initiatives'];
@@ -50,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'save') === 's
     $iv['assurance_lien'] = trim($_POST['assurance_lien'] ?? '');
     $iv['assurance_date'] = $_POST['assurance_date'] ?: null;
     $iv['projet_developpement'] = trim($_POST['projet_developpement'] ?? '');
+    $iv['projet_developpement_description'] = trim($_POST['projet_developpement_description'] ?? '');
     $iv['objectifs_mavka'] = trim($_POST['objectifs_mavka'] ?? '');
     $iv['email'] = trim($_POST['email'] ?? '');
     $iv['actif'] = isset($_POST['actif']) ? 1 : 0;
@@ -64,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'save') === 's
             'charte_benevolat_lien', 'charte_benevolat_fichier', 'contrat_intervention_lien', 'contrat_intervention_fichier',
             'date_signee', 'cv_lien', 'cv_fichier', 'rib_lien', 'rib_fichier',
             'assurance_lien', 'assurance_fichier', 'assurance_date',
-            'projet_developpement', 'projet_developpement_fichier', 'objectifs_mavka', 'photo', 'email', 'actif',
+            'projet_developpement', 'projet_developpement_fichier', 'projet_developpement_description', 'objectifs_mavka', 'photo', 'email', 'actif',
         ];
 
         if (!$id) {
@@ -297,8 +298,11 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
       <svg class="mavka-form-section__chevron" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </summary>
     <div class="mavka-form-section__body">
-    <p class="mavka-form-section__hint">Le projet de développement (texte et fichier ci-dessous) apparaît sur la page publique de la personne, dans un bloc "Projet personnel" — utile pour les échanges avec les mairies et partenaires. Vide = le bloc ne s'affiche pas du tout sur sa page.</p>
-    <?php champ_document('Mon projet de développement', 'projet_developpement', 'projet_developpement_fichier', $iv, $file_url('projet_developpement_fichier'), $iv['dossier'] ?? null, $hist('projet_developpement_fichier')); ?>
+    <p class="mavka-form-section__hint">Le projet de développement (description, lien et fichier ci-dessous) apparaît sur la page publique de la personne, dans un bloc "Projet personnel" — utile pour les échanges avec les mairies et partenaires. Tout vide = le bloc ne s'affiche pas du tout sur sa page.</p>
+    <label>Description publique du projet</label>
+    <textarea name="projet_developpement_description" placeholder="Quelques phrases présentables au public : ce que la personne construit, où elle en est."><?= htmlspecialchars($iv['projet_developpement_description'] ?? '') ?></textarea>
+    <p class="mavka-form-section__hint" style="margin-top:4px;">Le texte affiché tel quel dans le bloc. Le lien/fichier ci-dessous servent de document complet, consultable en plus (ex. lien vers le document Google Docs détaillé).</p>
+    <?php champ_document('Lien ou fichier du document complet', 'projet_developpement', 'projet_developpement_fichier', $iv, $file_url('projet_developpement_fichier'), $iv['dossier'] ?? null, $hist('projet_developpement_fichier')); ?>
     <label style="margin-top:16px;">Mes objectifs avec MAVKA</label>
     <p class="mavka-form-section__hint" style="margin-top:-6px;">Contrairement au projet ci-dessus : reste entre toi et la personne, jamais affiché sur le site.</p>
     <textarea name="objectifs_mavka"><?= htmlspecialchars($iv['objectifs_mavka'] ?? '') ?></textarea>

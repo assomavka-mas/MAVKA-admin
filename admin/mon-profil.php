@@ -188,7 +188,7 @@ admin_header('Mon profil', $user, 'mon-profil');
     </div>
   </details>
 
-  <?php $projet_defini = !empty($iv['projet_developpement']) || !empty($iv['projet_developpement_fichier']) || !empty($iv['objectifs_mavka']); ?>
+  <?php $projet_defini = !empty($iv['projet_developpement']) || !empty($iv['projet_developpement_fichier']) || !empty($iv['projet_developpement_description']) || !empty($iv['objectifs_mavka']); ?>
   <details class="mavka-form-section" open>
     <summary class="mavka-form-section__header">
       <h3 class="mavka-form-section__title">🤝 Mon projet de développement avec MAVKA</h3>
@@ -202,8 +202,12 @@ admin_header('Mon profil', $user, 'mon-profil');
     <p style="white-space:pre-line; margin:0 0 16px;"><?= htmlspecialchars($iv['objectifs_mavka']) ?></p>
     <p class="mavka-form-section__hint" style="margin:-10px 0 16px;">Visible seulement par vous deux, jamais publié sur le site.</p>
     <?php endif; ?>
-    <?php mon_profil_document_statut('Mon projet de développement', $iv['projet_developpement'] ?? null, $file_url('projet_developpement_fichier')); ?>
-    <p class="mavka-form-section__hint" style="margin-top:8px;">Une fois rempli par Larysa, ce projet (texte et fichier) apparaît sur ta page publique — utile pour les échanges avec les mairies et partenaires.</p>
+    <?php if (!empty($iv['projet_developpement_description'])): ?>
+    <label>Description publique du projet</label>
+    <p style="white-space:pre-line; margin:0 0 16px;"><?= htmlspecialchars($iv['projet_developpement_description']) ?></p>
+    <?php endif; ?>
+    <?php mon_profil_document_statut('Lien ou fichier du document complet', $iv['projet_developpement'] ?? null, $file_url('projet_developpement_fichier')); ?>
+    <p class="mavka-form-section__hint" style="margin-top:8px;">Une fois rempli par Larysa, ce projet apparaît sur ta page publique — utile pour les échanges avec les mairies et partenaires.</p>
     <?php else: ?>
     <p class="mavka-form-section__hint">— Pas encore défini. C'est la prochaine étape de ton Parcours MAVKA : parles-en avec Larysa pour le construire ensemble.</p>
     <?php endif; ?>

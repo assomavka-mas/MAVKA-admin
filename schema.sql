@@ -27,8 +27,9 @@ CREATE TABLE IF NOT EXISTS intervenants (
   assurance_lien VARCHAR(500) NULL,            -- lien Google Drive : assurance professionnelle
   assurance_fichier VARCHAR(255) NULL,
   assurance_date DATE NULL,                    -- informatif, peut se renouveler automatiquement
-  projet_developpement VARCHAR(500) NULL,        -- interne, lien Google Drive : suivi de Larysa pour la mairie
-  projet_developpement_fichier VARCHAR(255) NULL, -- interne, fichier téléversé
+  projet_developpement VARCHAR(500) NULL,        -- lien Google Drive : document détaillé, public (page volontaire)
+  projet_developpement_fichier VARCHAR(255) NULL, -- fichier téléversé, alternative/complément au lien, public
+  projet_developpement_description TEXT NULL,    -- court texte public, affiché dans le bloc "Projet personnel"
   objectifs_mavka TEXT NULL,             -- interne : idem
   photo VARCHAR(255) NULL,               -- ім'я файлу в /assets/uploads/intervenants/{dossier}/
   email VARCHAR(255) NULL,
