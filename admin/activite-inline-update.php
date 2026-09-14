@@ -27,7 +27,7 @@ $champs_nombre = ['nombre_places', 'ordre'];
 $champs_select = [
     'statut' => ['publie', 'brouillon'],
     'statut_activite' => ['ouvert', 'complet', 'annule', 'termine'],
-    'categorie' => ['Culture', 'Éducation', 'Bien-être', 'Développement personnel', 'Événementiel'],
+    'categorie' => ['Culture', 'Éducation', 'Bien-être', 'Initiatives', 'Événementiel'],
     'format' => ['', 'Collectif', 'Individuel'],
     'public' => ['', 'Enfant', 'Familial', 'Adultes'],
 ];

@@ -18,7 +18,7 @@ $iv = [
     'projet_developpement' => '', 'projet_developpement_fichier' => null, 'objectifs_mavka' => '',
     'photo' => null, 'email' => '', 'actif' => 1,
 ];
-$domaines_disponibles = ['Culture', 'Éducation', 'Bien-être', 'Développement personnel'];
+$domaines_disponibles = ['Culture', 'Éducation', 'Bien-être', 'Initiatives'];
 $login_email = '';
 
 if ($id) {
@@ -202,7 +202,7 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
     </div>
 
     <label>Résumé (courte description affichée sur la carte — peut inclure le rôle, ex. « Présidente, accompagnement des intervenants »)</label>
-    <input type="text" name="resume" placeholder="Développement personnel, accompagnement des intervenants, Parcours MAVKA" value="<?= htmlspecialchars($iv['resume'] ?? '') ?>" maxlength="300">
+    <input type="text" name="resume" placeholder="Initiatives, accompagnement des intervenants, Parcours MAVKA" value="<?= htmlspecialchars($iv['resume'] ?? '') ?>" maxlength="300">
 
     <label>Statut (calculé automatiquement)</label>
     <div style="display:flex; gap:6px; padding:4px 0 10px;">

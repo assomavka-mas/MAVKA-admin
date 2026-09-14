@@ -47,7 +47,7 @@ if ($filtre_incomplet) {
 //        fill (aperçu d'un texte long) · photo · lien · date
 $colonnes = [
     'intervenants_noms'  => ['Intervenant·e·s', true, 'text', null],
-    'categorie'          => ['Catégorie', true, 'select_plain', ['Culture' => 'Culture', 'Éducation' => 'Éducation', 'Bien-être' => 'Bien-être', 'Développement personnel' => 'Développement personnel', 'Événementiel' => 'Événementiel']],
+    'categorie'          => ['Catégorie', true, 'select_plain', ['Culture' => 'Culture', 'Éducation' => 'Éducation', 'Bien-être' => 'Bien-être', 'Initiatives' => 'Initiatives', 'Événementiel' => 'Événementiel']],
     'date'                => ['Date', true, 'edit_date', null],
     'lieu'                => ['Lieu', true, 'edit_text', null],
     'nombre_places'       => ['Places', true, 'edit_nombre', null],

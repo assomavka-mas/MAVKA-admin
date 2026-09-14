@@ -221,7 +221,7 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
       <div>
         <label>Catégorie</label>
         <select id="f_categorie" name="categorie">
-          <?php foreach (['Culture', 'Éducation', 'Bien-être', 'Développement personnel', 'Événementiel'] as $cat): ?>
+          <?php foreach (['Culture', 'Éducation', 'Bien-être', 'Initiatives', 'Événementiel'] as $cat): ?>
           <option value="<?= $cat ?>" <?= $a['categorie'] === $cat ? 'selected' : '' ?>><?= $cat ?></option>
           <?php endforeach; ?>
         </select>

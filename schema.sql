@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS intervenant_ateliers (
 CREATE TABLE IF NOT EXISTS activites (
   id INT AUTO_INCREMENT PRIMARY KEY,
   titre VARCHAR(255) NOT NULL,
-  categorie VARCHAR(100) NOT NULL,       -- Culture / Éducation / Bien-être / Développement personnel / Événementiel
+  categorie VARCHAR(100) NOT NULL,       -- Culture / Éducation / Bien-être / Initiatives / Événementiel
   categorie_display VARCHAR(150) NULL,   -- напр. "Bien-être · Art-thérapie" — короткий підзаголовок для карток
   format ENUM('Collectif','Individuel') NULL,
   public ENUM('Enfant','Familial','Adultes') NULL,

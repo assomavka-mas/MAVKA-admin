@@ -21,7 +21,7 @@ if (!$intervenant_id) {
     exit;
 }
 
-$domaines_disponibles = ['Culture', 'Éducation', 'Bien-être', 'Développement personnel'];
+$domaines_disponibles = ['Culture', 'Éducation', 'Bien-être', 'Initiatives'];
 
 $stmt = db()->prepare('SELECT * FROM intervenants WHERE id = ?');
 $stmt->execute([$intervenant_id]);
