@@ -74,6 +74,14 @@ function site_intervenant_ateliers(int $intervenant_id): array {
     return $stmt->fetchAll();
 }
 
+// Photos de la galerie publique (réalisations, atelier en images) — vide si rien n'a été
+// ajouté, auquel cas le bloc "Galerie" n'apparaît pas du tout sur la page (voir intervenant.php).
+function site_intervenant_galerie(int $intervenant_id): array {
+    $stmt = db()->prepare('SELECT * FROM intervenant_galerie WHERE intervenant_id = ? ORDER BY ordre ASC, id ASC');
+    $stmt->execute([$intervenant_id]);
+    return $stmt->fetchAll();
+}
+
 // Activités réelles et réservables d'un·e volontaire, affichées sur SA page — que ces
 // activités apparaissent ou non dans la grille de l'accueil (activites_publiques ne
 // garde que visible_accueil = 1, donc on interroge `activites` directement ici, sans

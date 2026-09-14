@@ -64,6 +64,17 @@ CREATE TABLE IF NOT EXISTS intervenant_ateliers (
   FOREIGN KEY (intervenant_id) REFERENCES intervenants(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Galerie publique (ses réalisations, son atelier en images) affichée sur sa page volontaire.
+-- Vide = le bloc "Galerie" n'apparaît pas du tout sur la page (voir intervenant.php).
+CREATE TABLE IF NOT EXISTS intervenant_galerie (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  intervenant_id INT NOT NULL,
+  image VARCHAR(255) NOT NULL,           -- ім'я файлу в /assets/uploads/intervenants/{dossier}/galerie/
+  ordre INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (intervenant_id) REFERENCES intervenants(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS activites (
   id INT AUTO_INCREMENT PRIMARY KEY,
   titre VARCHAR(255) NOT NULL,

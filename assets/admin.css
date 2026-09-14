@@ -253,3 +253,17 @@ tr.mavka-row--incomplete .mavka-editable:hover { background: rgba(255,255,255,.6
 }
 .mavka-sticky-identity__name { font-family: var(--mavka-font-display); font-size: 16px; color: var(--mavka-color-ink); line-height: 1.2; }
 
+/* Galerie publique (photos de réalisations / de l'atelier, page volontaire) */
+.mavka-galerie-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px;
+  margin: 10px 0 20px;
+}
+.mavka-galerie-item { position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: var(--mavka-color-teal-light); }
+.mavka-galerie-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mavka-galerie-item__delete {
+  position: absolute; top: 6px; right: 6px; width: 24px; height: 24px; border-radius: 50%;
+  background: rgba(36, 27, 40, 0.72); color: #fff; display: flex; align-items: center; justify-content: center;
+  font-size: 12px; text-decoration: none; line-height: 1;
+}
+.mavka-galerie-item__delete:hover { background: var(--mavka-color-danger-text); }
+

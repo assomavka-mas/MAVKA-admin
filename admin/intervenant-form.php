@@ -137,12 +137,48 @@ if (isset($_GET['delete_atelier']) && $id) {
     exit;
 }
 
+// Gestion de la galerie publique (photos de réalisations / de l'atelier, page volontaire).
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add_galerie' && $id) {
+    if (empty($iv['dossier'])) {
+        $iv['dossier'] = intervenant_dossier($id, $iv['nom']);
+        db()->prepare('UPDATE intervenants SET dossier = ? WHERE id = ?')->execute([$iv['dossier'], $id]);
+    }
+    $fichiers = handle_multi_upload('galerie_images', 'intervenants/' . $iv['dossier'] . '/galerie');
+    if ($fichiers) {
+        $stmt = db()->prepare('SELECT COALESCE(MAX(ordre), -1) FROM intervenant_galerie WHERE intervenant_id = ?');
+        $stmt->execute([$id]);
+        $ordre = (int)$stmt->fetchColumn();
+        $ins = db()->prepare('INSERT INTO intervenant_galerie (intervenant_id, image, ordre) VALUES (?,?,?)');
+        foreach ($fichiers as $f) {
+            $ins->execute([$id, $f, ++$ordre]);
+        }
+    }
+    header('Location: /admin/intervenant-form.php?id=' . $id . '&ok=1');
+    exit;
+}
+if (isset($_GET['delete_galerie']) && $id) {
+    $stmt = db()->prepare('SELECT image FROM intervenant_galerie WHERE id = ? AND intervenant_id = ?');
+    $stmt->execute([(int)$_GET['delete_galerie'], $id]);
+    if ($image = $stmt->fetchColumn()) {
+        db()->prepare('DELETE FROM intervenant_galerie WHERE id = ? AND intervenant_id = ?')
+            ->execute([(int)$_GET['delete_galerie'], $id]);
+        @unlink(__DIR__ . '/../assets/uploads/intervenants/' . $iv['dossier'] . '/galerie/' . $image);
+    }
+    header('Location: /admin/intervenant-form.php?id=' . $id);
+    exit;
+}
+
 $ateliers = [];
+$galerie = [];
 $historique_par_champ = [];
 if ($id) {
     $stmt = db()->prepare('SELECT * FROM intervenant_ateliers WHERE intervenant_id = ? ORDER BY ordre ASC, id ASC');
     $stmt->execute([$id]);
     $ateliers = $stmt->fetchAll();
+
+    $stmt = db()->prepare('SELECT * FROM intervenant_galerie WHERE intervenant_id = ? ORDER BY ordre ASC, id ASC');
+    $stmt->execute([$id]);
+    $galerie = $stmt->fetchAll();
 
     $stmt = db()->prepare('SELECT * FROM intervenant_document_versions WHERE intervenant_id = ? ORDER BY created_at DESC');
     $stmt->execute([$id]);
@@ -355,6 +391,35 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
     <button type="submit" form="atelier-form" class="mavka-btn mavka-btn--primary" style="margin-top:16px;">Ajouter</button>
     </div>
   </details>
+
+  <details class="mavka-form-section mavka-form-section--galerie" data-section="galerie" open>
+    <summary class="mavka-form-section__header">
+      <span class="mavka-form-section__grip">⠿⠿</span>
+      <h3 class="mavka-form-section__title">🖼️ Galerie</h3>
+      <svg class="mavka-form-section__chevron" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </summary>
+    <div class="mavka-form-section__body">
+    <p class="mavka-form-section__hint">Photos de ses réalisations, de son atelier — affichées sur sa page publique. Vide = ce bloc n'apparaît pas du tout sur sa page.</p>
+
+    <?php if ($galerie): ?>
+    <div class="mavka-galerie-grid">
+      <?php foreach ($galerie as $g): ?>
+      <div class="mavka-galerie-item">
+        <img src="/assets/uploads/intervenants/<?= htmlspecialchars($iv['dossier']) ?>/galerie/<?= htmlspecialchars($g['image']) ?>" alt="">
+        <a href="/admin/intervenant-form.php?id=<?= $id ?>&delete_galerie=<?= $g['id'] ?>" class="mavka-galerie-item__delete" title="Supprimer"
+           onclick="return confirm('Supprimer cette photo ?');">✕</a>
+      </div>
+      <?php endforeach; ?>
+    </div>
+    <?php else: ?>
+    <p style="color:var(--mavka-color-text-muted); font-size:13.5px;">Aucune photo pour l'instant.</p>
+    <?php endif; ?>
+
+    <label>Ajouter des photos</label>
+    <input type="file" name="galerie_images[]" form="galerie-form" accept="image/png,image/jpeg,image/webp" multiple>
+    <button type="submit" form="galerie-form" class="mavka-btn mavka-btn--primary" style="margin-top:16px;">Ajouter</button>
+    </div>
+  </details>
   <?php endif; ?>
 
   </div>
@@ -364,6 +429,7 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
 </form>
 <?php if ($id): ?>
 <form method="post" id="atelier-form"><input type="hidden" name="action" value="add_atelier"></form>
+<form method="post" id="galerie-form" enctype="multipart/form-data"><input type="hidden" name="action" value="add_galerie"></form>
 <?php endif; ?>
 
 <script>

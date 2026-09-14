@@ -14,6 +14,7 @@ if (!$iv) {
 
 $ateliers = $iv ? site_intervenant_ateliers($iv['id']) : [];
 $activitesVolontaire = $iv ? site_activites_intervenant($iv['id']) : [];
+$galerie = $iv ? site_intervenant_galerie($iv['id']) : [];
 $photoUrl = ($iv && $iv['photo'] && $iv['dossier'])
     ? '/assets/uploads/intervenants/' . rawurlencode($iv['dossier']) . '/' . rawurlencode($iv['photo'])
     : '/assets/site-img/img-01-017fac3c9d.webp';
@@ -71,6 +72,12 @@ if ($iv) {
 @media (max-width:820px){.iv-ateliers{grid-template-columns:1fr}}
 .iv-atelier{padding:22px;border-radius:var(--r);background:var(--card);border:1px solid var(--card-line)}
 .iv-atelier p{margin-top:8px;font-size:.96rem;white-space:pre-line}
+.iv-galerie{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.iv-galerie-item{position:relative;aspect-ratio:1;border-radius:var(--r);overflow:hidden;display:block;background:var(--card)}
+.iv-galerie-item img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform .2s}
+.iv-galerie-item:hover img{transform:scale(1.04)}
+@media (max-width:820px){.iv-galerie{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:560px){.iv-galerie{grid-template-columns:repeat(2,1fr)}}
 .back{display:inline-flex;gap:6px;color:var(--ink-2);font-weight:600;font-size:.92rem;margin-bottom:8px}
 #a-propos{scroll-margin-top:88px}
 
@@ -139,6 +146,24 @@ if ($iv) {
           <h3><?= htmlspecialchars($at['titre']) ?></h3>
           <?php if ($at['description']): ?><p><?= htmlspecialchars($at['description']) ?></p><?php endif; ?>
         </div>
+        <?php endforeach; ?>
+      </div>
+    </div>
+  </section>
+  <?php endif; ?>
+
+  <?php if ($galerie): ?>
+  <section>
+    <div class="wrap">
+      <div class="head">
+        <span class="eyebrow">En images</span>
+        <h2>Galerie</h2>
+      </div>
+      <div class="iv-galerie">
+        <?php foreach ($galerie as $g): ?>
+        <a class="iv-galerie-item" href="/assets/uploads/intervenants/<?= rawurlencode($iv['dossier']) ?>/galerie/<?= rawurlencode($g['image']) ?>" target="_blank" rel="noopener">
+          <img src="/assets/uploads/intervenants/<?= rawurlencode($iv['dossier']) ?>/galerie/<?= rawurlencode($g['image']) ?>" alt="">
+        </a>
         <?php endforeach; ?>
       </div>
     </div>

@@ -78,6 +78,38 @@ function handle_upload(string $field, string $subdir): ?string {
     return $filename;
 }
 
+// Comme handle_upload(), mais pour un <input type="file" name="..[]" multiple> : plusieurs
+// photos ajoutées à la galerie en un seul envoi. Renvoie la liste des noms de fichiers
+// enregistrés (les fichiers invalides ou en erreur sont simplement ignorés).
+function handle_multi_upload(string $field, string $subdir): array {
+    $files = $_FILES[$field] ?? null;
+    if (!$files || !is_array($files['name'] ?? null)) {
+        return [];
+    }
+
+    $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+    $dir = __DIR__ . '/../assets/uploads/' . $subdir . '/';
+    $saved = [];
+
+    foreach ($files['name'] as $i => $name) {
+        if ($name === '' || $files['error'][$i] !== UPLOAD_ERR_OK) {
+            continue;
+        }
+        $mime = mime_content_type($files['tmp_name'][$i]);
+        if (!isset($allowed[$mime])) {
+            continue;
+        }
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+        $filename = bin2hex(random_bytes(8)) . '.' . $allowed[$mime];
+        move_uploaded_file($files['tmp_name'][$i], $dir . $filename);
+        $saved[] = $filename;
+    }
+
+    return $saved;
+}
+
 // Bloc "lien + fichier" pour un document (Charte, CV, RIB...) tenu sur une seule ligne compacte :
 // puce verte "Lien" (avec crayon pour l'éditer) + aperçu/badge de fichier (avec crayon pour le remplacer).
 // $historique : lignes de intervenant_document_versions pour ce champ (les plus récentes d'abord),
