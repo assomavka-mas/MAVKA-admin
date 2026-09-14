@@ -169,6 +169,8 @@ section.tight{padding:44px 0}
 .dir:last-child{border-bottom:1px solid var(--line)}
 .dir .ic{width:44px;height:44px;border-radius:14px;background:var(--sun);display:grid;place-items:center;color:var(--ink)}
 .dir p{color:var(--ink-2);font-size:.98rem;margin-top:4px}
+.dir h3 a{color:inherit;text-decoration:none}
+.dir h3 a:hover{color:var(--teal);text-decoration:underline;text-underline-offset:3px}
 .dir-art{display:flex;justify-content:center}
 /* Hauteur pilote (pas la largeur) : une mascotte pleine longueur (ex. m-point, bien plus
    haute que large) a un ratio très différent des autres illustrations .dir-art — piloter
