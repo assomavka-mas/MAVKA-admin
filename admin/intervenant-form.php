@@ -297,9 +297,10 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
       <svg class="mavka-form-section__chevron" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </summary>
     <div class="mavka-form-section__body">
-    <p class="mavka-form-section__hint">Pour toi et la mairie — jamais affiché sur le site.</p>
+    <p class="mavka-form-section__hint">Le projet de développement (texte et fichier ci-dessous) apparaît sur la page publique de la personne, dans un bloc "Projet personnel" — utile pour les échanges avec les mairies et partenaires. Vide = le bloc ne s'affiche pas du tout sur sa page.</p>
     <?php champ_document('Mon projet de développement', 'projet_developpement', 'projet_developpement_fichier', $iv, $file_url('projet_developpement_fichier'), $iv['dossier'] ?? null, $hist('projet_developpement_fichier')); ?>
     <label style="margin-top:16px;">Mes objectifs avec MAVKA</label>
+    <p class="mavka-form-section__hint" style="margin-top:-6px;">Contrairement au projet ci-dessus : reste entre toi et la personne, jamais affiché sur le site.</p>
     <textarea name="objectifs_mavka"><?= htmlspecialchars($iv['objectifs_mavka'] ?? '') ?></textarea>
     </div>
   </details>

@@ -196,12 +196,14 @@ admin_header('Mon profil', $user, 'mon-profil');
     </summary>
     <div class="mavka-form-section__body">
     <?php if ($projet_defini): ?>
-    <p class="mavka-form-section__hint">Ce que Larysa et toi avez convenu — pas encore forcément écrit ailleurs. Visible seulement par vous deux, jamais publié sur le site. Pour le mettre à jour, parles-en à Larysa.</p>
+    <p class="mavka-form-section__hint">Ce que Larysa et toi avez convenu — pas encore forcément écrit ailleurs. Pour le mettre à jour, parles-en à Larysa.</p>
     <?php if (!empty($iv['objectifs_mavka'])): ?>
     <label>Mes objectifs avec MAVKA</label>
     <p style="white-space:pre-line; margin:0 0 16px;"><?= htmlspecialchars($iv['objectifs_mavka']) ?></p>
+    <p class="mavka-form-section__hint" style="margin:-10px 0 16px;">Visible seulement par vous deux, jamais publié sur le site.</p>
     <?php endif; ?>
     <?php mon_profil_document_statut('Mon projet de développement', $iv['projet_developpement'] ?? null, $file_url('projet_developpement_fichier')); ?>
+    <p class="mavka-form-section__hint" style="margin-top:8px;">Une fois rempli par Larysa, ce projet (texte et fichier) apparaît sur ta page publique — utile pour les échanges avec les mairies et partenaires.</p>
     <?php else: ?>
     <p class="mavka-form-section__hint">— Pas encore défini. C'est la prochaine étape de ton Parcours MAVKA : parles-en avec Larysa pour le construire ensemble.</p>
     <?php endif; ?>

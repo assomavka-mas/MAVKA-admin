@@ -18,6 +18,14 @@ $photoUrl = ($iv && $iv['photo'] && $iv['dossier'])
     ? '/assets/uploads/intervenants/' . rawurlencode($iv['dossier']) . '/' . rawurlencode($iv['photo'])
     : '/assets/site-img/img-01-017fac3c9d.webp';
 
+// Bloc "Projet personnel" : seul le projet de développement (texte + fichier) est public —
+// les objectifs (admin/intervenant-form.php, section Suivi interne) restent, eux, privés.
+// Pas de projet renseigné = pas de bloc du tout, plutôt qu'un bloc vide.
+$projetPublic = $iv && (!empty($iv['projet_developpement']) || !empty($iv['projet_developpement_fichier']));
+$projetFichierUrl = ($iv && !empty($iv['projet_developpement_fichier']) && $iv['dossier'])
+    ? '/assets/uploads/intervenants/' . rawurlencode($iv['dossier']) . '/' . rawurlencode($iv['projet_developpement_fichier'])
+    : null;
+
 // Présentation / Parcours / Ma vision, affichés en onglets (pilule) sur la page publique.
 $sections = [];
 if ($iv) {
@@ -158,6 +166,19 @@ if ($iv) {
         </div>
         <?php endforeach; ?>
       </div>
+    </div>
+  </section>
+  <?php endif; ?>
+
+  <?php if ($projetPublic): ?>
+  <section class="sand">
+    <div class="wrap">
+      <div class="head">
+        <span class="eyebrow">Projet personnel</span>
+        <h2>En cours de construction</h2>
+      </div>
+      <?php if ($iv['projet_developpement']): ?><p class="lede" style="white-space:pre-line"><?= htmlspecialchars($iv['projet_developpement']) ?></p><?php endif; ?>
+      <?php if ($projetFichierUrl): ?><p style="margin-top:16px"><a class="btn btn-ghost" href="<?= htmlspecialchars($projetFichierUrl) ?>" target="_blank" rel="noopener">📄 Voir le document complet</a></p><?php endif; ?>
     </div>
   </section>
   <?php endif; ?>
