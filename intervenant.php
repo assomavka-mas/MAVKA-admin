@@ -23,10 +23,13 @@ $photoUrl = ($iv && $iv['photo'] && $iv['dossier'])
 // consultable en plus — les objectifs (admin/intervenant-form.php, section Suivi interne)
 // restent, eux, strictement privés. Rien de renseigné = pas de bloc du tout.
 $projetPublic = $iv && (!empty($iv['projet_developpement_description']) || !empty($iv['projet_developpement']) || !empty($iv['projet_developpement_fichier']));
-$projetLien = $iv['projet_developpement'] ?? null;
 $projetFichierUrl = ($iv && !empty($iv['projet_developpement_fichier']) && $iv['dossier'])
     ? '/assets/uploads/intervenants/' . rawurlencode($iv['dossier']) . '/' . rawurlencode($iv['projet_developpement_fichier'])
     : null;
+// Un seul bouton, jamais les deux : le fichier téléversé prime sur le lien (le fichier est
+// généralement la version la plus à jour — c'est le dernier geste que fait la personne/Larysa).
+$projetDocUrl = $projetFichierUrl ?: ($iv['projet_developpement'] ?? null);
+$projetDocLabel = $projetFichierUrl ? '📄 Voir le document' : '🔗 Consulter le document';
 
 // Présentation / Parcours / Ma vision, affichés en onglets (pilule) sur la page publique.
 $sections = [];
@@ -180,11 +183,8 @@ if ($iv) {
         <h2>En cours de construction</h2>
       </div>
       <?php if ($iv['projet_developpement_description']): ?><p class="lede" style="white-space:pre-line"><?= htmlspecialchars($iv['projet_developpement_description']) ?></p><?php endif; ?>
-      <?php if ($projetLien || $projetFichierUrl): ?>
-      <div class="actions" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px">
-        <?php if ($projetLien): ?><a class="btn btn-ghost" href="<?= htmlspecialchars($projetLien) ?>" target="_blank" rel="noopener">🔗 Consulter le document</a><?php endif; ?>
-        <?php if ($projetFichierUrl): ?><a class="btn btn-ghost" href="<?= htmlspecialchars($projetFichierUrl) ?>" target="_blank" rel="noopener">📄 Voir le fichier</a><?php endif; ?>
-      </div>
+      <?php if ($projetDocUrl): ?>
+      <p style="margin-top:16px"><a class="btn btn-ghost" href="<?= htmlspecialchars($projetDocUrl) ?>" target="_blank" rel="noopener"><?= $projetDocLabel ?></a></p>
       <?php endif; ?>
     </div>
   </section>
