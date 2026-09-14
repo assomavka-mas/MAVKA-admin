@@ -45,12 +45,15 @@ header{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--groun
 .brand:hover{text-decoration:none}
 .brand img{width:40px;height:40px;border-radius:50%;background:var(--card)}
 .brand b{font-family:var(--display);font-weight:700;font-size:1.35rem;letter-spacing:.06em}
-nav{display:flex;gap:4px;align-items:center}
-nav a{padding:8px 10px;border-radius:999px;color:var(--ink-2);font-weight:500;font-size:.92rem;white-space:nowrap}
+/* #nav (id), pas nav (balise) : un autre <nav> a existé ailleurs sur une page (ex. la
+   navigation rapide de la page Activités) et se faisait cacher en mobile par la règle
+   générique ci-dessous — ces règles ne doivent viser QUE la navigation principale du header. */
+#nav{display:flex;gap:4px;align-items:center}
+#nav a{padding:8px 10px;border-radius:999px;color:var(--ink-2);font-weight:500;font-size:.92rem;white-space:nowrap}
 /* Capsule couleur footer (teal 42% + blanc) sur le lien survolé/actif — le header, lui, reste
    translucide-beige comme le reste du site, seule cette pastille porte la couleur. */
-nav a:hover{text-decoration:none;background:color-mix(in srgb,var(--teal) 42%,white);color:var(--teal-deep)}
-nav a[aria-current="page"]{color:var(--teal-deep);background:color-mix(in srgb,var(--teal) 42%,white)}
+#nav a:hover{text-decoration:none;background:color-mix(in srgb,var(--teal) 42%,white);color:var(--teal-deep)}
+#nav a[aria-current="page"]{color:var(--teal-deep);background:color-mix(in srgb,var(--teal) 42%,white)}
 .btn{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:999px;font-weight:700;font-size:.98rem;border:1.5px solid transparent;cursor:pointer;font-family:var(--body);line-height:1.2;white-space:nowrap}
 .btn:hover{text-decoration:none}
 .btn-primary{background:var(--teal);color:var(--on-teal);border-color:var(--teal);box-shadow:0 var(--press) 0 var(--teal-deep)}
@@ -65,9 +68,9 @@ nav a[aria-current="page"]{color:var(--teal-deep);background:color-mix(in srgb,v
 .lang:hover{background:var(--mint)}
 .menu-btn{display:none;background:var(--mint);border:1.5px solid var(--mint);font-weight:700;border-radius:999px;padding:8px 14px;font:inherit;color:var(--ink);cursor:pointer}
 @media (max-width:900px){
-  nav{display:none;position:absolute;left:0;right:0;top:72px;flex-direction:column;align-items:stretch;background:var(--ground);border-bottom:1px solid var(--line);padding:12px 24px 20px}
-  nav.open{display:flex}
-  nav a{padding:12px 10px;font-size:1.05rem}
+  #nav{display:none;position:absolute;left:0;right:0;top:72px;flex-direction:column;align-items:stretch;background:var(--ground);border-bottom:1px solid var(--line);padding:12px 24px 20px}
+  #nav.open{display:flex}
+  #nav a{padding:12px 10px;font-size:1.05rem}
   .menu-btn{display:block}
   .bar .btn{display:none}
 }
@@ -275,19 +278,21 @@ figure{margin:0}
 .how p{color:var(--ink-2);font-size:.98rem}
 @media (max-width:820px){.howto{grid-template-columns:1fr}}
 /* practical */
-.facts-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
-.fact{display:grid;gap:6px;padding:22px;border-radius:var(--r);background:var(--card);border:2px solid var(--mint)}
-.fact .k{font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--violet)}
-.fact b{font-family:var(--display);font-size:1.25rem;font-weight:700}
-.fact span{color:var(--ink-2);font-size:.95rem}
-@media (max-width:820px){.facts-grid{grid-template-columns:repeat(2,1fr)}}
-
-/* tabs-pill : capsule de sélection réutilisable (page volontaire — Présentation/Parcours/
-   Ma vision — et page Activités — Culture/Éducation/Bien-être/Événementiel/Initiatives).
-   Une seule définition partagée, pour rester cohérente si l'une des deux évolue. */
+/* tabs-pill : capsule de sélection réutilisable (page volontaire — onglets Présentation/
+   Parcours/Ma vision). Composant partagé, même s'il n'est utilisé qu'à un seul endroit
+   aujourd'hui, pour rester cohérent si un futur usage réapparaît. */
 .tabs-pill{display:inline-flex;flex-wrap:wrap;gap:2px;padding:4px;border-radius:999px;background:var(--card);border:1px solid var(--card-line);margin-bottom:28px}
 .tabs-pill button{border:0;background:transparent;border-radius:999px;padding:10px 22px;font:inherit;font-family:var(--display);font-weight:700;font-size:.95rem;color:var(--ink-2);cursor:pointer}
 .tabs-pill button[aria-selected="true"]{background:var(--teal);color:#fff}
+
+/* activites-jump : navigation rapide vers chaque domaine (page Activités) — de simples liens
+   d'ancre, pas des onglets : toutes les sections restent affichées en dessous, on saute juste
+   à l'une d'elles. Collée sous le header principal (top = sa hauteur, .bar height:72px) pour
+   rester joignable tout au long d'une page qui peut être longue une fois pleine d'activités. */
+.activites-jump{position:sticky; top:72px; z-index:15; background:color-mix(in srgb, var(--ground) 92%, transparent); backdrop-filter:blur(10px); border-bottom:1px solid var(--card-line); padding:14px 0}
+.activites-jump .wrap{display:flex; gap:8px; flex-wrap:wrap}
+.activites-jump a{display:inline-flex; align-items:center; padding:8px 18px; border-radius:999px; background:var(--card); border:1px solid var(--card-line); font-family:var(--display); font-weight:700; font-size:.92rem; color:var(--ink-2); text-decoration:none; white-space:nowrap}
+.activites-jump a:hover{background:var(--mint); color:var(--teal-deep); text-decoration:none}
 @media (max-width:560px){.facts-grid{grid-template-columns:1fr}}
 /* docs */
 .docs{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:0;margin:0;list-style:none}

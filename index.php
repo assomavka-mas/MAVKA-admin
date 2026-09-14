@@ -189,39 +189,51 @@ $site_activites_initiatives = site_enrichir_avec_photo_intervenant(site_activite
         <h1 style="font-size:clamp(2rem,4vw,3.2rem)">Activités</h1>
         <p class="lede">Découvrez les activités proposées par MAVKA, regroupées par domaine.</p>
       </div>
-      <div class="facts-grid">
-        <div class="fact"><span class="k">Pour qui</span><b>Enfants et adultes</b><span>L'âge minimum est indiqué sur chaque atelier.</span></div>
-        <div class="fact"><span class="k">Combien</span><b>Gratuit pour commencer</b><span>Les premières séances sont gratuites sur préinscription. Les cours réguliers ont un tarif fixé avec l'intervenant.</span></div>
-        <div class="fact"><span class="k">Où</span><b>Garat, Soyaux, Grand Angoulême</b><span>Dans des salles communales, d'autres communes au fur et à mesure.</span></div>
-        <div class="fact"><span class="k">Quoi apporter</span><b>Rien</b><span>Le matériel est fourni, sauf mention contraire sur l'atelier.</span></div>
-      </div>
     </div>
   </section>
 
-  <section class="sand">
-    <div class="wrap tabset">
-      <div class="tabs-pill" role="tablist" data-tablist aria-label="Filtrer les activités par domaine">
-        <button type="button" role="tab" id="activites-culture" data-tab="culture" aria-selected="true">Culture</button>
-        <button type="button" role="tab" id="activites-education" data-tab="education" aria-selected="false">Éducation</button>
-        <button type="button" role="tab" id="activites-bienetre" data-tab="bienetre" aria-selected="false">Bien-être</button>
-        <button type="button" role="tab" id="activites-evenementiel" data-tab="evenementiel" aria-selected="false">Événementiel</button>
-        <button type="button" role="tab" id="activites-initiatives" data-tab="initiatives" aria-selected="false">Initiatives</button>
-      </div>
-      <div class="tabpanel" data-panel="culture">
-        <?= render_events_grid($site_activites_culture, 'three') ?>
-      </div>
-      <div class="tabpanel" data-panel="education" hidden>
-        <?= render_events_grid($site_activites_education, 'three') ?>
-      </div>
-      <div class="tabpanel" data-panel="bienetre" hidden>
-        <?= render_events_grid($site_activites_bienetre, 'three') ?>
-      </div>
-      <div class="tabpanel" data-panel="evenementiel" hidden>
-        <?= render_events_grid($site_activites_evenementiel, 'three') ?>
-      </div>
-      <div class="tabpanel" data-panel="initiatives" hidden>
-        <?= render_events_grid($site_activites_initiatives, 'three') ?>
-      </div>
+  <nav class="activites-jump" aria-label="Aller à un domaine">
+    <div class="wrap">
+      <a href="#activites-culture">Culture</a>
+      <a href="#activites-education">Éducation</a>
+      <a href="#activites-bienetre">Bien-être</a>
+      <a href="#activites-evenementiel">Événementiel</a>
+      <a href="#activites-initiatives">Initiatives</a>
+    </div>
+  </nav>
+
+  <section class="sand" id="activites-culture">
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">Culture</span><h2>Créer de ses mains, découvrir une tradition</h2></div>
+      <?= render_events_grid($site_activites_culture, 'three') ?>
+    </div>
+  </section>
+
+  <section id="activites-education">
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">Éducation</span><h2>Apprendre un savoir-faire concret</h2></div>
+      <?= render_events_grid($site_activites_education, 'three') ?>
+    </div>
+  </section>
+
+  <section class="sand" id="activites-bienetre">
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">Bien-être</span><h2>Prendre soin de soi, simplement</h2></div>
+      <?= render_events_grid($site_activites_bienetre, 'three') ?>
+    </div>
+  </section>
+
+  <section id="activites-evenementiel">
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">Événementiel</span><h2>Fêtes, festivals et rendez-vous ponctuels</h2></div>
+      <?= render_events_grid($site_activites_evenementiel, 'three') ?>
+    </div>
+  </section>
+
+  <section class="sand" id="activites-initiatives">
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">Initiatives</span><h2>Tester une idée, un pas à la fois</h2></div>
+      <?= render_events_grid($site_activites_initiatives, 'three') ?>
     </div>
   </section>
 
@@ -615,7 +627,7 @@ $site_activites_initiatives = site_enrichir_avec_photo_intervenant(site_activite
     nav.classList.remove('open'); btn.setAttribute('aria-expanded','false');
     document.title=titles[h]||'MAVKA';
     try{history.replaceState(null,'','#'+target);}catch(e){}
-    if(sub){ if(sub.matches('[role="tab"]')) sub.click(); sub.scrollIntoView({block:'start'}); } else window.scrollTo(0,0);
+    if(sub){ sub.scrollIntoView({block:'start'}); } else window.scrollTo(0,0);
   }
   document.addEventListener('click',e=>{
     const a=e.target.closest('a[href^="#"]'); if(!a) return;
@@ -624,17 +636,6 @@ $site_activites_initiatives = site_enrichir_avec_photo_intervenant(site_activite
   window.addEventListener('hashchange',()=>go(location.hash.slice(1)));
   go((location.hash||'#accueil').slice(1));
   btn.addEventListener('click',()=>{const o=nav.classList.toggle('open');btn.setAttribute('aria-expanded',String(o));});
-})();
-// ---- tabs-pill (page Activités : filtre par domaine — même mécanique que intervenant.php) ----
-(function(){
-  document.querySelectorAll('[data-tablist]').forEach(function(list){
-    list.addEventListener('click', function(e){
-      var tabBtn = e.target.closest('[role="tab"]'); if (!tabBtn) return;
-      var panels = list.closest('.tabset').querySelectorAll('.tabpanel');
-      list.querySelectorAll('[role="tab"]').forEach(function(t){ t.setAttribute('aria-selected', String(t === tabBtn)); });
-      panels.forEach(function(p){ p.hidden = (p.dataset.panel !== tabBtn.dataset.tab); });
-    });
-  });
 })();
 // ---- FR / UK switch ----
 (function(){
