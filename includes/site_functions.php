@@ -29,7 +29,10 @@ function render_apercu_banner(): string {
 // (sept. 2026) : filtrer par "format IN ('Collectif')" excluait aussi tout ce qui n'a pas de
 // format renseigné (ex. un événement comme "Festival du jeu Garat") — pas seulement les cours
 // individuels visés au départ. On exclut désormais explicitement, plutôt que de restreindre.
-function site_activites_a_venir(?int $limit = null, ?array $formats_exclus = null): array {
+// $mis_en_avant_dabord (teaser de l'accueil uniquement) : les activités cochées "Mettre en avant
+// sur l'accueil" passent en premier, les places restantes se comblent par date la plus proche —
+// un seul ORDER BY suffit (mis_en_avant DESC place les 1 avant les 0), pas besoin d'une 2e requête.
+function site_activites_a_venir(?int $limit = null, ?array $formats_exclus = null, bool $mis_en_avant_dabord = false): array {
     $vue = site_previsualisation_active() ? 'activites_toutes' : 'activites_publiques';
     $sql = "SELECT * FROM $vue
             WHERE statut_activite NOT IN ('annule','termine')";
@@ -38,7 +41,9 @@ function site_activites_a_venir(?int $limit = null, ?array $formats_exclus = nul
         $sql .= ' AND (format IS NULL OR format NOT IN (' . implode(',', array_fill(0, count($formats_exclus), '?')) . '))';
         $params = $formats_exclus;
     }
-    $sql .= ' ORDER BY (date_debut IS NULL) ASC, date_debut ASC, ordre ASC';
+    $sql .= $mis_en_avant_dabord
+        ? ' ORDER BY mis_en_avant DESC, (date_debut IS NULL) ASC, date_debut ASC, ordre ASC'
+        : ' ORDER BY (date_debut IS NULL) ASC, date_debut ASC, ordre ASC';
     if ($limit) {
         $sql .= ' LIMIT ' . (int)$limit;
     }

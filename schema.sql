@@ -95,6 +95,7 @@ CREATE TABLE IF NOT EXISTS activites (
   statut ENUM('publie','brouillon') NOT NULL DEFAULT 'publie',
   statut_activite ENUM('ouvert','complet','annule','termine') NOT NULL DEFAULT 'ouvert',
   visible_accueil TINYINT(1) NOT NULL DEFAULT 1,  -- 0 = réelle et réservable, mais visible seulement sur la page du volontaire (pas dans la grille d'accueil)
+  mis_en_avant TINYINT(1) NOT NULL DEFAULT 0,     -- coché = prioritaire dans le bandeau des 6 prochaines (accueil) ; le reste des places se comble par date la plus proche
   ordre INT NOT NULL DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -144,7 +145,7 @@ CREATE OR REPLACE VIEW activites_publiques AS
 SELECT
   a.id, a.titre, a.heure, a.lieu, a.ville, a.format, a.public, a.nombre_places,
   a.statut_activite, a.description, a.categorie, a.categorie_display,
-  a.lien_inscription, a.texte_bouton, a.photo, a.date_debut, a.recurrence, a.ordre,
+  a.lien_inscription, a.texte_bouton, a.photo, a.date_debut, a.recurrence, a.mis_en_avant, a.ordre,
   (SELECT GROUP_CONCAT(iv.nom SEPARATOR ', ')
      FROM activite_intervenant ai JOIN intervenants iv ON iv.id = ai.intervenant_id
     WHERE ai.activite_id = a.id) AS intervenants_noms
@@ -164,7 +165,7 @@ CREATE OR REPLACE VIEW activites_toutes AS
 SELECT
   a.id, a.titre, a.heure, a.lieu, a.ville, a.format, a.public, a.nombre_places,
   a.statut_activite, a.description, a.categorie, a.categorie_display,
-  a.lien_inscription, a.texte_bouton, a.photo, a.date_debut, a.recurrence, a.ordre,
+  a.lien_inscription, a.texte_bouton, a.photo, a.date_debut, a.recurrence, a.mis_en_avant, a.ordre,
   (SELECT GROUP_CONCAT(iv.nom SEPARATOR ', ')
      FROM activite_intervenant ai JOIN intervenants iv ON iv.id = ai.intervenant_id
     WHERE ai.activite_id = a.id) AS intervenants_noms
