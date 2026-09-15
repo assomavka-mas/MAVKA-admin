@@ -149,7 +149,7 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
          ce qui est assemblé ici est exactement ce qui s'affiche sur le site, avec des champs de
          saisie en plus par-dessus les mêmes éléments — jamais une carte "admin" différente. -->
     <div class="event">
-      <label for="f_photo" class="cover ap-editable-cover">
+      <label for="f_photo" id="pv_cover" class="cover ap-editable-cover<?= !empty($a['photo']) ? ' photo-cover' : '' ?>">
         <img id="pv_photo" alt=""
              <?= !empty($a['photo']) ? 'src="/assets/uploads/activites/' . htmlspecialchars($a['photo']) . '"' : 'hidden' ?>>
         <span id="pv_badge_categorie" class="corner corner--tl" title="Catégorie"></span>
@@ -526,6 +526,7 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
     reader.onload = function (ev) {
       $('pv_photo').src = ev.target.result;
       $('pv_photo').hidden = false;
+      $('pv_cover').classList.add('photo-cover');
     };
     reader.readAsDataURL(file);
   });
