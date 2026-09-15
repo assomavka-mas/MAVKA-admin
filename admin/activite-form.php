@@ -442,7 +442,14 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
 .mavka-activite-preview .ap-strip__inputs input[type="date"] { flex: 1.1; }
 .mavka-activite-preview .ap-input[hidden] { display: none; }
 
-.mavka-activite-preview .ap-titre { width: 100%; resize: none; overflow: hidden; min-height: 0; }
+/* Le titre public est un <h3> (.event-row h3, event-card.css : police PT Serif, gras, 1.25rem) —
+   ici c'est un <textarea> pour rester modifiable sur place, donc ".ap-input{font:inherit}"
+   n'hérite que de la police du corps (Nunito Sans) ambiante, pas celle du h3. On reprend
+   explicitement les mêmes valeurs pour que l'aperçu soit fidèle à ce qui s'affiche vraiment. */
+.mavka-activite-preview .ap-titre {
+  width: 100%; resize: none; overflow: hidden; min-height: 0;
+  font-family: var(--ec-display); font-weight: 700; font-size: 1.25rem; line-height: 1.2; color: var(--ec-ink);
+}
 .mavka-activite-preview .ap-desc { width: 100%; min-height: 130px; resize: vertical; }
 
 /* Spécificité (0,1,1) de ".mavka-form select" (admin.css) sinon gagnante sur ".btn-primary"
