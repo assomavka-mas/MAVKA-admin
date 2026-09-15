@@ -183,8 +183,17 @@ function render_event_strip(array $a): string {
             . ($secondaire !== '' ? '<span class="strip__time">' . $secondaire . '</span>' : '')
             . '</div>';
     }
-    $lieuVille = trim(($a['lieu'] ?? '') . ($a['ville'] ? ', ' . $a['ville'] : ''), ', ');
-    $loc = $lieuVille !== '' ? '<div class="strip__loc">' . htmlspecialchars($lieuVille) . '</div>' : '<div class="strip__loc"></div>';
+    // La ville est saisie tantôt en minuscules, tantôt en majuscules selon la personne qui
+    // remplit la fiche (Soyaux, GARAT...) — plutôt que d'uniformiser la saisie en admin, un span
+    // dédié + text-transform:uppercase (event-card.css) l'affiche toujours en capitales, sans
+    // toucher à la donnée telle qu'enregistrée ni au lieu (qui garde sa casse normale).
+    $lieu = trim($a['lieu'] ?? '');
+    $ville = trim($a['ville'] ?? '');
+    $parts = array_filter([
+        $lieu !== '' ? htmlspecialchars($lieu) : '',
+        $ville !== '' ? '<span class="strip__ville">' . htmlspecialchars($ville) . '</span>' : '',
+    ], fn($p) => $p !== '');
+    $loc = '<div class="strip__loc">' . implode(', ', $parts) . '</div>';
     return '<div class="strip">' . $badge . $loc . '</div>';
 }
 
