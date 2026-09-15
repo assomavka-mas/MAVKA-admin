@@ -1,0 +1,173 @@
+-- MAVKA — схема бази даних для u568973923_mavka_dev
+-- Виконати один раз через phpMyAdmin (вкладка "SQL") на цій базі.
+
+SET NAMES utf8mb4;
+
+CREATE TABLE IF NOT EXISTS intervenants (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nom VARCHAR(255) NOT NULL,
+  dossier VARCHAR(255) NULL,             -- "id-nom-slug", nom du dossier dans /assets/uploads/intervenants/
+  role_titre VARCHAR(255) NULL,          -- напр. "Présidente", "Bénévole"
+  resume VARCHAR(300) NULL,              -- courte description affichée sur la carte (sous le rôle)
+  domaine VARCHAR(255) NULL,             -- plusieurs valeurs possibles, séparées par des virgules
+  adresse VARCHAR(255) NULL,
+  specialite VARCHAR(255) NULL,          -- напр. "Musique", "Art-thérapie"
+  bio TEXT NULL,                         -- public : onglet "Présentation"
+  parcours_personnel TEXT NULL,          -- public : onglet "Parcours" (récit personnel, pas le suivi interne)
+  vision TEXT NULL,                      -- public : onglet "Ma vision"
+  charte_benevolat_lien VARCHAR(500) NULL,     -- lien Google Drive
+  charte_benevolat_fichier VARCHAR(255) NULL,  -- fichier téléversé (image ou PDF)
+  contrat_intervention_lien VARCHAR(500) NULL, -- lien Google Drive
+  contrat_intervention_fichier VARCHAR(255) NULL,
+  date_signee DATE NULL,
+  cv_lien VARCHAR(500) NULL,                   -- lien Google Drive
+  cv_fichier VARCHAR(255) NULL,
+  rib_lien VARCHAR(500) NULL,                  -- lien Google Drive : RIB (coordonnées bancaires)
+  rib_fichier VARCHAR(255) NULL,
+  assurance_lien VARCHAR(500) NULL,            -- lien Google Drive : assurance professionnelle
+  assurance_fichier VARCHAR(255) NULL,
+  assurance_date DATE NULL,                    -- informatif, peut se renouveler automatiquement
+  projet_developpement VARCHAR(500) NULL,        -- lien Google Drive : document détaillé, public (page volontaire)
+  projet_developpement_fichier VARCHAR(255) NULL, -- fichier téléversé, alternative/complément au lien, public
+  projet_developpement_description TEXT NULL,    -- court texte public, affiché dans le bloc "Projet personnel"
+  objectifs_mavka TEXT NULL,             -- interne : idem
+  photo VARCHAR(255) NULL,               -- ім'я файлу в /assets/uploads/intervenants/{dossier}/
+  email VARCHAR(255) NULL,
+  actif TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS intervenant_documents (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  intervenant_id INT NOT NULL,
+  image VARCHAR(255) NOT NULL,           -- ім'я файлу в /assets/uploads/intervenants/{dossier}/documents/
+  label VARCHAR(150) NULL,               -- напр. "CV", "Charte signée"
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (intervenant_id) REFERENCES intervenants(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS intervenant_document_versions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  intervenant_id INT NOT NULL,
+  champ VARCHAR(50) NOT NULL,            -- напр. "cv_fichier", "rib_fichier"
+  fichier VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (intervenant_id) REFERENCES intervenants(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS intervenant_ateliers (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  intervenant_id INT NOT NULL,
+  titre VARCHAR(255) NOT NULL,           -- "Ce que je propose" — atelier possible, pas forcément programmé
+  description TEXT NULL,
+  ordre INT NOT NULL DEFAULT 0,
+  FOREIGN KEY (intervenant_id) REFERENCES intervenants(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Galerie publique (ses réalisations, son atelier en images) affichée sur sa page volontaire.
+-- Vide = le bloc "Galerie" n'apparaît pas du tout sur la page (voir intervenant.php).
+CREATE TABLE IF NOT EXISTS intervenant_galerie (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  intervenant_id INT NOT NULL,
+  image VARCHAR(255) NOT NULL,           -- ім'я файлу в /assets/uploads/intervenants/{dossier}/galerie/
+  ordre INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (intervenant_id) REFERENCES intervenants(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS activites (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  titre VARCHAR(255) NOT NULL,
+  categorie VARCHAR(100) NOT NULL,       -- Culture / Éducation / Bien-être / Initiatives / Événementiel
+  categorie_display VARCHAR(150) NULL,   -- напр. "Bien-être · Art-thérapie" — короткий підзаголовок для карток
+  format ENUM('Collectif','Individuel') NULL,
+  public ENUM('Enfant','Familial','Adultes') NULL,
+  description TEXT NULL,
+  date_debut DATE NULL,                  -- NULL якщо активність регулярна (не разова)
+  heure VARCHAR(50) NULL,                -- "18:00"
+  recurrence VARCHAR(100) NULL,          -- "Le jeudi", "Hebdomadaire" — якщо регулярна
+  lieu VARCHAR(255) NULL,
+  nombre_places INT NULL,                -- NULL = без обмеження
+  ville VARCHAR(100) NULL,
+  texte_bouton VARCHAR(100) NOT NULL DEFAULT 'En savoir plus',
+  lien_inscription VARCHAR(500) NULL,
+  photo VARCHAR(255) NULL,               -- ім'я файлу в /assets/uploads/activites/
+  statut ENUM('publie','brouillon') NOT NULL DEFAULT 'publie',
+  statut_activite ENUM('ouvert','complet','annule','termine') NOT NULL DEFAULT 'ouvert',
+  visible_accueil TINYINT(1) NOT NULL DEFAULT 0,  -- coché à la main : plus simple d'activer les quelques activités prêtes que de désactiver toutes les autres
+  mis_en_avant TINYINT(1) NOT NULL DEFAULT 0,     -- coché = prioritaire dans le bandeau des 6 prochaines (accueil) ; le reste des places se comble par date la plus proche
+  ordre INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Acceptation par PERSONNE, pas par activité : une activité avec 3 intervenant·e·s lié·e·s
+-- a besoin des 3 accords, chacun distinct — même quand l'un·e des 3 est aussi super_admin,
+-- son propre accord ne vaut pas pour les 2 autres (pas d'exception, même pour Larysa elle-même).
+CREATE TABLE IF NOT EXISTS activite_intervenant (
+  activite_id INT NOT NULL,
+  intervenant_id INT NOT NULL,
+  accepte TINYINT(1) NOT NULL DEFAULT 0,
+  accepte_le DATETIME NULL,
+  PRIMARY KEY (activite_id, intervenant_id),
+  FOREIGN KEY (activite_id) REFERENCES activites(id) ON DELETE CASCADE,
+  FOREIGN KEY (intervenant_id) REFERENCES intervenants(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS admins (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  nom VARCHAR(255) NULL,                 -- pour l'afficher dans la liste des accès (surtout si pas lié à un intervenant)
+  password_hash VARCHAR(255) NULL,       -- non utilisé : connexion via Google
+  role ENUM('super_admin','mavka_admin','benevole','partenaire') NOT NULL DEFAULT 'benevole',
+  intervenant_id INT NULL,               -- прив'язка до свого профілю в intervenants, якщо benevole
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (intervenant_id) REFERENCES intervenants(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS messages_contact (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nom VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  sujet VARCHAR(255) NULL,
+  message TEXT NOT NULL,
+  lu TINYINT(1) NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- В'юшка з готовими даними для публічного сайту (тільки опубліковані активності),
+-- з полем intervenants_noms, зібраним автоматично зі зв'язаних волонтерів.
+-- Ne montre jamais une activité sans lien d'inscription, ni une activité liée à au moins un·e
+-- intervenant·e qui ne l'a pas encore acceptée — TOU·TE·S les intervenant·e·s lié·e·s doivent
+-- avoir accepté, pas juste un·e (activite_intervenant.accepte, par personne) — ces deux cas
+-- restent visibles uniquement dans l'admin et dans l'espace du·de la volontaire concerné·e.
+CREATE OR REPLACE VIEW activites_publiques AS
+SELECT
+  a.id, a.titre, a.heure, a.lieu, a.ville, a.format, a.public, a.nombre_places,
+  a.statut_activite, a.description, a.categorie, a.categorie_display,
+  a.lien_inscription, a.texte_bouton, a.photo, a.date_debut, a.recurrence, a.mis_en_avant, a.ordre,
+  (SELECT GROUP_CONCAT(iv.nom SEPARATOR ', ')
+     FROM activite_intervenant ai JOIN intervenants iv ON iv.id = ai.intervenant_id
+    WHERE ai.activite_id = a.id) AS intervenants_noms
+FROM activites a
+WHERE a.statut = 'publie' AND a.visible_accueil = 1
+  AND a.lien_inscription IS NOT NULL AND a.lien_inscription != ''
+  AND NOT EXISTS (SELECT 1 FROM activite_intervenant ai2 WHERE ai2.activite_id = a.id AND ai2.accepte = 0)
+ORDER BY a.ordre ASC, a.date_debut ASC;
+
+-- Comme activites_publiques, mais SANS aucun des 4 filtres (brouillons compris, sans lien
+-- d'inscription, pas encore acceptées par tou·te·s les intervenant·e·s, visible_accueil = 0).
+-- Utilisée uniquement pour un visiteur connecté (bénévole/admin, voir
+-- site_previsualisation_active() dans includes/site_functions.php) : se projeter sur le site
+-- "fini" pour donner envie de finir les démarches (Charte, acceptation des activités...).
+-- Jamais utilisée pour un visiteur anonyme.
+CREATE OR REPLACE VIEW activites_toutes AS
+SELECT
+  a.id, a.titre, a.heure, a.lieu, a.ville, a.format, a.public, a.nombre_places,
+  a.statut_activite, a.description, a.categorie, a.categorie_display,
+  a.lien_inscription, a.texte_bouton, a.photo, a.date_debut, a.recurrence, a.mis_en_avant, a.ordre,
+  (SELECT GROUP_CONCAT(iv.nom SEPARATOR ', ')
+     FROM activite_intervenant ai JOIN intervenants iv ON iv.id = ai.intervenant_id
+    WHERE ai.activite_id = a.id) AS intervenants_noms
+FROM activites a
+ORDER BY a.ordre ASC, a.date_debut ASC;
