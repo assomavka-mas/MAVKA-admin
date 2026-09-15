@@ -178,6 +178,7 @@ if ($iv) {
       <div class="head">
         <span class="eyebrow">Concret, dès maintenant</span>
         <h2>Ses activités</h2>
+        <p class="lede">Découvrez les activités proposées. Pour chaque activité, retrouvez toutes les informations pratiques et les modalités d'inscription sur notre espace HelloAsso.</p>
       </div>
       <?= render_events_grid($activitesVolontaire, 'three') ?>
     </div>
