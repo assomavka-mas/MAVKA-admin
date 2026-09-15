@@ -581,7 +581,11 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
     } else {
       stripBadge.className = 'strip__badge strip__badge--wide';
       stripDate.className = 'strip__date strip__date--text';
-      stripDate.textContent = boutonSelect.value === 'Événement régulier' ? (recurrenceInput.value.trim() || 'Régulier') : 'Dates à venir';
+      if (boutonSelect.value === 'Événement régulier') {
+        stripDate.textContent = recurrenceInput.value.trim() || 'Régulier';
+      } else {
+        stripDate.innerHTML = 'Dates<span class="strip__date-unit">à venir</span>';
+      }
       stripTime.textContent = heure;
     }
   }

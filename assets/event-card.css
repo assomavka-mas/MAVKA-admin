@@ -66,6 +66,9 @@
 .strip__date{font-family:var(--ec-display); font-weight:800; font-size:1.3rem; font-variant-numeric:tabular-nums}
 .strip__date--text{font-size:.68rem; text-transform:uppercase; letter-spacing:.02em; max-width:92px; line-height:1.15}
 .strip__date-unit{display:block; font-size:.6rem; text-transform:uppercase; letter-spacing:.04em; font-weight:700; margin-top:-2px}
+/* Dans le badge texte ("Dates à venir", récurrence...), la 1re ligne est déjà petite (.68rem,
+   pas 1.3rem comme un chiffre de jour) : le margin-top négatif ci-dessus les ferait se chevaucher. */
+.strip__date--text .strip__date-unit{margin-top:1px}
 .strip__time{font-family:var(--ec-body); font-weight:700; font-size:.68rem; margin-top:2px}
 .strip__loc{font-size:1rem; color:var(--ec-ink); opacity:.85; display:flex; flex-direction:column; gap:2px; min-width:0}
 

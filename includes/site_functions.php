@@ -137,9 +137,12 @@ function render_event_strip(array $a): string {
         // encore précisé). Toute autre carte sans date (ex. Préinscription gratuite — date libre,
         // liste pour la mairie) affiche "Dates à venir" : "Régulier" impliquerait à tort une
         // récurrence pour un événement qui n'a simplement pas encore de date fixée.
+        // "Dates à venir" sur deux lignes de tailles différentes (même principe que jour/mois
+        // ci-dessus, via .strip__date-unit) plutôt qu'une seule ligne large qui casse la forme
+        // carrée du badge.
         $principal = $a['texte_bouton'] === 'Événement régulier'
             ? htmlspecialchars($a['recurrence'] ?: 'Régulier')
-            : 'Dates à venir';
+            : 'Dates<span class="strip__date-unit">à venir</span>';
         $secondaire = htmlspecialchars($a['heure'] ?: '');
         $badge = '<div class="strip__badge strip__badge--wide">'
             . '<span class="strip__date strip__date--text">' . $principal . '</span>'

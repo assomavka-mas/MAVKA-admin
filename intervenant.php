@@ -126,7 +126,7 @@ if ($iv) {
           <span class="eyebrow eyebrow--sun"><?= htmlspecialchars(site_intervenant_statut_label($iv)) ?></span>
           <h1 style="margin-top:12px"><?= htmlspecialchars($iv['nom']) ?></h1>
           <?php if ($iv['resume']): ?><p class="lede" style="margin-top:12px"><?= htmlspecialchars($iv['resume']) ?></p><?php endif; ?>
-          <?php if ($iv['domaine']): ?><p style="margin-top:10px;color:var(--ink-3);font-size:.92rem"><?= htmlspecialchars($iv['domaine']) ?></p><?php endif; ?>
+          <?php if ($iv['domaine']): ?><p style="margin-top:10px;color:var(--ink-3);font-size:.92rem"><?= htmlspecialchars(implode(', ', array_filter(array_map('trim', explode(',', $iv['domaine']))))) ?></p><?php endif; ?>
           <?php if ($sections): ?><p style="margin-top:14px"><a href="#a-propos">Plus d'informations →</a></p><?php endif; ?>
         </div>
       </div>
