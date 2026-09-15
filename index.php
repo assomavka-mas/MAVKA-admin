@@ -4,13 +4,16 @@ require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/site_functions.php';
 
 $site_intervenants = site_intervenants_actifs();
+// Individuel exclu partout sur l'accueil (Agenda et Activités) : réservé aux pages volontaire
+// (site_activites_intervenant(), sans ce filtre) — un cours individuel n'a pas sa place dans une
+// grille publique partagée.
 $site_agenda_teaser = site_enrichir_avec_photo_intervenant(site_activites_a_venir(6, ['Individuel'], true));
-$site_agenda_toutes = site_enrichir_avec_photo_intervenant(site_activites_a_venir());
-$site_activites_culture = site_enrichir_avec_photo_intervenant(site_activites_par_categorie('Culture'));
-$site_activites_education = site_enrichir_avec_photo_intervenant(site_activites_par_categorie('Éducation'));
-$site_activites_bienetre = site_enrichir_avec_photo_intervenant(site_activites_par_categorie('Bien-être'));
-$site_activites_evenementiel = site_enrichir_avec_photo_intervenant(site_activites_par_categorie('Événementiel'));
-$site_activites_initiatives = site_enrichir_avec_photo_intervenant(site_activites_par_categorie('Initiatives'));
+$site_agenda_toutes = site_enrichir_avec_photo_intervenant(site_activites_a_venir(null, ['Individuel']));
+$site_activites_culture = site_enrichir_avec_photo_intervenant(site_activites_par_categorie('Culture', ['Individuel']));
+$site_activites_education = site_enrichir_avec_photo_intervenant(site_activites_par_categorie('Éducation', ['Individuel']));
+$site_activites_bienetre = site_enrichir_avec_photo_intervenant(site_activites_par_categorie('Bien-être', ['Individuel']));
+$site_activites_evenementiel = site_enrichir_avec_photo_intervenant(site_activites_par_categorie('Événementiel', ['Individuel']));
+$site_activites_initiatives = site_enrichir_avec_photo_intervenant(site_activites_par_categorie('Initiatives', ['Individuel']));
 ?>
 <!DOCTYPE html>
 <html lang="fr">

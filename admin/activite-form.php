@@ -80,6 +80,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($a['titre'] === '') {
         $error = 'Le titre est obligatoire.';
+    } elseif ($a['format'] === 'Collectif' && $a['nombre_places'] === null) {
+        $error = 'Le nombre de places est obligatoire pour une activité collective.';
     } else {
         if ($id) {
             $stmt = db()->prepare('UPDATE activites SET titre=?, categorie=?, categorie_display=?, format=?, public=?, description=?, date_debut=?, heure=?, recurrence=?, lieu=?, nombre_places=?, ville=?, texte_bouton=?, lien_inscription=?, photo=?, statut=?, statut_activite=?, visible_accueil=?, mis_en_avant=?, ordre=? WHERE id=?');
@@ -129,7 +131,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $maj_accepte->execute([$accepte, $accepte_le, $id, $iid]);
         }
 
-        header('Location: /admin/activites.php?ok=1');
+        // Reste sur cette activité après enregistrement (comme intervenant-form.php pour un·e
+        // volontaire) plutôt que de renvoyer vers la liste — plus pratique pour enchaîner
+        // plusieurs petits ajustements sur la même fiche sans avoir à la rouvrir.
+        header('Location: /admin/activite-form.php?id=' . $id . '&ok=1');
         exit;
     }
 }
@@ -137,6 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activites');
 ?>
 <h1><?= $id ? "Modifier l'activité" : 'Nouvelle activité' ?></h1>
+<?php if (isset($_GET['ok'])): ?><?php flash('ok', 'Enregistré avec succès.'); ?><?php endif; ?>
 <?php if ($error): ?><?php flash('err', $error); ?><?php endif; ?>
 
 <div class="mavka-activite-layout">
@@ -555,11 +561,16 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
   var placesInput = $('f_nombre_places');
   var placesHint = $('f_nombre_places_hint');
   function updateFormatDependants() {
-    badgeFormat.textContent = $('f_format').value;
+    // Même règle que render_event_card() (includes/site_functions.php) : Collectif n'affiche
+    // plus son étiquette (devenu l'évidence sur le site public), seul Individuel reste visible.
+    badgeFormat.textContent = $('f_format').value === 'Collectif' ? '' : $('f_format').value;
     var individuel = $('f_format').value === 'Individuel';
     placesInput.disabled = individuel;
     placesHint.style.display = individuel ? '' : 'none';
     if (individuel) { placesInput.value = ''; }
+    // Obligatoire pour Collectif — même règle que la validation serveur (activite-form.php,
+    // "Le nombre de places est obligatoire pour une activité collective.").
+    placesInput.required = $('f_format').value === 'Collectif';
     updateBadgePlaces();
   }
   $('f_format').addEventListener('change', updateFormatDependants);

@@ -55,12 +55,20 @@ function site_activites_a_venir(?int $limit = null, ?array $formats_exclus = nul
     return db()->query($sql)->fetchAll();
 }
 
-function site_activites_par_categorie(string $categorie): array {
+// $formats_exclus : même principe que site_activites_a_venir() (ex. Individuel, réservé aux
+// pages volontaire — voir site_activites_intervenant()).
+function site_activites_par_categorie(string $categorie, ?array $formats_exclus = null): array {
     $vue = site_previsualisation_active() ? 'activites_toutes' : 'activites_publiques';
-    $stmt = db()->prepare("SELECT * FROM $vue
-        WHERE statut_activite NOT IN ('annule','termine') AND categorie = ?
-        ORDER BY (date_debut IS NULL) ASC, date_debut ASC, ordre ASC");
-    $stmt->execute([$categorie]);
+    $sql = "SELECT * FROM $vue
+        WHERE statut_activite NOT IN ('annule','termine') AND categorie = ?";
+    $params = [$categorie];
+    if ($formats_exclus) {
+        $sql .= ' AND (format IS NULL OR format NOT IN (' . implode(',', array_fill(0, count($formats_exclus), '?')) . '))';
+        $params = array_merge($params, $formats_exclus);
+    }
+    $sql .= ' ORDER BY (date_debut IS NULL) ASC, date_debut ASC, ordre ASC';
+    $stmt = db()->prepare($sql);
+    $stmt->execute($params);
     return $stmt->fetchAll();
 }
 
@@ -201,8 +209,12 @@ function render_event_card(array $a): string {
     $habillage = site_categorie_habillage($a['categorie']);
     // corner--tl : sous-titre affiché uniquement (ex. "Nouveau cours") — n'affiche plus la
     // catégorie (Culture/Éducation/Bien-être) en repli ; vide = pas de plashka (retiré définitivement).
+    // Collectif est désormais l'immense majorité des cartes publiques (Individuel réservé aux
+    // pages volontaire, voir index.php) — l'étiquette n'apporte plus rien, seul Individuel reste
+    // affiché là où les deux formats se côtoient encore (page volontaire).
+    $formatLabel = $a['format'] === 'Collectif' ? '' : ($a['format'] ?? '');
     $corners = '<span class="corner corner--tl">' . htmlspecialchars($a['categorie_display'] ?? '') . '</span>'
-        . '<span class="corner corner--tr">' . htmlspecialchars($a['format'] ?? '') . '</span>'
+        . '<span class="corner corner--tr">' . htmlspecialchars($formatLabel) . '</span>'
         . '<span class="corner corner--br">' . htmlspecialchars($a['public'] ?? '') . '</span>'
         . '<span class="corner corner--br2">' . ($a['nombre_places'] !== null && $a['nombre_places'] !== '' ? htmlspecialchars($a['nombre_places'] . ' places') : '') . '</span>';
     if (!empty($a['photo'])) {

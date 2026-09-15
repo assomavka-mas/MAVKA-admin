@@ -30,6 +30,8 @@ $champs_select = [
     'categorie' => ['Culture', 'Éducation', 'Bien-être', 'Initiatives', 'Événementiel'],
     'format' => ['', 'Collectif', 'Individuel'],
     'public' => ['', 'Enfant', 'Familial', 'Adultes'],
+    'visible_accueil' => ['0', '1'],
+    'mis_en_avant' => ['0', '1'],
 ];
 
 if ($id <= 0) {

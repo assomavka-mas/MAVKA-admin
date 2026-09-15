@@ -53,6 +53,8 @@ $colonnes = [
     'nombre_places'       => ['Places', true, 'edit_nombre', null],
     'statut'              => ['Statut', true, 'select', ['publie' => 'Publié', 'brouillon' => 'Brouillon']],
     'statut_activite'     => ['État', true, 'select', ['ouvert' => 'Ouvert', 'complet' => 'Complet', 'annule' => 'Annulé', 'termine' => 'Terminé']],
+    'visible_accueil'     => ['Accueil', true, 'select', ['0' => 'Non', '1' => 'Oui']],
+    'mis_en_avant'        => ['Vedette', true, 'select', ['0' => 'Non', '1' => 'Oui']],
     'categorie_display'  => ['Sous-catégorie', false, 'text', null],
     'format'              => ['Format', false, 'select_plain', ['' => '—', 'Collectif' => 'Collectif', 'Individuel' => 'Individuel']],
     'public'              => ['Public', false, 'select_plain', ['' => '—', 'Enfant' => 'Enfant', 'Familial' => 'Familial', 'Adultes' => 'Adultes']],
@@ -175,7 +177,7 @@ admin_header('Activités', $user, 'activites');
 <?php if (isset($_GET['ok'])): ?>
   <?php flash('ok', 'Enregistré avec succès.'); ?>
 <?php endif; ?>
-<p style="font-size:12.5px; color:var(--mavka-color-text-muted); margin:8px 0 0;">Clique un titre de colonne pour trier · clique une cellule (Catégorie, Date, Format, Public, Récurrence, Texte du bouton, Lieu, Ville, Heure, Places, Ordre, Statut, État) pour la corriger directement ici.</p>
+<p style="font-size:12.5px; color:var(--mavka-color-text-muted); margin:8px 0 0;">Clique un titre de colonne pour trier · clique une cellule (Catégorie, Date, Format, Public, Récurrence, Texte du bouton, Lieu, Ville, Heure, Places, Ordre, Statut, État, Accueil, Vedette) pour la corriger directement ici.</p>
 <p style="font-size:12.5px; color:var(--mavka-color-text-muted); margin:4px 0 0;">Lignes en rouge : sans lien d'inscription, ou en attente d'acceptation par l'intervenant·e lié·e — elles n'apparaissent pas encore sur le site public (colonne « Lien & acceptation »).</p>
 
 <table class="mavka-table" style="margin-top:12px;">
@@ -207,7 +209,7 @@ admin_header('Activités', $user, 'activites');
         <?php if (peut_editer($user)): ?>
         <span class="mavka-editable" data-editable-select data-id="<?= $a['id'] ?>" data-field="<?= htmlspecialchars($cle) ?>"
           data-value="<?= htmlspecialchars($a[$cle]) ?>" data-options='<?= htmlspecialchars(json_encode($options, JSON_UNESCAPED_UNICODE)) ?>'>
-          <span class="mavka-badge mavka-badge--<?= in_array($a[$cle], ['publie', 'ouvert'], true) ? 'publie' : 'brouillon' ?>"><?= htmlspecialchars($options[$a[$cle]] ?? $a[$cle]) ?></span>
+          <span class="mavka-badge mavka-badge--<?= in_array($a[$cle], ['publie', 'ouvert', '1'], true) ? 'publie' : 'brouillon' ?>"><?= htmlspecialchars($options[$a[$cle]] ?? $a[$cle]) ?></span>
         </span>
         <?php else: ?>
         <span class="mavka-badge mavka-badge--brouillon"><?= htmlspecialchars($options[$a[$cle]] ?? $a[$cle]) ?></span>
