@@ -154,6 +154,19 @@ if ($iv) {
   </section>
   <?php endif; ?>
 
+  <?php if ($activitesVolontaire): ?>
+  <section class="sand">
+    <div class="wrap">
+      <div class="head">
+        <span class="eyebrow">Concret, dès maintenant</span>
+        <h2>Ses activités</h2>
+        <p class="lede">Découvrez les activités proposées. Pour chaque activité, retrouvez toutes les informations pratiques et les modalités d'inscription sur notre espace HelloAsso.</p>
+      </div>
+      <?= render_events_grid($activitesVolontaire, 'three') ?>
+    </div>
+  </section>
+  <?php endif; ?>
+
   <?php if ($galerie): ?>
   <section>
     <div class="wrap">
@@ -168,19 +181,6 @@ if ($iv) {
         </a>
         <?php endforeach; ?>
       </div>
-    </div>
-  </section>
-  <?php endif; ?>
-
-  <?php if ($activitesVolontaire): ?>
-  <section class="sand">
-    <div class="wrap">
-      <div class="head">
-        <span class="eyebrow">Concret, dès maintenant</span>
-        <h2>Ses activités</h2>
-        <p class="lede">Découvrez les activités proposées. Pour chaque activité, retrouvez toutes les informations pratiques et les modalités d'inscription sur notre espace HelloAsso.</p>
-      </div>
-      <?= render_events_grid($activitesVolontaire, 'three') ?>
     </div>
   </section>
   <?php endif; ?>
