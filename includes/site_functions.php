@@ -133,7 +133,13 @@ function render_event_strip(array $a): string {
             . ($heure !== '' ? '<span class="strip__time">' . $heure . '</span>' : '')
             . '</div>';
     } else {
-        $principal = htmlspecialchars($a['recurrence'] ?: 'Régulier');
+        // Pas de date : "Événement régulier" affiche son jour de récurrence (ou "Régulier" si pas
+        // encore précisé). Toute autre carte sans date (ex. Préinscription gratuite — date libre,
+        // liste pour la mairie) affiche "Dates à venir" : "Régulier" impliquerait à tort une
+        // récurrence pour un événement qui n'a simplement pas encore de date fixée.
+        $principal = $a['texte_bouton'] === 'Événement régulier'
+            ? htmlspecialchars($a['recurrence'] ?: 'Régulier')
+            : 'Dates à venir';
         $secondaire = htmlspecialchars($a['heure'] ?: '');
         $badge = '<div class="strip__badge strip__badge--wide">'
             . '<span class="strip__date strip__date--text">' . $principal . '</span>'
