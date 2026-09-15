@@ -37,6 +37,13 @@ p{margin:0}
 .wrap{width:min(1120px,calc(100% - 48px));margin:0 auto}
 :focus-visible{outline:3px solid var(--teal);outline-offset:3px;border-radius:4px}
 
+/* Bandeau "mode aperçu" (render_apercu_banner(), includes/site_functions.php) — visible
+   uniquement pour un·e bénévole/admin connecté·e, jamais pour le public. Couleur violette
+   (registre "admin" du site, cf. .step::before) plutôt que mint/sun pour bien se distancier
+   du reste du contenu, pas sticky : au-dessus du header, défile avec la page. */
+.apercu-banner{background:var(--violet-tint);border-bottom:2px solid var(--violet)}
+.apercu-banner__inner{padding:9px 0;color:var(--violet);font-weight:700;font-size:.86rem;text-align:center}
+
 /* header */
 header{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--ground) 90%,transparent);backdrop-filter:blur(12px);border-bottom:2px solid var(--mint)}
 .bar{display:flex;align-items:center;justify-content:space-between;gap:14px;height:72px}

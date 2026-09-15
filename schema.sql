@@ -153,3 +153,20 @@ WHERE a.statut = 'publie' AND a.visible_accueil = 1
   AND a.lien_inscription IS NOT NULL AND a.lien_inscription != ''
   AND NOT EXISTS (SELECT 1 FROM activite_intervenant ai2 WHERE ai2.activite_id = a.id AND ai2.accepte = 0)
 ORDER BY a.ordre ASC, a.date_debut ASC;
+
+-- Comme activites_publiques, mais SANS aucun des 4 filtres (brouillons compris, sans lien
+-- d'inscription, pas encore acceptées par tou·te·s les intervenant·e·s, visible_accueil = 0).
+-- Utilisée uniquement pour un visiteur connecté (bénévole/admin, voir
+-- site_previsualisation_active() dans includes/site_functions.php) : se projeter sur le site
+-- "fini" pour donner envie de finir les démarches (Charte, acceptation des activités...).
+-- Jamais utilisée pour un visiteur anonyme.
+CREATE OR REPLACE VIEW activites_toutes AS
+SELECT
+  a.id, a.titre, a.heure, a.lieu, a.ville, a.format, a.public, a.nombre_places,
+  a.statut_activite, a.description, a.categorie, a.categorie_display,
+  a.lien_inscription, a.texte_bouton, a.photo, a.date_debut, a.recurrence, a.ordre,
+  (SELECT GROUP_CONCAT(iv.nom SEPARATOR ', ')
+     FROM activite_intervenant ai JOIN intervenants iv ON iv.id = ai.intervenant_id
+    WHERE ai.activite_id = a.id) AS intervenants_noms
+FROM activites a
+ORDER BY a.ordre ASC, a.date_debut ASC;

@@ -1,6 +1,28 @@
 <?php
 // Fonctions du site public — activités publiées et équipe active, lues depuis la même
 // base que l'admin (adresse le besoin : voir dans la vitrine ce qui a été saisi en admin).
+require_once __DIR__ . '/auth.php';
+
+// true si un·e bénévole/admin est connecté·e (n'importe quel rôle — voir includes/auth.php).
+// Dans ce cas les pages publiques montrent TOUTES les activités via activites_toutes (brouillons
+// compris, même sans lien d'inscription, même pas encore acceptées par tou·te·s les
+// intervenant·e·s) — pour se projeter sur le site "fini" et donner envie de finir les démarches
+// (Charte, acceptation des activités...). Un visiteur anonyme continue de voir exactement ce qui
+// est prêt (activites_publiques), comme avant.
+function site_previsualisation_active(): bool {
+    return auth_user() !== null;
+}
+
+// Bandeau discret en haut des pages publiques, uniquement en mode aperçu — sans lui, une
+// personne connectée pourrait croire que tout ce qu'elle voit est déjà visible du public.
+function render_apercu_banner(): string {
+    if (!site_previsualisation_active()) {
+        return '';
+    }
+    return '<div class="apercu-banner"><div class="wrap apercu-banner__inner">'
+        . '🔍 Mode aperçu — vous voyez aussi les brouillons et les activités pas encore finalisées. Le public ne les voit pas encore.'
+        . '</div></div>';
+}
 
 // $formats_exclus retire les formats donnés (ex. teaser de l'accueil : Individuel, pour ne pas y
 // montrer les cours individuels) ; null = tous formats, comme sur la page Agenda. Bug corrigé
@@ -8,7 +30,8 @@
 // format renseigné (ex. un événement comme "Festival du jeu Garat") — pas seulement les cours
 // individuels visés au départ. On exclut désormais explicitement, plutôt que de restreindre.
 function site_activites_a_venir(?int $limit = null, ?array $formats_exclus = null): array {
-    $sql = "SELECT * FROM activites_publiques
+    $vue = site_previsualisation_active() ? 'activites_toutes' : 'activites_publiques';
+    $sql = "SELECT * FROM $vue
             WHERE statut_activite NOT IN ('annule','termine')";
     $params = [];
     if ($formats_exclus) {
@@ -28,7 +51,8 @@ function site_activites_a_venir(?int $limit = null, ?array $formats_exclus = nul
 }
 
 function site_activites_par_categorie(string $categorie): array {
-    $stmt = db()->prepare("SELECT * FROM activites_publiques
+    $vue = site_previsualisation_active() ? 'activites_toutes' : 'activites_publiques';
+    $stmt = db()->prepare("SELECT * FROM $vue
         WHERE statut_activite NOT IN ('annule','termine') AND categorie = ?
         ORDER BY (date_debut IS NULL) ASC, date_debut ASC, ordre ASC");
     $stmt->execute([$categorie]);
@@ -92,15 +116,20 @@ function site_intervenant_galerie(int $intervenant_id): array {
 // est de renvoyer vers CETTE page — l'y afficher aussi la rendrait auto-référentielle.
 // N'affiche que ce qui est déjà public "en vrai" (toutes les personnes liées ont accepté, pas
 // seulement celle-ci) — sa propre page ne doit pas montrer une activité que ses co-intervenant·e·s
-// n'ont pas encore acceptée.
+// n'ont pas encore acceptée. Sauf en mode aperçu (site_previsualisation_active()) : là, tout
+// s'affiche, brouillons et non-acceptées comprises — voir activites_toutes.
 function site_activites_intervenant(int $intervenant_id): array {
-    $stmt = db()->prepare("SELECT a.* FROM activites a
+    $sql = "SELECT a.* FROM activites a
         JOIN activite_intervenant ai ON ai.activite_id = a.id
-        WHERE ai.intervenant_id = ? AND a.statut = 'publie' AND a.statut_activite NOT IN ('annule','termine')
-          AND a.texte_bouton != 'Voir sa page'
+        WHERE ai.intervenant_id = ? AND a.statut_activite NOT IN ('annule','termine')
+          AND a.texte_bouton != 'Voir sa page'";
+    if (!site_previsualisation_active()) {
+        $sql .= " AND a.statut = 'publie'
           AND a.lien_inscription IS NOT NULL AND a.lien_inscription != ''
-          AND NOT EXISTS (SELECT 1 FROM activite_intervenant ai2 WHERE ai2.activite_id = a.id AND ai2.accepte = 0)
-        ORDER BY (a.date_debut IS NULL) ASC, a.date_debut ASC, a.ordre ASC");
+          AND NOT EXISTS (SELECT 1 FROM activite_intervenant ai2 WHERE ai2.activite_id = a.id AND ai2.accepte = 0)";
+    }
+    $sql .= ' ORDER BY (a.date_debut IS NULL) ASC, a.date_debut ASC, a.ordre ASC';
+    $stmt = db()->prepare($sql);
     $stmt->execute([$intervenant_id]);
     return $stmt->fetchAll();
 }

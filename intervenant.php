@@ -88,6 +88,7 @@ if ($iv) {
 </head>
 <body>
 
+<?= render_apercu_banner() ?>
 <header>
   <div class="wrap bar">
     <a class="brand" href="/index.php#accueil"><img src="/assets/site-img/img-01-017fac3c9d.webp" alt=""><b>MAVKA</b></a>
