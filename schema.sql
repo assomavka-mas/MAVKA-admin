@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS activites (
   photo VARCHAR(255) NULL,               -- ім'я файлу в /assets/uploads/activites/
   statut ENUM('publie','brouillon') NOT NULL DEFAULT 'publie',
   statut_activite ENUM('ouvert','complet','annule','termine') NOT NULL DEFAULT 'ouvert',
-  visible_accueil TINYINT(1) NOT NULL DEFAULT 1,  -- 0 = réelle et réservable, mais visible seulement sur la page du volontaire (pas dans la grille d'accueil)
+  visible_accueil TINYINT(1) NOT NULL DEFAULT 0,  -- coché à la main : plus simple d'activer les quelques activités prêtes que de désactiver toutes les autres
   mis_en_avant TINYINT(1) NOT NULL DEFAULT 0,     -- coché = prioritaire dans le bandeau des 6 prochaines (accueil) ; le reste des places se comble par date la plus proche
   ordre INT NOT NULL DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

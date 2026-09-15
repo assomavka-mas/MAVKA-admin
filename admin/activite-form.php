@@ -13,7 +13,7 @@ $a = [
     'lieu' => '', 'nombre_places' => '', 'ville' => '', 'texte_bouton' => 'Préinscription gratuite',
     'lien_inscription' => '', 'photo' => null,
     'statut' => 'publie', 'statut_activite' => 'ouvert',
-    'visible_accueil' => 1, 'mis_en_avant' => 0, 'ordre' => 0,
+    'visible_accueil' => 0, 'mis_en_avant' => 0, 'ordre' => 0,
 ];
 // Chaque personne liée accepte pour elle-même — pas un seul drapeau global (voir
 // alter-champs-v14.sql) — donc on charge aussi son statut d'acceptation ici, par personne.
@@ -276,10 +276,10 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
 
     <div>
       <label style="display:flex; align-items:center; gap:8px; font-weight:400;">
-        <input type="checkbox" name="visible_accueil" value="1" style="width:auto;" <?= ($a['visible_accueil'] ?? 1) ? 'checked' : '' ?>>
+        <input type="checkbox" name="visible_accueil" value="1" style="width:auto;" <?= ($a['visible_accueil'] ?? 0) ? 'checked' : '' ?>>
         Afficher sur la page d'accueil
       </label>
-      <p class="mavka-form-section__hint" style="margin-top:4px;">Décoche pour une activité réelle et réservable (vraie carte, vrai bouton), mais visible seulement sur la page du·de la volontaire qui la propose — pas dans la grille de l'accueil. Utile pour une proposition à l'essai (ex. pour sonder l'intérêt avant d'en parler à une mairie).</p>
+      <p class="mavka-form-section__hint" style="margin-top:4px;">Décochée par défaut — plus simple de cocher les quelques activités prêtes que de décocher toutes les autres. Non cochée, l'activité reste réelle et réservable (vraie carte, vrai bouton), mais visible seulement sur la page du·de la volontaire qui la propose, pas dans la grille de l'accueil. Utile aussi pour une proposition à l'essai (ex. pour sonder l'intérêt avant d'en parler à une mairie).</p>
     </div>
 
     <div>
