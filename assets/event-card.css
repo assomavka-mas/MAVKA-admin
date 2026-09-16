@@ -13,6 +13,7 @@
   --ec-ink:var(--ink,#241B28); --ec-ink-2:var(--ink-2,#3D2B35); --ec-ink-3:var(--ink-3,#6B5B63);
   --ec-teal:var(--teal,#3DA298); --ec-teal-deep:var(--teal-deep,#276A62);
   --ec-sun:var(--sun,#FFCB4D); --ec-sun-pale:color-mix(in srgb, var(--ec-sun) 22%, white);
+  --ec-sun-deep:var(--sun-deep,#E8A716);
   --ec-violet:var(--violet,#8D5D99); --ec-violet-tint:var(--violet-tint,#F0E9F1);
   --ec-r:22px; --ec-display:"PT Serif",Georgia,"Times New Roman",serif;
   --ec-body:"Nunito Sans","Helvetica Neue",Arial,sans-serif;
@@ -103,7 +104,10 @@
   font-family:var(--ec-body); line-height:1.2; white-space:nowrap; text-decoration:none;
 }
 .event .btn:hover{text-decoration:none}
-.event .btn-primary{background:var(--ec-teal); color:#fff; border-color:var(--ec-teal)}
-.event .btn-primary:hover{background:var(--ec-teal-deep)}
-.event .btn-ghost{background:var(--ec-sun); color:var(--ec-ink); border-color:var(--ec-sun)}
+/* primary = jaune (action principale, ex. Préinscription), ghost = vert (secondaire, ex. Voir
+   sa page) — même inversion que .btn-primary/.btn-ghost dans assets/site.css. */
+.event .btn-primary{background:var(--ec-sun); color:var(--ec-ink); border-color:var(--ec-sun)}
+.event .btn-primary:hover{background:var(--ec-sun-deep)}
+.event .btn-ghost{background:var(--ec-teal); color:#fff; border-color:var(--ec-teal)}
+.event .btn-ghost:hover{background:var(--ec-teal-deep)}
 .event .btn-sm{padding:9px 16px; font-size:.9rem}
