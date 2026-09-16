@@ -19,6 +19,24 @@ if (!$intervenant_id) {
     exit;
 }
 
+// Le·la volontaire peut changer la photo de ses PROPRES activités — pas le reste (catégorie,
+// dates, prix...), et jamais celle d'une activité à laquelle il/elle n'est pas lié·e (vérifié
+// via activite_intervenant, pas juste l'id envoyé). Décharge Larysa de devoir chercher/poser
+// une photo pour chaque activité de chaque volontaire.
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'upload_photo') {
+    $activite_id = (int)($_POST['id'] ?? 0);
+    $stmt = db()->prepare('SELECT 1 FROM activite_intervenant WHERE activite_id = ? AND intervenant_id = ?');
+    $stmt->execute([$activite_id, $intervenant_id]);
+    if ($activite_id && $stmt->fetchColumn()) {
+        $nouvelle_photo = handle_upload('photo', 'activites');
+        if ($nouvelle_photo) {
+            db()->prepare('UPDATE activites SET photo = ? WHERE id = ?')->execute([$nouvelle_photo, $activite_id]);
+        }
+    }
+    header('Location: /admin/mes-activites.php');
+    exit;
+}
+
 $stmt = db()->prepare('
     SELECT a.*, ai.accepte AS mon_acceptation,
         (SELECT COUNT(*) FROM activite_intervenant ai2 WHERE ai2.activite_id = a.id) AS nb_intervenants,
@@ -38,7 +56,7 @@ admin_header('Mes activités', $user, 'mes-activites');
 <?php if (isset($_GET['accepte'])): ?>
   <?php flash('ok', 'Activité acceptée — merci !'); ?>
 <?php endif; ?>
-<p style="color:var(--mavka-color-text-muted); font-size:13.5px;">Les activités où tu es intervenant·e, telles qu'elles apparaîtront sur le site (photo, description, lien d'inscription compris). Une activité encadrée en rouge n'est pas encore visible sur le site public : il lui manque le lien d'inscription, ou ton accord sur les conditions et la description.</p>
+<p style="color:var(--mavka-color-text-muted); font-size:13.5px;">Les activités où tu es intervenant·e, telles qu'elles apparaîtront sur le site (photo, description, lien d'inscription compris). Une activité encadrée en rouge n'est pas encore visible sur le site public : il lui manque le lien d'inscription, ou ton accord sur les conditions et la description. Tu peux ajouter ou changer la photo directement sous chaque carte — le reste (catégorie, dates, description...) reste géré par Larysa.</p>
 <div class="mavka-mes-activites-grid">
   <?php foreach ($mes_activites as $a): ?>
   <?php $incomplet = activite_incomplete($a); ?>
@@ -59,6 +77,12 @@ admin_header('Mes activités', $user, 'mes-activites');
       <?php else: ?>
         <span class="mavka-fill-yes">✓ Acceptée par tou·te·s</span>
       <?php endif; ?>
+      <form method="post" enctype="multipart/form-data" class="mavka-mes-activite-photo">
+        <input type="hidden" name="action" value="upload_photo">
+        <input type="hidden" name="id" value="<?= $a['id'] ?>">
+        <label for="photo_<?= $a['id'] ?>" class="mavka-btn mavka-btn--sm">🖼️ <?= $a['photo'] ? 'Changer la photo' : 'Ajouter une photo' ?></label>
+        <input type="file" id="photo_<?= $a['id'] ?>" name="photo" accept="image/png,image/jpeg,image/webp" hidden onchange="this.form.submit()">
+      </form>
     </div>
   </div>
   <?php endforeach; ?>
@@ -73,5 +97,7 @@ admin_header('Mes activités', $user, 'mes-activites');
   .mavka-mes-activite-item { border-radius: 26px; padding: 4px; }
   .mavka-mes-activite-item--incomplet { background: var(--mavka-color-danger-bg); border: 2px solid var(--mavka-color-danger-text); }
   .mavka-mes-activite-validation { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 14px 10px 8px; }
+  .mavka-mes-activite-photo { margin: 0; }
+  .mavka-mes-activite-photo label { cursor: pointer; }
 </style>
 <?php admin_footer(); ?>
