@@ -16,9 +16,15 @@ $iv = [
     'rib_lien' => '', 'rib_fichier' => null,
     'assurance_lien' => '', 'assurance_fichier' => null, 'assurance_date' => '',
     'projet_developpement' => '', 'projet_developpement_fichier' => null, 'projet_developpement_description' => '', 'objectifs_mavka' => '',
+    'statut_qualifications' => 'non_requis',
     'photo' => null, 'email' => '', 'actif' => 1,
 ];
 $domaines_disponibles = ['Culture', 'Éducation', 'Bien-être', 'Initiatives'];
+$qualification_types = [
+    'diplome' => 'Diplôme', 'attestation' => 'Attestation', 'certification' => 'Certification',
+    'reconnaissance' => 'Reconnaissance / équivalence', 'autorisation' => 'Autorisation', 'autre' => 'Autre',
+];
+$qualification_statuts = ['a_verifier' => 'À vérifier', 'verifie' => 'Vérifié', 'a_completer' => 'À compléter'];
 $login_email = '';
 
 if ($id) {
@@ -52,6 +58,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'save') === 's
     $iv['projet_developpement'] = trim($_POST['projet_developpement'] ?? '');
     $iv['projet_developpement_description'] = trim($_POST['projet_developpement_description'] ?? '');
     $iv['objectifs_mavka'] = trim($_POST['objectifs_mavka'] ?? '');
+    $iv['statut_qualifications'] = in_array($_POST['statut_qualifications'] ?? '', ['non_requis', 'a_verifier', 'verifie', 'a_completer'], true)
+        ? $_POST['statut_qualifications'] : 'non_requis';
     $iv['email'] = trim($_POST['email'] ?? '');
     $iv['actif'] = isset($_POST['actif']) ? 1 : 0;
     $new_login_email = strtolower(trim($_POST['login_email'] ?? ''));
@@ -65,7 +73,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'save') === 's
             'charte_benevolat_lien', 'charte_benevolat_fichier', 'contrat_intervention_lien', 'contrat_intervention_fichier',
             'date_signee', 'cv_lien', 'cv_fichier', 'rib_lien', 'rib_fichier',
             'assurance_lien', 'assurance_fichier', 'assurance_date',
-            'projet_developpement', 'projet_developpement_fichier', 'projet_developpement_description', 'objectifs_mavka', 'photo', 'email', 'actif',
+            'projet_developpement', 'projet_developpement_fichier', 'projet_developpement_description', 'objectifs_mavka',
+            'statut_qualifications', 'photo', 'email', 'actif',
         ];
 
         if (!$id) {
@@ -168,8 +177,53 @@ if (isset($_GET['delete_galerie']) && $id) {
     exit;
 }
 
+// Gestion de "Qualifications et justificatifs" — section privée, jamais publique (voir
+// intervenant.php : ce bloc n'y apparaît nulle part). N'importe quel·le éditeur·ice (super_admin
+// ou mavka_admin) peut ajouter/supprimer une ligne ; seul super_admin peut la faire passer
+// "Vérifié", ce qui remplit automatiquement date_verification et verifie_par (jamais saisis à
+// la main), et éditer la note administrative privée.
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add_qualification' && $id) {
+    if (empty($iv['dossier'])) {
+        $iv['dossier'] = intervenant_dossier($id, $iv['nom']);
+        db()->prepare('UPDATE intervenants SET dossier = ? WHERE id = ?')->execute([$iv['dossier'], $id]);
+    }
+    $type = $_POST['qualification_type'] ?? '';
+    $intitule = trim($_POST['qualification_intitule'] ?? '');
+    $types_valides = ['diplome', 'attestation', 'certification', 'reconnaissance', 'autorisation', 'autre'];
+    if (in_array($type, $types_valides, true) && $intitule !== '') {
+        $fichier = handle_upload('qualification_fichier', 'intervenants/' . $iv['dossier'] . '/qualifications');
+        db()->prepare('INSERT INTO intervenant_qualifications (intervenant_id, type_justificatif, intitule, organisme, pays, annee_obtention, fichier) VALUES (?,?,?,?,?,?,?)')
+            ->execute([
+                $id, $type, $intitule,
+                trim($_POST['qualification_organisme'] ?? '') ?: null,
+                trim($_POST['qualification_pays'] ?? '') ?: null,
+                (int)($_POST['qualification_annee'] ?? 0) ?: null,
+                $fichier,
+            ]);
+    }
+    header('Location: /admin/intervenant-form.php?id=' . $id . '&ok=1');
+    exit;
+}
+// Changer le statut (dont "Vérifié", réservé à super_admin) et la note administrative se fait
+// en direct via admin/qualification-inline-update.php (JS, plus bas) — pas ici, pour éviter un
+// <form> imbriqué dans le formulaire principal de la page.
+if (isset($_GET['delete_qualification']) && $id) {
+    $stmt = db()->prepare('SELECT fichier FROM intervenant_qualifications WHERE id = ? AND intervenant_id = ?');
+    $stmt->execute([(int)$_GET['delete_qualification'], $id]);
+    if (($fichier = $stmt->fetchColumn()) !== false) {
+        db()->prepare('DELETE FROM intervenant_qualifications WHERE id = ? AND intervenant_id = ?')
+            ->execute([(int)$_GET['delete_qualification'], $id]);
+        if ($fichier) {
+            @unlink(__DIR__ . '/../assets/uploads/intervenants/' . $iv['dossier'] . '/qualifications/' . $fichier);
+        }
+    }
+    header('Location: /admin/intervenant-form.php?id=' . $id);
+    exit;
+}
+
 $ateliers = [];
 $galerie = [];
+$qualifications = [];
 $historique_par_champ = [];
 if ($id) {
     $stmt = db()->prepare('SELECT * FROM intervenant_ateliers WHERE intervenant_id = ? ORDER BY ordre ASC, id ASC');
@@ -179,6 +233,10 @@ if ($id) {
     $stmt = db()->prepare('SELECT * FROM intervenant_galerie WHERE intervenant_id = ? ORDER BY ordre ASC, id ASC');
     $stmt->execute([$id]);
     $galerie = $stmt->fetchAll();
+
+    $stmt = db()->prepare('SELECT * FROM intervenant_qualifications WHERE intervenant_id = ? ORDER BY created_at DESC');
+    $stmt->execute([$id]);
+    $qualifications = $stmt->fetchAll();
 
     $stmt = db()->prepare('SELECT * FROM intervenant_document_versions WHERE intervenant_id = ? ORDER BY created_at DESC');
     $stmt->execute([$id]);
@@ -342,6 +400,14 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
     <label style="margin-top:16px;">Mes objectifs avec MAVKA</label>
     <p class="mavka-form-section__hint" style="margin-top:-6px;">Contrairement au projet ci-dessus : reste entre toi et la personne, jamais affiché sur le site.</p>
     <textarea name="objectifs_mavka"><?= htmlspecialchars($iv['objectifs_mavka'] ?? '') ?></textarea>
+
+    <label style="margin-top:16px;">Statut des qualifications</label>
+    <p class="mavka-form-section__hint" style="margin-top:-6px;">À cocher toi-même, au cas par cas — ne se déduit pas automatiquement de la liste "Qualifications et justificatifs" ci-dessous. Utile seulement quand une activité exige une qualification professionnelle vérifiée ; sinon laisse "Non requis".</p>
+    <select name="statut_qualifications">
+      <?php foreach (['non_requis' => 'Non requis', 'a_verifier' => 'À vérifier', 'verifie' => 'Vérifié', 'a_completer' => 'À compléter'] as $val => $label): ?>
+      <option value="<?= $val ?>" <?= $iv['statut_qualifications'] === $val ? 'selected' : '' ?>><?= $label ?></option>
+      <?php endforeach; ?>
+    </select>
     </div>
   </details>
 
@@ -420,6 +486,98 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
     <button type="submit" form="galerie-form" class="mavka-btn mavka-btn--primary" style="margin-top:16px;">Ajouter</button>
     </div>
   </details>
+
+  <details class="mavka-form-section mavka-form-section--qualifications" data-section="qualifications" open>
+    <summary class="mavka-form-section__header">
+      <span class="mavka-form-section__grip">⠿⠿</span>
+      <h3 class="mavka-form-section__title">🎓 Qualifications et justificatifs</h3>
+      <svg class="mavka-form-section__chevron" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </summary>
+    <div class="mavka-form-section__body">
+    <p class="mavka-form-section__hint">Section privée et interne — n'apparaît jamais sur la page publique de la personne. Pas besoin d'en ajouter pour tout le monde : seulement quand une qualification est pertinente (une activité qui l'exige, par exemple).</p>
+
+    <div style="display:flex; flex-direction:column; gap:12px; margin:10px 0 20px;">
+      <?php foreach ($qualifications as $q): ?>
+      <div class="mavka-card" style="padding:14px 18px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;">
+          <div>
+            <div style="font-weight:700;"><?= htmlspecialchars($q['intitule']) ?></div>
+            <div style="font-size:13.5px; color:var(--mavka-color-text-muted); margin-top:2px;">
+              <?= htmlspecialchars($qualification_types[$q['type_justificatif']] ?? $q['type_justificatif']) ?>
+              <?php if ($q['organisme']): ?> · <?= htmlspecialchars($q['organisme']) ?><?php endif; ?>
+              <?php if ($q['pays']): ?> · <?= htmlspecialchars($q['pays']) ?><?php endif; ?>
+              <?php if ($q['annee_obtention']): ?> · <?= (int)$q['annee_obtention'] ?><?php endif; ?>
+            </div>
+            <?php if ($q['fichier']): ?>
+            <a href="/assets/uploads/intervenants/<?= htmlspecialchars($iv['dossier']) ?>/qualifications/<?= htmlspecialchars($q['fichier']) ?>" target="_blank" rel="noopener" style="font-size:13.5px;">📄 Voir le justificatif</a>
+            <?php endif; ?>
+          </div>
+          <a href="/admin/intervenant-form.php?id=<?= $id ?>&delete_qualification=<?= $q['id'] ?>" class="mavka-btn mavka-btn--sm mavka-btn--danger"
+             onclick="return confirm('Supprimer cette qualification ?');">Supprimer</a>
+        </div>
+
+        <div style="margin-top:12px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+          <?php if ($user['role'] === 'super_admin' || $q['statut'] !== 'verifie'): ?>
+          <select data-qualification-statut data-id="<?= $q['id'] ?>">
+            <?php foreach ($qualification_statuts as $val => $label): ?>
+            <?php if ($val === 'verifie' && $user['role'] !== 'super_admin') continue; ?>
+            <option value="<?= $val ?>" <?= $q['statut'] === $val ? 'selected' : '' ?>><?= $label ?></option>
+            <?php endforeach; ?>
+          </select>
+          <?php else: ?>
+          <span class="mavka-badge mavka-badge--success">Vérifié</span>
+          <?php endif; ?>
+          <?php if ($q['statut'] === 'verifie'): ?>
+          <span style="font-size:12.5px; color:var(--mavka-color-text-muted);">le <?= htmlspecialchars(date('d/m/Y', strtotime($q['date_verification']))) ?> par <?= htmlspecialchars($q['verifie_par']) ?></span>
+          <?php endif; ?>
+        </div>
+
+        <?php if ($user['role'] === 'super_admin'): ?>
+        <div style="margin-top:10px;">
+          <label style="font-size:12.5px;">Note administrative <span style="font-weight:400; color:var(--mavka-color-text-muted);">(privée, réservée à toi)</span></label>
+          <textarea data-qualification-note data-id="<?= $q['id'] ?>" rows="2" style="font-size:13.5px;"><?= htmlspecialchars($q['note_admin'] ?? '') ?></textarea>
+          <button type="button" data-qualification-note-save data-id="<?= $q['id'] ?>" class="mavka-btn mavka-btn--sm" style="margin-top:6px;">Enregistrer la note</button>
+        </div>
+        <?php endif; ?>
+      </div>
+      <?php endforeach; ?>
+      <?php if (!$qualifications): ?>
+      <p style="color:var(--mavka-color-text-muted); font-size:13.5px;">Aucune qualification enregistrée pour l'instant.</p>
+      <?php endif; ?>
+    </div>
+
+    <label>Type de justificatif</label>
+    <select name="qualification_type" form="qualification-form" required>
+      <option value="">—</option>
+      <?php foreach ($qualification_types as $val => $label): ?>
+      <option value="<?= $val ?>"><?= $label ?></option>
+      <?php endforeach; ?>
+    </select>
+    <label>Intitulé de la qualification</label>
+    <input type="text" name="qualification_intitule" form="qualification-form" required>
+    <div class="row">
+      <div>
+        <label>Organisme / établissement</label>
+        <input type="text" name="qualification_organisme" form="qualification-form">
+      </div>
+      <div>
+        <label>Pays</label>
+        <input type="text" name="qualification_pays" form="qualification-form">
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Année d'obtention</label>
+        <input type="number" style="max-width:120px;" name="qualification_annee" form="qualification-form" min="1950" max="2100">
+      </div>
+      <div>
+        <label>Document justificatif <span style="font-weight:400; color:var(--mavka-color-text-muted);">(facultatif)</span></label>
+        <input type="file" name="qualification_fichier" form="qualification-form" accept="image/png,image/jpeg,image/webp,application/pdf">
+      </div>
+    </div>
+    <button type="submit" form="qualification-form" class="mavka-btn mavka-btn--primary" style="margin-top:16px;">Ajouter</button>
+    </div>
+  </details>
   <?php endif; ?>
 
   </div>
@@ -430,6 +588,7 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
 <?php if ($id): ?>
 <form method="post" id="atelier-form"><input type="hidden" name="action" value="add_atelier"></form>
 <form method="post" id="galerie-form" enctype="multipart/form-data"><input type="hidden" name="action" value="add_galerie"></form>
+<form method="post" id="qualification-form" enctype="multipart/form-data"><input type="hidden" name="action" value="add_qualification"></form>
 <?php endif; ?>
 
 <script>
@@ -531,6 +690,45 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
       reader.readAsDataURL(file);
     });
   }
+
+  // Qualifications : statut (dont "Vérifié", géré côté serveur pour rester réservé à
+  // super_admin) et note administrative — en direct via admin/qualification-inline-update.php,
+  // pas de <form> ici pour éviter d'en imbriquer un dans le formulaire principal de la page.
+  document.querySelectorAll('[data-qualification-statut]').forEach(function (select) {
+    select.addEventListener('change', function () {
+      var val = select.value;
+      if (val === 'verifie' && !confirm('Marquer cette qualification comme vérifiée ?')) {
+        return;
+      }
+      fetch('/admin/qualification-inline-update.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ id: select.dataset.id, field: 'statut', value: val })
+      }).then(function (r) { return r.json(); }).then(function (data) {
+        if (data.ok) { location.reload(); } else { alert(data.error || 'Erreur'); }
+      }).catch(function () { alert('Impossible de contacter le serveur.'); });
+    });
+  });
+
+  document.querySelectorAll('[data-qualification-note-save]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var id = btn.dataset.id;
+      var textarea = document.querySelector('[data-qualification-note][data-id="' + id + '"]');
+      fetch('/admin/qualification-inline-update.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ id: id, field: 'note_admin', value: textarea.value })
+      }).then(function (r) { return r.json(); }).then(function (data) {
+        if (data.ok) {
+          var original = btn.textContent;
+          btn.textContent = '✓ Enregistré';
+          setTimeout(function () { btn.textContent = original; }, 1500);
+        } else {
+          alert(data.error || 'Erreur');
+        }
+      }).catch(function () { alert('Impossible de contacter le serveur.'); });
+    });
+  });
 })();
 </script>
 <?php admin_footer(); ?>

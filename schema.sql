@@ -31,10 +31,36 @@ CREATE TABLE IF NOT EXISTS intervenants (
   projet_developpement_fichier VARCHAR(255) NULL, -- fichier téléversé, alternative/complément au lien, public
   projet_developpement_description TEXT NULL,    -- court texte public, affiché dans le bloc "Projet personnel"
   objectifs_mavka TEXT NULL,             -- interne : idem
+  statut_qualifications ENUM('non_requis','a_verifier','verifie','a_completer') NOT NULL DEFAULT 'non_requis',
+    -- interne, jamais public : coché à la main par Larysa — ne se déduit pas des lignes
+    -- intervenant_qualifications ci-dessous. Sert pour les activités qui exigent une
+    -- qualification professionnelle vérifiée (pas toutes) — voir alter-champs-v22.sql.
   photo VARCHAR(255) NULL,               -- ім'я файлу в /assets/uploads/intervenants/{dossier}/
   email VARCHAR(255) NULL,
   actif TINYINT(1) NOT NULL DEFAULT 1,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Diplômes/attestations/certifications déclarés pour un·e volontaire — interne, jamais affiché
+-- sur la page publique. Une personne peut avoir plusieurs lignes. La vérification (passage à
+-- 'verifie', date_verification, verifie_par, note_admin) est réservée à super_admin — voir
+-- admin/intervenant-form.php. Fichiers stockés comme les autres documents administratifs
+-- (RIB, Assurance...) : nom de fichier aléatoire, jamais lié depuis une page publique.
+CREATE TABLE IF NOT EXISTS intervenant_qualifications (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  intervenant_id INT NOT NULL,
+  type_justificatif ENUM('diplome','attestation','certification','reconnaissance','autorisation','autre') NOT NULL,
+  intitule VARCHAR(255) NOT NULL,
+  organisme VARCHAR(255) NULL,
+  pays VARCHAR(100) NULL,
+  annee_obtention YEAR NULL,
+  fichier VARCHAR(255) NULL,             -- ім'я файлу в /assets/uploads/intervenants/{dossier}/qualifications/
+  statut ENUM('a_verifier','verifie','a_completer') NOT NULL DEFAULT 'a_verifier',
+  date_verification DATE NULL,
+  verifie_par VARCHAR(255) NULL,         -- email de l'admin (auto-rempli à la vérification)
+  note_admin TEXT NULL,                  -- privé, réservé à super_admin
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (intervenant_id) REFERENCES intervenants(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS intervenant_documents (
