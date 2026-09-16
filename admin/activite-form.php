@@ -200,7 +200,12 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
           }
         ?>
         <label class="mavka-activite-preview__btn-label">Texte du bouton<sup class="mavka-footnote-ref">2</sup></label>
-        <select id="f_texte_bouton" name="texte_bouton" class="btn btn-primary btn-sm ap-btn-select">
+        <?php
+          // Même règle que render_event_card() (includes/site_functions.php) : "En savoir plus"
+          // et "Voir sa page" en secondaire (vert), tout le reste en action principale (jaune).
+          $boutonSecondaire = in_array($a['texte_bouton'], ['En savoir plus', 'Voir sa page'], true);
+        ?>
+        <select id="f_texte_bouton" name="texte_bouton" class="btn btn-sm ap-btn-select <?= $boutonSecondaire ? 'ap-btn-select--ghost' : 'ap-btn-select--primary' ?>">
           <?php foreach ($boutons as $b): ?>
           <option value="<?= htmlspecialchars($b) ?>" <?= $a['texte_bouton'] === $b ? 'selected' : '' ?>><?= htmlspecialchars($b) ?></option>
           <?php endforeach; ?>
@@ -467,11 +472,18 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
 }
 .mavka-activite-preview .ap-desc { width: 100%; min-height: 130px; resize: vertical; }
 
-/* Spécificité (0,1,1) de ".mavka-form select" (admin.css) sinon gagnante sur ".btn-primary"
-   pour background/border — préfixée ici pour repasser devant, même bug qu'ailleurs sur cette page. */
+/* Spécificité (0,1,1) de ".mavka-form select" (admin.css) sinon gagnante sur ces règles
+   pour background/border — préfixée ici pour repasser devant, même bug qu'ailleurs sur cette page.
+   Mêmes couleurs que .btn-primary/.btn-ghost (assets/site.css), via les jetons --ec- (seule
+   feuille importée ici) : jaune pour l'action principale, vert pour "Voir sa page"/"En savoir plus". */
 .mavka-activite-preview .ap-btn-select {
   appearance: none; width: fit-content; cursor: pointer;
-  background: var(--ec-teal, #1FAE93); color: #fff; border-color: var(--ec-teal, #1FAE93);
+}
+.mavka-activite-preview .ap-btn-select.ap-btn-select--primary {
+  background: var(--ec-sun, #FFCB4D); color: var(--ec-ink, #241B28); border-color: var(--ec-sun, #FFCB4D);
+}
+.mavka-activite-preview .ap-btn-select.ap-btn-select--ghost {
+  background: var(--ec-teal, #3DA298); color: #fff; border-color: var(--ec-teal, #3DA298);
 }
 </style>
 
@@ -518,9 +530,18 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
     lienHint.style.display = versSaPage ? 'block' : 'none';
   }
 
+  // Même règle que render_event_card() (includes/site_functions.php) : couleur jaune (action
+  // principale) par défaut, verte pour "En savoir plus"/"Voir sa page" (action secondaire).
+  function applyBoutonCouleur() {
+    var secondaire = boutonSelect.value === 'En savoir plus' || boutonSelect.value === 'Voir sa page';
+    boutonSelect.classList.toggle('ap-btn-select--ghost', secondaire);
+    boutonSelect.classList.toggle('ap-btn-select--primary', !secondaire);
+  }
+
   function applyBoutonMode() {
     applyRecurrenceVisibility();
     applyLienInscriptionMode();
+    applyBoutonCouleur();
   }
   boutonSelect.addEventListener('change', applyBoutonMode);
   applyBoutonMode();

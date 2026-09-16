@@ -63,13 +63,16 @@ header{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--groun
 #nav a[aria-current="page"]{color:var(--teal-deep);background:color-mix(in srgb,var(--teal) 42%,white)}
 .btn{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:999px;font-weight:700;font-size:.98rem;border:1.5px solid transparent;cursor:pointer;font-family:var(--body);line-height:1.2;white-space:nowrap}
 .btn:hover{text-decoration:none}
-.btn-primary{background:var(--teal);color:var(--on-teal);border-color:var(--teal);box-shadow:0 var(--press) 0 var(--teal-deep)}
-.btn-primary:hover{transform:translateY(1px);box-shadow:0 calc(var(--press) - 1px) 0 var(--teal-deep)}
+/* primary = jaune (--sun) : l'action qu'on veut voir cliquée (s'inscrire, écrire, envoyer...) —
+   la couleur la plus vive de la palette, pour qu'elle saute aux yeux. ghost = vert/sarcelle
+   (--teal) : action secondaire (en savoir plus, voir une page), plus posée. */
+.btn-primary{background:var(--sun);color:var(--ink);border-color:var(--sun);box-shadow:0 var(--press) 0 var(--sun-deep)}
+.btn-primary:hover{transform:translateY(1px);box-shadow:0 calc(var(--press) - 1px) 0 var(--sun-deep)}
 
 
 
-.btn-ghost{background:var(--sun);color:var(--ink);border-color:var(--sun);box-shadow:0 var(--press) 0 var(--sun-deep)}
-.btn-ghost:hover{transform:translateY(1px);box-shadow:0 calc(var(--press) - 1px) 0 var(--sun-deep)}
+.btn-ghost{background:var(--teal);color:var(--on-teal);border-color:var(--teal);box-shadow:0 var(--press) 0 var(--teal-deep)}
+.btn-ghost:hover{transform:translateY(1px);box-shadow:0 calc(var(--press) - 1px) 0 var(--teal-deep)}
 .btn-sm{padding:9px 16px;font-size:.9rem}
 .lang{background:var(--ground);border:2px solid var(--mint);border-radius:999px;padding:7px 12px;font:inherit;font-weight:700;font-size:.85rem;color:var(--teal-deep);cursor:pointer}
 .lang:hover{background:var(--mint)}
