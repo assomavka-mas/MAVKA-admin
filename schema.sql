@@ -24,9 +24,23 @@ CREATE TABLE IF NOT EXISTS intervenants (
   cv_fichier VARCHAR(255) NULL,
   rib_lien VARCHAR(500) NULL,                  -- lien Google Drive : RIB (coordonnées bancaires)
   rib_fichier VARCHAR(255) NULL,
-  assurance_lien VARCHAR(500) NULL,            -- lien Google Drive : assurance professionnelle
+  assurance_lien VARCHAR(500) NULL,            -- lien Google Drive : assurance professionnelle (= RC Pro)
   assurance_fichier VARCHAR(255) NULL,
-  assurance_date DATE NULL,                    -- informatif, peut se renouveler automatiquement
+  assurance_date DATE NULL,                    -- date d'expiration : déclenche l'alerte RC Pro (voir plus bas)
+  -- Dossier Prestataire (privé, jamais public) — vérifications administratives demandées pour
+  -- rester en règle vis-à-vis des organismes de contrôle. Voir alter-champs-v24.sql.
+  numero_siret VARCHAR(20) NULL,               -- SIREN ou SIRET, au choix (14 ou 9 chiffres)
+  piece_identite_fichier VARCHAR(255) NULL,
+  piece_identite_date_verification DATE NULL,
+  droit_exercer_necessaire TINYINT(1) NOT NULL DEFAULT 0,  -- coché seulement si l'activité l'exige
+  droit_exercer_fichier VARCHAR(255) NULL,
+  avis_sirene_fichier VARCHAR(255) NULL,
+  b3_presente TINYINT(1) NOT NULL DEFAULT 0,   -- casier judiciaire (bulletin n°3) présenté
+  b3_date DATE NULL,                           -- auto-rempli quand la case passe à cochée
+  b3_verifie_par VARCHAR(255) NULL,            -- auto-rempli (email de l'admin qui a coché)
+  date_entree_prestataire DATE NULL,
+  dossier_prestataire_maj_le DATETIME NULL,    -- auto, jamais saisi à la main (voir intervenant-form.php)
+  assurance_alerte_envoyee_le DATE NULL,       -- anti-spam de l'alerte email RC Pro, voir admin/alertes-documents.php
   projet_developpement VARCHAR(500) NULL,        -- lien Google Drive : document détaillé, public (page volontaire)
   projet_developpement_fichier VARCHAR(255) NULL, -- fichier téléversé, alternative/complément au lien, public
   projet_developpement_description TEXT NULL,    -- court texte public, affiché dans le bloc "Projet personnel"
@@ -37,10 +51,10 @@ CREATE TABLE IF NOT EXISTS intervenants (
     -- qualification professionnelle vérifiée (pas toutes) — voir alter-champs-v22.sql.
   photo VARCHAR(255) NULL,               -- ім'я файлу в /assets/uploads/intervenants/{dossier}/
   avatar_mavka VARCHAR(255) NULL,        -- illustration (PNG transparent), bloc "Qui est [Nom]" de sa page publique
-  avatar_domaine_culture VARCHAR(255) NULL,      -- avatars posés à la main sur les cartes d'activité par Larysa —
-  avatar_domaine_education VARCHAR(255) NULL,    -- pas d'affichage automatique, juste une bibliothèque personnelle
-  avatar_domaine_bien_etre VARCHAR(255) NULL,    -- de visuels prêts à l'emploi, un par domaine coché pour la personne
-  avatar_domaine_initiatives VARCHAR(255) NULL,
+  avatar_domaine_culture VARCHAR(255) NULL,      -- affiché automatiquement en fond de carte d'activité
+  avatar_domaine_education VARCHAR(255) NULL,    -- (site_activite_avatar_defaut(), includes/site_functions.php)
+  avatar_domaine_bien_etre VARCHAR(255) NULL,    -- quand l'activité de cette catégorie n'a pas de photo —
+  avatar_domaine_initiatives VARCHAR(255) NULL,  -- un visuel par domaine coché pour la personne
   email VARCHAR(255) NULL,
   actif TINYINT(1) NOT NULL DEFAULT 1,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP

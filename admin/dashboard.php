@@ -10,6 +10,16 @@ $intervenant_id = db()->prepare('SELECT intervenant_id FROM admins WHERE id = ?'
 $intervenant_id->execute([$user['id']]);
 $intervenant_id = $intervenant_id->fetchColumn();
 
+// Alerte "Dossier Prestataire" (voir admin/intervenant-form.php) : RC Pro expirée ou qui expire
+// dans les 30 jours — visible uniquement à super_admin/mavka_admin, jamais aux bénévoles.
+$documents_a_renouveler = [];
+if (in_array($user['role'], ['super_admin', 'mavka_admin'], true)) {
+    $stmt = db()->query("SELECT id, nom, assurance_date FROM intervenants
+        WHERE actif = 1 AND assurance_date IS NOT NULL AND assurance_date <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)
+        ORDER BY assurance_date ASC");
+    $documents_a_renouveler = $stmt->fetchAll();
+}
+
 if ($voit_stats) {
     // Compte celles VRAIMENT visibles sur le site (vue activites_publiques : lien + acceptation
     // de chacun·e comprise), pas juste celles marquées statut="publie" en base — sinon le
@@ -24,6 +34,19 @@ if ($voit_stats) {
 admin_header('Tableau de bord', $user, 'dashboard');
 ?>
 <h1>Bonjour !</h1>
+<?php if ($documents_a_renouveler): ?>
+  <div class="mavka-card" style="margin-top:20px; border-color:var(--mavka-color-orange); background:#FFF6E9;">
+    <div style="font-weight:700; color:var(--mavka-color-orange);">⚠️ RC Professionnelle à renouveler (<?= count($documents_a_renouveler) ?>)</div>
+    <ul style="margin:10px 0 0; padding-left:20px; font-size:14px;">
+      <?php foreach ($documents_a_renouveler as $d): ?>
+      <li>
+        <a href="/admin/intervenant-form.php?id=<?= $d['id'] ?>"><?= htmlspecialchars($d['nom']) ?></a>
+        — <?= strtotime($d['assurance_date']) < strtotime('today') ? 'expirée le' : 'expire le' ?> <?= htmlspecialchars(date('d/m/Y', strtotime($d['assurance_date']))) ?>
+      </li>
+      <?php endforeach; ?>
+    </ul>
+  </div>
+<?php endif; ?>
 <?php if ($voit_stats): ?>
   <div style="display:flex; gap:16px; margin-top:20px; flex-wrap:wrap;">
     <div class="mavka-card" style="flex:1; min-width:180px;">

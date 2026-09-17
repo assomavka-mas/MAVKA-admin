@@ -257,3 +257,45 @@ function champ_document(string $label, string $lien_field, string $fichier_field
     <?php endif; ?>
     <?php
 }
+
+// Variante de champ_document() sans lien Google Drive — juste un fichier (Pièce d'identité,
+// Avis SIRENE...) : ces documents n'ont pas d'équivalent "lien à partager", contrairement à la
+// Charte ou au Contrat qui existent d'abord comme modèle Google Docs.
+function champ_fichier_seul(string $label, string $fichier_field, array $iv, ?string $file_url, array $historique = [], ?string $dossier = null, string $accept = 'image/png,image/jpeg,image/webp,application/pdf'): void {
+    $fichier_id = 'fichier_' . $fichier_field;
+    $ext = $iv[$fichier_field] ? strtolower(pathinfo($iv[$fichier_field], PATHINFO_EXTENSION)) : null;
+    $is_image = in_array($ext, ['jpg', 'jpeg', 'png', 'webp'], true);
+    $anciennes = array_filter($historique, fn($v) => $v['fichier'] !== $iv[$fichier_field]);
+    ?>
+    <label><?= htmlspecialchars($label) ?></label>
+    <div class="mavka-doc-row">
+      <?php if ($file_url): ?>
+        <a href="<?= htmlspecialchars($file_url) ?>" target="_blank" class="mavka-file-slot__preview">
+          <?php if ($is_image): ?>
+            <img src="<?= htmlspecialchars($file_url) ?>" alt="">
+          <?php else: ?>
+            <span class="mavka-file-slot__badge"><?= htmlspecialchars(strtoupper($ext ?: '?')) ?></span>
+          <?php endif; ?>
+          <span class="mavka-file-slot__label">Voir le fichier</span>
+        </a>
+        <label class="mavka-file-slot__replace" for="<?= $fichier_id ?>" title="Remplacer le fichier">✎</label>
+      <?php else: ?>
+        <label class="mavka-file-slot__empty" for="<?= $fichier_id ?>">+ Ajouter un fichier</label>
+      <?php endif; ?>
+      <input type="file" id="<?= $fichier_id ?>" name="<?= htmlspecialchars($fichier_field) ?>" accept="<?= htmlspecialchars($accept) ?>" hidden>
+    </div>
+    <?php if ($anciennes && $dossier): ?>
+    <details class="mavka-doc-historique">
+      <summary>Historique (<?= count($anciennes) ?>)</summary>
+      <ul>
+        <?php foreach ($anciennes as $v): ?>
+        <li>
+          <a href="/assets/uploads/intervenants/<?= htmlspecialchars($dossier) ?>/<?= htmlspecialchars($v['fichier']) ?>" target="_blank">Voir</a>
+          — <?= htmlspecialchars(date('d/m/Y H:i', strtotime($v['created_at']))) ?>
+        </li>
+        <?php endforeach; ?>
+      </ul>
+    </details>
+    <?php endif; ?>
+    <?php
+}

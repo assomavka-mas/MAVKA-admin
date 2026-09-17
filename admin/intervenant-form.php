@@ -15,6 +15,10 @@ $iv = [
     'cv_lien' => '', 'cv_fichier' => null,
     'rib_lien' => '', 'rib_fichier' => null,
     'assurance_lien' => '', 'assurance_fichier' => null, 'assurance_date' => '',
+    'numero_siret' => '', 'piece_identite_fichier' => null, 'piece_identite_date_verification' => '',
+    'droit_exercer_necessaire' => 0, 'droit_exercer_fichier' => null, 'avis_sirene_fichier' => null,
+    'b3_presente' => 0, 'b3_date' => null, 'b3_verifie_par' => null,
+    'date_entree_prestataire' => '', 'dossier_prestataire_maj_le' => null,
     'projet_developpement' => '', 'projet_developpement_fichier' => null, 'projet_developpement_description' => '', 'objectifs_mavka' => '',
     'statut_qualifications' => 'non_requis',
     'photo' => null, 'avatar_mavka' => null,
@@ -51,6 +55,15 @@ if ($id) {
 
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'save') === 'save') {
+    // Pour savoir si le Dossier Prestataire a réellement changé (→ dossier_prestataire_maj_le),
+    // il faut comparer à l'état AVANT d'écraser $iv avec les valeurs du formulaire ci-dessous.
+    $champs_dossier_prestataire = [
+        'numero_siret', 'piece_identite_fichier', 'piece_identite_date_verification',
+        'droit_exercer_necessaire', 'droit_exercer_fichier', 'avis_sirene_fichier',
+        'b3_presente', 'b3_date', 'assurance_fichier', 'assurance_date',
+    ];
+    $dossier_prestataire_avant = array_intersect_key($iv, array_flip($champs_dossier_prestataire));
+
     $iv['nom'] = trim($_POST['nom'] ?? '');
     $iv['resume'] = trim($_POST['resume'] ?? '');
     $iv['domaine'] = implode(',', array_map('trim', $_POST['domaine'] ?? [])) ?: null;
@@ -65,6 +78,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'save') === 's
     $iv['rib_lien'] = trim($_POST['rib_lien'] ?? '');
     $iv['assurance_lien'] = trim($_POST['assurance_lien'] ?? '');
     $iv['assurance_date'] = $_POST['assurance_date'] ?: null;
+    $iv['numero_siret'] = trim($_POST['numero_siret'] ?? '');
+    $iv['piece_identite_date_verification'] = $_POST['piece_identite_date_verification'] ?: null;
+    $iv['droit_exercer_necessaire'] = isset($_POST['droit_exercer_necessaire']) ? 1 : 0;
+    $iv['date_entree_prestataire'] = $_POST['date_entree_prestataire'] ?: null;
+    // B3 : date et vérificateur s'auto-remplissent au moment où la case passe à cochée (jamais
+    // saisis à la main) — et se réinitialisent si on la décoche (l'info n'est alors plus à jour).
+    $b3_avant = (int)($iv['b3_presente'] ?? 0);
+    $iv['b3_presente'] = isset($_POST['b3_presente']) ? 1 : 0;
+    if ($iv['b3_presente'] && !$b3_avant) {
+        $iv['b3_date'] = date('Y-m-d');
+        $iv['b3_verifie_par'] = $user['email'];
+    } elseif (!$iv['b3_presente']) {
+        $iv['b3_date'] = null;
+        $iv['b3_verifie_par'] = null;
+    }
     $iv['projet_developpement'] = trim($_POST['projet_developpement'] ?? '');
     $iv['projet_developpement_description'] = trim($_POST['projet_developpement_description'] ?? '');
     $iv['objectifs_mavka'] = trim($_POST['objectifs_mavka'] ?? '');
@@ -83,6 +111,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'save') === 's
             'charte_benevolat_lien', 'charte_benevolat_fichier', 'contrat_intervention_lien', 'contrat_intervention_fichier',
             'date_signee', 'cv_lien', 'cv_fichier', 'rib_lien', 'rib_fichier',
             'assurance_lien', 'assurance_fichier', 'assurance_date',
+            'numero_siret', 'piece_identite_fichier', 'piece_identite_date_verification',
+            'droit_exercer_necessaire', 'droit_exercer_fichier', 'avis_sirene_fichier',
+            'b3_presente', 'b3_date', 'b3_verifie_par', 'date_entree_prestataire', 'dossier_prestataire_maj_le',
             'projet_developpement', 'projet_developpement_fichier', 'projet_developpement_description', 'objectifs_mavka',
             'statut_qualifications', 'photo', 'avatar_mavka',
             'avatar_domaine_culture', 'avatar_domaine_education', 'avatar_domaine_bien_etre', 'avatar_domaine_initiatives',
@@ -103,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'save') === 's
         }
         $subdir = 'intervenants/' . $iv['dossier'];
 
-        $champs_documents = ['charte_benevolat_fichier', 'contrat_intervention_fichier', 'cv_fichier', 'rib_fichier', 'assurance_fichier', 'projet_developpement_fichier'];
+        $champs_documents = ['charte_benevolat_fichier', 'contrat_intervention_fichier', 'cv_fichier', 'rib_fichier', 'assurance_fichier', 'projet_developpement_fichier', 'piece_identite_fichier', 'droit_exercer_fichier', 'avis_sirene_fichier'];
         $ins_version = db()->prepare('INSERT INTO intervenant_document_versions (intervenant_id, champ, fichier) VALUES (?,?,?)');
         $champs_avatars = ['avatar_mavka', 'avatar_domaine_culture', 'avatar_domaine_education', 'avatar_domaine_bien_etre', 'avatar_domaine_initiatives'];
         foreach ([...$champs_documents, 'photo', ...$champs_avatars] as $f) {
@@ -119,6 +150,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'save') === 's
                     retirer_fond_blanc(__DIR__ . '/../assets/uploads/' . $subdir . '/' . $uploaded);
                 }
             }
+        }
+
+        $dossier_prestataire_apres = array_intersect_key($iv, array_flip($champs_dossier_prestataire));
+        if ($dossier_prestataire_apres !== $dossier_prestataire_avant) {
+            $iv['dossier_prestataire_maj_le'] = date('Y-m-d H:i:s');
         }
 
         $set = implode(', ', array_map(fn($f) => "$f = ?", $fields));
@@ -374,9 +410,54 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
     <div style="margin-top:18px;"><?php champ_document('RIB (coordonnées bancaires)', 'rib_lien', 'rib_fichier', $iv, $file_url('rib_fichier'), $iv['dossier'] ?? null, $hist('rib_fichier')); ?></div>
     <p class="mavka-form-section__hint">Pour verser les remboursements/rémunérations.</p>
 
-    <div style="margin-top:18px;"><?php champ_document('Assurance professionnelle', 'assurance_lien', 'assurance_fichier', $iv, $file_url('assurance_fichier'), $iv['dossier'] ?? null, $hist('assurance_fichier')); ?></div>
-    <label style="margin-top:10px;">Date d'échéance <span style="font-weight:400; color:var(--mavka-color-text-muted);">(facultatif — laisse vide si elle se renouvelle automatiquement)</span></label>
+    <div style="margin-top:18px;"><?php champ_document('RC Professionnelle (assurance)', 'assurance_lien', 'assurance_fichier', $iv, $file_url('assurance_fichier'), $iv['dossier'] ?? null, $hist('assurance_fichier')); ?></div>
+    <label style="margin-top:10px;">Date d'échéance <span style="font-weight:400; color:var(--mavka-color-text-muted);">(déclenche une alerte automatique 30 jours avant, voir tableau de bord)</span></label>
     <div class="mavka-date-field"><input type="date" name="assurance_date" value="<?= htmlspecialchars($iv['assurance_date'] ?? '') ?>"></div>
+    </div>
+  </details>
+
+  <details class="mavka-form-section mavka-form-section--prestataire" data-section="prestataire" open>
+    <summary class="mavka-form-section__header">
+      <span class="mavka-form-section__grip">⠿⠿</span>
+      <h3 class="mavka-form-section__title">🗂️ Dossier Prestataire (privé)</h3>
+      <svg class="mavka-form-section__chevron" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </summary>
+    <div class="mavka-form-section__body">
+    <p class="mavka-form-section__hint">
+      Vérifications administratives pour rester en règle vis-à-vis des organismes de contrôle — jamais visible sur la page publique.
+      <?php if (!empty($iv['dossier_prestataire_maj_le'])): ?>Dernière mise à jour : <?= htmlspecialchars(date('d/m/Y H:i', strtotime($iv['dossier_prestataire_maj_le']))) ?>.<?php endif; ?>
+    </p>
+
+    <label>SIREN / SIRET</label>
+    <input type="text" name="numero_siret" value="<?= htmlspecialchars($iv['numero_siret'] ?? '') ?>" placeholder="14 chiffres (SIRET) ou 9 (SIREN)">
+
+    <div style="margin-top:18px;"><?php champ_fichier_seul("Pièce d'identité", 'piece_identite_fichier', $iv, $file_url('piece_identite_fichier'), $hist('piece_identite_fichier'), $iv['dossier'] ?? null); ?></div>
+    <label style="margin-top:10px;">Date de vérification</label>
+    <div class="mavka-date-field"><input type="date" name="piece_identite_date_verification" value="<?= htmlspecialchars($iv['piece_identite_date_verification'] ?? '') ?>"></div>
+
+    <label style="margin-top:18px; display:flex; align-items:center; gap:8px; font-weight:600;">
+      <input type="checkbox" name="droit_exercer_necessaire" <?= !empty($iv['droit_exercer_necessaire']) ? 'checked' : '' ?>>
+      Droit d'exercer nécessaire pour cette personne
+    </label>
+    <div style="margin-top:10px;"><?php champ_fichier_seul("Justificatif du droit d'exercer", 'droit_exercer_fichier', $iv, $file_url('droit_exercer_fichier'), $hist('droit_exercer_fichier'), $iv['dossier'] ?? null); ?></div>
+
+    <div style="margin-top:18px;"><?php champ_fichier_seul('Avis SIRENE', 'avis_sirene_fichier', $iv, $file_url('avis_sirene_fichier'), $hist('avis_sirene_fichier'), $iv['dossier'] ?? null); ?></div>
+
+    <div style="margin-top:22px; padding-top:18px; border-top:1px solid var(--mavka-color-cream-soft);">
+      <label style="display:flex; align-items:center; gap:8px; font-weight:600;">
+        <input type="checkbox" name="b3_presente" <?= !empty($iv['b3_presente']) ? 'checked' : '' ?>>
+        Bulletin n°3 du casier judiciaire (B3) présenté
+      </label>
+      <p class="mavka-form-section__hint" style="margin-top:4px;">Le document lui-même n'est jamais conservé ici — seulement la trace que la vérification a eu lieu.</p>
+      <?php if (!empty($iv['b3_presente']) && !empty($iv['b3_date'])): ?>
+      <p style="font-size:13px; color:var(--mavka-color-text-muted); margin-top:6px;">Vérifié le <?= htmlspecialchars(date('d/m/Y', strtotime($iv['b3_date']))) ?> par <?= htmlspecialchars($iv['b3_verifie_par'] ?? '') ?>.</p>
+      <?php endif; ?>
+    </div>
+
+    <label style="margin-top:18px;">Date d'entrée comme prestataire</label>
+    <div class="mavka-date-field"><input type="date" name="date_entree_prestataire" value="<?= htmlspecialchars($iv['date_entree_prestataire'] ?? '') ?>"></div>
+
+    <p class="mavka-form-section__hint" style="margin-top:18px;">RC Professionnelle et Contrat-cadre : voir la section "📄 Documents" plus haut (RC Professionnelle / Contrat d'intervention) — pas de doublon ici.</p>
     </div>
   </details>
 

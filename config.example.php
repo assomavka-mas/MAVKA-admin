@@ -33,3 +33,13 @@ define('GOOGLE_CLIENT_ID', 'ЗАМІНИ_НА_CLIENT_ID.apps.googleusercontent.c
 
 // Використовується для генерації посилань і cookie-сесій
 define('SITE_URL', 'https://dev.mavka16.fr');
+
+// Токен для щоденного cron-завдання "Alertes documents" (admin/alertes-documents.php) —
+// автоматично надсилає email, коли RC Pro волонтера скоро закінчується. Заміни на будь-який
+// довгий випадковий рядок (наприклад згенерований на https://www.uuidgenerator.net/), тоді:
+//   1. У панелі хостингу знайди розділ "Cron Jobs" (в cPanel — саме так і називається).
+//   2. Додай завдання, яке виконується раз на день, команда:
+//      wget -q -O /dev/null "https://dev.mavka16.fr/admin/alertes-documents.php?cle=ТВІЙ_ТОКЕН"
+//   3. Без цього кроку сторінка "Alertes documents" в адмінці все одно працює вручну (кнопка) —
+//      просто не запускається сама щодня.
+define('CRON_ALERTES_TOKEN', '');
