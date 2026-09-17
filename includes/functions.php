@@ -82,14 +82,28 @@ function handle_upload(string $field, string $subdir): ?string {
 // des 4 bords de l'image et rend transparent tout pixel quasi-blanc connecté au bord — les
 // blancs "intérieurs" (yeux, vêtements...) ne sont donc jamais touchés. Fonctionne bien sur les
 // illustrations Canva à fond uni ; pas adapté à une photo ou un fond en dégradé/texturé.
-function retirer_fond_blanc(string $chemin): void {
+// Renvoie un code (au lieu de void) pour pouvoir diagnostiquer un échec silencieux en prod —
+// voir admin/nettoyer-avatars.php, qui affiche ce code pour chaque fichier retraité.
+function retirer_fond_blanc(string $chemin): string {
+    if (!extension_loaded('gd')) {
+        return 'gd-absent';
+    }
+    if (!is_file($chemin)) {
+        return 'fichier-introuvable';
+    }
+    if (!is_writable($chemin)) {
+        return 'fichier-non-modifiable';
+    }
     $info = @getimagesize($chemin);
-    if (!$info || $info['mime'] !== 'image/png') {
-        return;
+    if (!$info) {
+        return 'image-illisible';
+    }
+    if ($info['mime'] !== 'image/png') {
+        return 'pas-un-png (' . $info['mime'] . ')';
     }
     $image = @imagecreatefrompng($chemin);
     if (!$image) {
-        return;
+        return 'echec-decodage-png';
     }
 
     $max = 1200;
@@ -151,8 +165,9 @@ function retirer_fond_blanc(string $chemin): void {
         $pile[] = [$x, $y - 1];
     }
 
-    imagepng($image, $chemin);
+    $ok = imagepng($image, $chemin);
     imagedestroy($image);
+    return $ok ? 'ok' : 'echec-ecriture';
 }
 
 // Comme handle_upload(), mais pour un <input type="file" name="..[]" multiple> : plusieurs
