@@ -169,14 +169,14 @@ const SITE_CATEGORIE_AVATAR_CHAMP = [
     'Initiatives' => 'avatar_domaine_initiatives',
 ];
 
-// Fond derrière l'avatar "par direction" (voir render_event_card()) — mêmes teintes que
-// site_categorie_habillage() (event-card.css : .cover.sun/.lilac/.mint), réassociées aux
-// couleurs demandées par Larysa : jaune=Culture, violet=Éducation, vert clair=Bien-être,
-// blanc=Initiatives.
+// Fond derrière l'avatar "par direction" (voir render_event_card()). Bien-être est en blanc,
+// pas en vert clair comme prévu au départ : la plupart des sections où vivent ces cartes ont
+// déjà un fond vert pâle (.sand, voir assets/site.css), donc un fond de carte vert s'y fondait
+// et perdait tout contraste — seuls Culture (jaune) et Éducation (violet) tranchent sur ce vert.
 const SITE_CATEGORIE_AVATAR_FOND = [
     'Culture'     => 'sun',
     'Éducation'   => 'lilac',
-    'Bien-être'   => 'mint',
+    'Bien-être'   => '',
     'Initiatives' => '',
 ];
 
