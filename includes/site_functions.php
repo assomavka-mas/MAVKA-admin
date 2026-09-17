@@ -148,11 +148,12 @@ function site_activites_intervenant(int $intervenant_id): array {
 }
 
 // Habillage visuel par catégorie quand l'activité n'a pas de photo : couleur de fond
-// et mascotte, choisies une fois pour toutes par catégorie (pas au hasard par carte).
+// et mascotte, choisies une fois pour toutes par catégorie (pas au hasard par carte). Couleurs
+// alignées sur SITE_CATEGORIE_AVATAR_FOND : jaune=Culture, violet=Éducation, vert clair=Bien-être.
 function site_categorie_habillage(string $categorie): array {
     $map = [
-        'Culture'                  => ['cover' => 'lilac', 'mascot' => 'm-magnify', 'vb' => '0 0 552 756'],
-        'Éducation'                => ['cover' => 'sun',   'mascot' => 'm-read',    'vb' => '0 0 549 767'],
+        'Culture'                  => ['cover' => 'sun',   'mascot' => 'm-magnify', 'vb' => '0 0 552 756'],
+        'Éducation'                => ['cover' => 'lilac', 'mascot' => 'm-read',    'vb' => '0 0 549 767'],
         'Bien-être'                => ['cover' => 'mint',  'mascot' => 'm-stand',   'vb' => '0 0 310 769'],
         'Initiatives'               => ['cover' => 'lilac', 'mascot' => 'm-jump',    'vb' => '0 0 469 734'],
     ];
@@ -166,6 +167,17 @@ const SITE_CATEGORIE_AVATAR_CHAMP = [
     'Éducation'   => 'avatar_domaine_education',
     'Bien-être'   => 'avatar_domaine_bien_etre',
     'Initiatives' => 'avatar_domaine_initiatives',
+];
+
+// Fond derrière l'avatar "par direction" (voir render_event_card()) — mêmes teintes que
+// site_categorie_habillage() (event-card.css : .cover.sun/.lilac/.mint), réassociées aux
+// couleurs demandées par Larysa : jaune=Culture, violet=Éducation, vert clair=Bien-être,
+// blanc=Initiatives.
+const SITE_CATEGORIE_AVATAR_FOND = [
+    'Culture'     => 'sun',
+    'Éducation'   => 'lilac',
+    'Bien-être'   => 'mint',
+    'Initiatives' => '',
 ];
 
 // Avatar "par direction" du·de la 1er·ère intervenant·e lié·e à l'activité (par id, le plus
@@ -248,16 +260,18 @@ function render_event_card(array $a): string {
         . '<span class="corner corner--br">' . htmlspecialchars($a['public'] ?? '') . '</span>'
         . '<span class="corner corner--br2">' . ($a['nombre_places'] !== null && $a['nombre_places'] !== '' ? htmlspecialchars($a['nombre_places'] . ' places') : '') . '</span>';
     // Sans photo, on essaie d'abord l'avatar "par direction" du·de la 1er·ère intervenant·e
-    // lié·e (posé une fois pour toutes dans son profil, voir admin/intervenant-form.php) —
-    // fond blanc, image entière visible (comme une vraie photo). Seulement si personne n'en a
-    // pour cette catégorie : mascotte générique + fond pastel, comme avant.
+    // lié·e (posé une fois pour toutes dans son profil, voir admin/intervenant-form.php) — fond
+    // teinté selon la direction (SITE_CATEGORIE_AVATAR_FOND, blanc pour Initiatives), image
+    // entière visible par-dessus. Seulement si personne n'en a pour cette catégorie : mascotte
+    // générique + fond pastel, comme avant.
     $avatarDefaut = empty($a['photo']) && !empty($a['id'])
         ? site_activite_avatar_defaut((int)$a['id'], $a['categorie'])
         : null;
     if (!empty($a['photo'])) {
         $cover = '<div class="cover photo-cover"><img src="/assets/uploads/activites/' . htmlspecialchars($a['photo']) . '" alt="">' . $corners . '</div>';
     } elseif ($avatarDefaut) {
-        $cover = '<div class="cover photo-cover"><img src="' . htmlspecialchars($avatarDefaut) . '" alt="">' . $corners . '</div>';
+        $fondAvatar = SITE_CATEGORIE_AVATAR_FOND[$a['categorie']] ?? '';
+        $cover = '<div class="cover photo-cover' . ($fondAvatar ? ' ' . $fondAvatar : '') . '"><img src="' . htmlspecialchars($avatarDefaut) . '" alt="">' . $corners . '</div>';
     } else {
         $cover = '<div class="cover ' . $habillage['cover'] . '">'
             . '<svg class="mascot" viewBox="' . $habillage['vb'] . '"><use href="#' . $habillage['mascot'] . '"/></svg>' . $corners . '</div>';

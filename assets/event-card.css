@@ -35,6 +35,10 @@
    .cover — se fond mieux avec le blanc déjà présent dans la plupart des illustrations. */
 .cover.photo-cover{background:#fff}
 .cover.photo-cover>img{position:absolute; inset:0; width:100%; height:100%; object-fit:contain; display:block}
+/* Avatar par direction (photo-cover + sun/lilac/mint, voir render_event_card()) : le fond teinté
+   doit l'emporter sur le blanc par défaut de .photo-cover — même spécificité, on force via un
+   sélecteur combiné plus précis plutôt que de réordonner les règles ci-dessus. */
+.cover.photo-cover.sun{background:#FFF6D6} .cover.photo-cover.lilac{background:#F1E9FA} .cover.photo-cover.mint{background:#D6F2EA}
 .cover .mascot{position:absolute; right:8%; bottom:-6%; height:104%; width:auto}
 
 /* corner--tl : plashka "sous-titre" (ex. "Nouveau cours") — jaune, volontairement voyant,
