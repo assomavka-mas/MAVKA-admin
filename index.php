@@ -49,7 +49,7 @@ $site_activites_initiatives = site_enrichir_avec_photo_intervenant(site_activite
   </div>
 </header>
 
-<main><svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="m-stand" viewBox="0 0 310 769"><image href="/assets/site-img/img-02-33b2e93d45.webp" width="310" height="769"/></symbol><symbol id="m-wave" viewBox="0 0 626 722"><image href="/assets/site-img/img-03-1d459c08a4.webp" width="626" height="722"/></symbol><symbol id="m-magnify" viewBox="0 0 552 756"><image href="/assets/site-img/img-04-3b8dc488ec.webp" width="552" height="756"/></symbol><symbol id="m-jump" viewBox="0 0 469 734"><image href="/assets/site-img/img-05-10df6582b6.webp" width="469" height="734"/></symbol><symbol id="m-read" viewBox="0 0 549 767"><image href="/assets/site-img/img-06-3bc40d08fc.webp" width="549" height="767"/></symbol><symbol id="m-point" viewBox="0 0 404 867"><image href="/assets/site-img/img-07-b2cfcc755b.webp" width="404" height="867"/></symbol><symbol id="m-logo" viewBox="0 0 574 587"><image href="/assets/site-img/img-01-017fac3c9d.webp" width="574" height="587"/></symbol></svg>
+<main><svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="m-stand" viewBox="0 0 310 769"><image href="/assets/site-img/img-02-33b2e93d45.webp" width="310" height="769"/></symbol><symbol id="m-wave" viewBox="0 0 626 722"><image href="/assets/site-img/img-03-1d459c08a4.webp" width="626" height="722"/></symbol><symbol id="m-magnify" viewBox="0 0 552 756"><image href="/assets/site-img/img-04-3b8dc488ec.webp" width="552" height="756"/></symbol><symbol id="m-jump" viewBox="0 0 555 846"><image href="/assets/site-img/img-05-10df6582b6.webp" width="555" height="846"/></symbol><symbol id="m-read" viewBox="0 0 549 767"><image href="/assets/site-img/img-06-3bc40d08fc.webp" width="549" height="767"/></symbol><symbol id="m-point" viewBox="0 0 404 867"><image href="/assets/site-img/img-07-b2cfcc755b.webp" width="404" height="867"/></symbol><symbol id="m-logo" viewBox="0 0 574 587"><image href="/assets/site-img/img-01-017fac3c9d.webp" width="574" height="587"/></symbol></svg>
 
 <!-- ============ ACCUEIL ============ -->
 <div class="page" id="page-accueil">
@@ -179,7 +179,7 @@ $site_activites_initiatives = site_enrichir_avec_photo_intervenant(site_activite
           <a class="btn btn-ghost" href="#contact">Nous faire part de votre intérêt</a>
         </div>
       </div>
-      <div class="dir-art"><svg class="mascot tall" viewBox="0 0 469 734" style="aspect-ratio:469/734"><use href="#m-jump"/></svg></div>
+      <div class="dir-art"><svg class="mascot tall" viewBox="0 0 555 846" style="aspect-ratio:555/846"><use href="#m-jump"/></svg></div>
     </div>
   </section>
 </div>

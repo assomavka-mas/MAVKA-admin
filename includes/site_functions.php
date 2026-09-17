@@ -155,7 +155,7 @@ function site_categorie_habillage(string $categorie): array {
         'Culture'                  => ['cover' => 'sun',   'mascot' => 'm-magnify', 'vb' => '0 0 552 756'],
         'Éducation'                => ['cover' => 'lilac', 'mascot' => 'm-read',    'vb' => '0 0 549 767'],
         'Bien-être'                => ['cover' => 'mint',  'mascot' => 'm-stand',   'vb' => '0 0 310 769'],
-        'Initiatives'               => ['cover' => 'lilac', 'mascot' => 'm-jump',    'vb' => '0 0 469 734'],
+        'Initiatives'               => ['cover' => 'lilac', 'mascot' => 'm-jump',    'vb' => '0 0 555 846'],
     ];
     return $map[$categorie] ?? ['cover' => 'mint', 'mascot' => 'm-wave', 'vb' => '0 0 626 722'];
 }
