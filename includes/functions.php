@@ -213,8 +213,9 @@ function champ_document(string $label, string $lien_field, string $fichier_field
     $is_image = in_array($ext, ['jpg', 'jpeg', 'png', 'webp'], true);
     // Les anciennes versions = tout l'historique sauf le fichier actuellement actif
     $anciennes = array_filter($historique, fn($v) => $v['fichier'] !== $iv[$fichier_field]);
+    $rempli = !empty($iv[$lien_field]) || !empty($iv[$fichier_field]);
     ?>
-    <label><?= htmlspecialchars($label) ?></label>
+    <label><?= htmlspecialchars($label) ?><?= $rempli ? ' <span style="color:var(--mavka-color-teal); font-weight:700;" title="Rempli">✓</span>' : '' ?></label>
     <div class="mavka-doc-row">
       <?php if (!empty($iv[$lien_field])): ?>
         <div class="mavka-link-chip">
@@ -267,7 +268,7 @@ function champ_fichier_seul(string $label, string $fichier_field, array $iv, ?st
     $is_image = in_array($ext, ['jpg', 'jpeg', 'png', 'webp'], true);
     $anciennes = array_filter($historique, fn($v) => $v['fichier'] !== $iv[$fichier_field]);
     ?>
-    <label><?= htmlspecialchars($label) ?></label>
+    <label><?= htmlspecialchars($label) ?><?= !empty($iv[$fichier_field]) ? ' <span style="color:var(--mavka-color-teal); font-weight:700;" title="Rempli">✓</span>' : '' ?></label>
     <div class="mavka-doc-row">
       <?php if ($file_url): ?>
         <a href="<?= htmlspecialchars($file_url) ?>" target="_blank" class="mavka-file-slot__preview">

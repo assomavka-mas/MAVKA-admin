@@ -397,22 +397,8 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
 
     <?php champ_document('Charte du bénévolat', 'charte_benevolat_lien', 'charte_benevolat_fichier', $iv, $file_url('charte_benevolat_fichier'), $iv['dossier'] ?? null, $hist('charte_benevolat_fichier')); ?>
     <p class="mavka-form-section__hint" style="margin-top:4px;"><a href="<?= MAVKA_MODELE_CHARTE_BENEVOLAT_URL ?>" target="_blank" rel="noopener">📄 Modèle vierge</a> — la personne le voit aussi depuis son "Mon profil".</p>
-    <div style="margin-top:18px;">
-      <?php champ_document("Contrat d'intervention", 'contrat_intervention_lien', 'contrat_intervention_fichier', $iv, $file_url('contrat_intervention_fichier'), $iv['dossier'] ?? null, $hist('contrat_intervention_fichier')); ?>
-      <p class="mavka-form-section__hint" style="margin-top:4px;"><a href="<?= MAVKA_MODELE_CONTRAT_INTERVENTION_URL ?>" target="_blank" rel="noopener">📄 Modèle vierge</a> — la personne le voit aussi depuis son "Mon profil".</p>
-    </div>
-
-    <label style="margin-top:18px;">Date signée</label>
-    <div class="mavka-date-field"><input type="date" name="date_signee" value="<?= htmlspecialchars($iv['date_signee'] ?? '') ?>"></div>
 
     <div style="margin-top:18px;"><?php champ_document('CV', 'cv_lien', 'cv_fichier', $iv, $file_url('cv_fichier'), $iv['dossier'] ?? null, $hist('cv_fichier')); ?></div>
-
-    <div style="margin-top:18px;"><?php champ_document('RIB (coordonnées bancaires)', 'rib_lien', 'rib_fichier', $iv, $file_url('rib_fichier'), $iv['dossier'] ?? null, $hist('rib_fichier')); ?></div>
-    <p class="mavka-form-section__hint">Pour verser les remboursements/rémunérations.</p>
-
-    <div style="margin-top:18px;"><?php champ_document('RC Professionnelle (assurance)', 'assurance_lien', 'assurance_fichier', $iv, $file_url('assurance_fichier'), $iv['dossier'] ?? null, $hist('assurance_fichier')); ?></div>
-    <label style="margin-top:10px;">Date d'échéance <span style="font-weight:400; color:var(--mavka-color-text-muted);">(déclenche une alerte automatique 30 jours avant, voir tableau de bord)</span></label>
-    <div class="mavka-date-field"><input type="date" name="assurance_date" value="<?= htmlspecialchars($iv['assurance_date'] ?? '') ?>"></div>
     </div>
   </details>
 
@@ -423,16 +409,30 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
       <svg class="mavka-form-section__chevron" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </summary>
     <div class="mavka-form-section__body">
+    <?php $fait = fn($v) => !empty($v) ? ' <span style="color:var(--mavka-color-teal); font-weight:700;" title="Rempli">✓</span>' : ''; ?>
     <p class="mavka-form-section__hint">
-      Vérifications administratives pour rester en règle vis-à-vis des organismes de contrôle — jamais visible sur la page publique.
+      Tout ce qu'une personne apporte en signant avec l'association — contrat, coordonnées bancaires, assurance, vérifications administratives. Jamais visible sur la page publique.
       <?php if (!empty($iv['dossier_prestataire_maj_le'])): ?>Dernière mise à jour : <?= htmlspecialchars(date('d/m/Y H:i', strtotime($iv['dossier_prestataire_maj_le']))) ?>.<?php endif; ?>
     </p>
 
-    <label>SIREN / SIRET</label>
+    <?php champ_document("Contrat d'intervention", 'contrat_intervention_lien', 'contrat_intervention_fichier', $iv, $file_url('contrat_intervention_fichier'), $iv['dossier'] ?? null, $hist('contrat_intervention_fichier')); ?>
+    <p class="mavka-form-section__hint" style="margin-top:4px;"><a href="<?= MAVKA_MODELE_CONTRAT_INTERVENTION_URL ?>" target="_blank" rel="noopener">📄 Modèle vierge</a> — la personne le voit aussi depuis son "Mon profil".</p>
+    <label style="margin-top:10px;">Date signée<?= $fait($iv['date_signee'] ?? null) ?></label>
+    <div class="mavka-date-field"><input type="date" name="date_signee" value="<?= htmlspecialchars($iv['date_signee'] ?? '') ?>"></div>
+
+    <div style="margin-top:18px;"><?php champ_document('RIB (coordonnées bancaires)', 'rib_lien', 'rib_fichier', $iv, $file_url('rib_fichier'), $iv['dossier'] ?? null, $hist('rib_fichier')); ?></div>
+    <p class="mavka-form-section__hint">Pour verser les remboursements/rémunérations.</p>
+
+    <div style="margin-top:18px;"><?php champ_document('RC Professionnelle (assurance)', 'assurance_lien', 'assurance_fichier', $iv, $file_url('assurance_fichier'), $iv['dossier'] ?? null, $hist('assurance_fichier')); ?></div>
+    <label style="margin-top:10px;">Date d'échéance<?= $fait($iv['assurance_date'] ?? null) ?> <span style="font-weight:400; color:var(--mavka-color-text-muted);">(déclenche une alerte automatique 30 jours avant, voir tableau de bord)</span></label>
+    <div class="mavka-date-field"><input type="date" name="assurance_date" value="<?= htmlspecialchars($iv['assurance_date'] ?? '') ?>"></div>
+
+    <div style="margin-top:22px; padding-top:18px; border-top:1px solid var(--mavka-color-cream-soft);">
+    <label>SIREN / SIRET<?= $fait($iv['numero_siret'] ?? null) ?></label>
     <input type="text" name="numero_siret" value="<?= htmlspecialchars($iv['numero_siret'] ?? '') ?>" placeholder="14 chiffres (SIRET) ou 9 (SIREN)">
 
     <div style="margin-top:18px;"><?php champ_fichier_seul("Pièce d'identité", 'piece_identite_fichier', $iv, $file_url('piece_identite_fichier'), $hist('piece_identite_fichier'), $iv['dossier'] ?? null); ?></div>
-    <label style="margin-top:10px;">Date de vérification</label>
+    <label style="margin-top:10px;">Date de vérification<?= $fait($iv['piece_identite_date_verification'] ?? null) ?></label>
     <div class="mavka-date-field"><input type="date" name="piece_identite_date_verification" value="<?= htmlspecialchars($iv['piece_identite_date_verification'] ?? '') ?>"></div>
 
     <label style="margin-top:18px; display:flex; align-items:center; gap:8px; font-weight:600;">
@@ -442,6 +442,7 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
     <div style="margin-top:10px;"><?php champ_fichier_seul("Justificatif du droit d'exercer", 'droit_exercer_fichier', $iv, $file_url('droit_exercer_fichier'), $hist('droit_exercer_fichier'), $iv['dossier'] ?? null); ?></div>
 
     <div style="margin-top:18px;"><?php champ_fichier_seul('Avis SIRENE', 'avis_sirene_fichier', $iv, $file_url('avis_sirene_fichier'), $hist('avis_sirene_fichier'), $iv['dossier'] ?? null); ?></div>
+    </div>
 
     <div style="margin-top:22px; padding-top:18px; border-top:1px solid var(--mavka-color-cream-soft);">
       <label style="display:flex; align-items:center; gap:8px; font-weight:600;">
@@ -454,10 +455,8 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
       <?php endif; ?>
     </div>
 
-    <label style="margin-top:18px;">Date d'entrée comme prestataire</label>
+    <label style="margin-top:18px;">Date d'entrée comme prestataire<?= $fait($iv['date_entree_prestataire'] ?? null) ?></label>
     <div class="mavka-date-field"><input type="date" name="date_entree_prestataire" value="<?= htmlspecialchars($iv['date_entree_prestataire'] ?? '') ?>"></div>
-
-    <p class="mavka-form-section__hint" style="margin-top:18px;">RC Professionnelle et Contrat-cadre : voir la section "📄 Documents" plus haut (RC Professionnelle / Contrat d'intervention) — pas de doublon ici.</p>
     </div>
   </details>
 
