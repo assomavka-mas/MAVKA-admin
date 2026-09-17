@@ -36,6 +36,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'uploa
     header('Location: /admin/mes-activites.php');
     exit;
 }
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delete_photo') {
+    $activite_id = (int)($_POST['id'] ?? 0);
+    $stmt = db()->prepare('SELECT 1 FROM activite_intervenant WHERE activite_id = ? AND intervenant_id = ?');
+    $stmt->execute([$activite_id, $intervenant_id]);
+    if ($activite_id && $stmt->fetchColumn()) {
+        $stmt = db()->prepare('SELECT photo FROM activites WHERE id = ?');
+        $stmt->execute([$activite_id]);
+        if ($photo = $stmt->fetchColumn()) {
+            db()->prepare('UPDATE activites SET photo = NULL WHERE id = ?')->execute([$activite_id]);
+            @unlink(__DIR__ . '/../assets/uploads/activites/' . $photo);
+        }
+    }
+    header('Location: /admin/mes-activites.php');
+    exit;
+}
 
 $stmt = db()->prepare('
     SELECT a.*, ai.accepte AS mon_acceptation,
@@ -83,6 +98,13 @@ admin_header('Mes activités', $user, 'mes-activites');
         <label for="photo_<?= $a['id'] ?>" class="mavka-btn mavka-btn--sm">🖼️ <?= $a['photo'] ? 'Changer la photo' : 'Ajouter une photo' ?></label>
         <input type="file" id="photo_<?= $a['id'] ?>" name="photo" accept="image/png,image/jpeg,image/webp" hidden onchange="this.form.submit()">
       </form>
+      <?php if ($a['photo']): ?>
+      <form method="post" class="mavka-mes-activite-photo">
+        <input type="hidden" name="action" value="delete_photo">
+        <input type="hidden" name="id" value="<?= $a['id'] ?>">
+        <button type="submit" class="mavka-btn mavka-btn--sm mavka-btn--danger" onclick="return confirm('Supprimer la photo ?');">🗑 Supprimer</button>
+      </form>
+      <?php endif; ?>
     </div>
   </div>
   <?php endforeach; ?>

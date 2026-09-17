@@ -33,6 +33,20 @@ if ($id) {
 
 $intervenants = db()->query('SELECT * FROM intervenants WHERE actif = 1 ORDER BY nom')->fetchAll();
 
+// Repasse la carte sur l'illustration par défaut (mascotte de la catégorie) — utile pour
+// revenir en arrière après avoir posé à la main une image (ex. avatar d'un·e volontaire sur
+// fond de couleur, préparé depuis sa fiche) qu'on ne veut plus garder.
+if (isset($_GET['delete_photo']) && $id) {
+    $stmt = db()->prepare('SELECT photo FROM activites WHERE id = ?');
+    $stmt->execute([$id]);
+    if ($photo = $stmt->fetchColumn()) {
+        db()->prepare('UPDATE activites SET photo = NULL WHERE id = ?')->execute([$id]);
+        @unlink(__DIR__ . '/../assets/uploads/activites/' . $photo);
+    }
+    header('Location: /admin/activite-form.php?id=' . $id);
+    exit;
+}
+
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $a['titre'] = trim($_POST['titre'] ?? '');
@@ -166,6 +180,10 @@ admin_header($id ? 'Modifier l\'activité' : 'Nouvelle activité', $user, 'activ
         <span class="ap-editable-cover__pencil"></span>
       </label>
       <input type="file" id="f_photo" name="photo" accept="image/png,image/jpeg,image/webp" hidden>
+      <?php if ($id && !empty($a['photo'])): ?>
+      <a href="/admin/activite-form.php?id=<?= $id ?>&delete_photo=1" class="mavka-btn mavka-btn--sm mavka-btn--danger" style="margin-top:6px;"
+         onclick="return confirm('Supprimer la photo ? La carte affichera à nouveau l\'illustration par défaut.');">🗑 Supprimer la photo</a>
+      <?php endif; ?>
 
       <div class="strip">
         <div id="pv_strip_badge" class="strip__badge">

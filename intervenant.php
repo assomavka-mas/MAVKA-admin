@@ -84,6 +84,9 @@ if ($iv) {
 
 .tabpanel h2{margin-bottom:14px}
 .tabpanel p{color:var(--ink-2);max-width:44em;white-space:pre-line}
+.iv-avatar-mavka{border-radius:var(--r);overflow:hidden;background:var(--mint);aspect-ratio:3/4;display:flex;align-items:center;justify-content:center}
+.iv-avatar-mavka img{width:100%;height:100%;object-fit:contain}
+@media (max-width:820px){.iv-avatar-mavka{aspect-ratio:16/9;max-width:320px}}
 </style>
 </head>
 <body>
@@ -187,7 +190,7 @@ if ($iv) {
 
   <?php if ($sections): ?>
   <section id="a-propos">
-    <div class="wrap">
+    <div class="wrap<?= $iv['avatar_mavka'] ? ' split' : '' ?>">
       <div class="tabset">
         <div class="tabs-pill" role="tablist" data-tablist aria-label="Sections du profil">
           <?php foreach ($sections as $i => $s): ?>
@@ -201,6 +204,11 @@ if ($iv) {
         </div>
         <?php endforeach; ?>
       </div>
+      <?php if ($iv['avatar_mavka']): ?>
+      <div class="iv-avatar-mavka">
+        <img src="/assets/uploads/intervenants/<?= rawurlencode($iv['dossier']) ?>/<?= rawurlencode($iv['avatar_mavka']) ?>" alt="">
+      </div>
+      <?php endif; ?>
     </div>
   </section>
   <?php endif; ?>

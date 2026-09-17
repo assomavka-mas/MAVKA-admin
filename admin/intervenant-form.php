@@ -17,9 +17,19 @@ $iv = [
     'assurance_lien' => '', 'assurance_fichier' => null, 'assurance_date' => '',
     'projet_developpement' => '', 'projet_developpement_fichier' => null, 'projet_developpement_description' => '', 'objectifs_mavka' => '',
     'statut_qualifications' => 'non_requis',
-    'photo' => null, 'email' => '', 'actif' => 1,
+    'photo' => null, 'avatar_mavka' => null,
+    'avatar_domaine_culture' => null, 'avatar_domaine_education' => null, 'avatar_domaine_bien_etre' => null, 'avatar_domaine_initiatives' => null,
+    'email' => '', 'actif' => 1,
 ];
 $domaines_disponibles = ['Culture', 'Éducation', 'Bien-être', 'Initiatives'];
+// Bibliothèque personnelle de visuels (un par domaine coché) que Larysa pose ensuite à la main
+// sur les cartes d'activité concernées — aucun lien automatique avec les activités elles-mêmes.
+$domaine_avatar_champs = [
+    'Culture' => 'avatar_domaine_culture',
+    'Éducation' => 'avatar_domaine_education',
+    'Bien-être' => 'avatar_domaine_bien_etre',
+    'Initiatives' => 'avatar_domaine_initiatives',
+];
 $qualification_types = [
     'diplome' => 'Diplôme', 'attestation' => 'Attestation', 'certification' => 'Certification',
     'reconnaissance' => 'Reconnaissance / équivalence', 'autorisation' => 'Autorisation', 'autre' => 'Autre',
@@ -74,7 +84,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'save') === 's
             'date_signee', 'cv_lien', 'cv_fichier', 'rib_lien', 'rib_fichier',
             'assurance_lien', 'assurance_fichier', 'assurance_date',
             'projet_developpement', 'projet_developpement_fichier', 'projet_developpement_description', 'objectifs_mavka',
-            'statut_qualifications', 'photo', 'email', 'actif',
+            'statut_qualifications', 'photo', 'avatar_mavka',
+            'avatar_domaine_culture', 'avatar_domaine_education', 'avatar_domaine_bien_etre', 'avatar_domaine_initiatives',
+            'email', 'actif',
         ];
 
         if (!$id) {
@@ -93,7 +105,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'save') === 's
 
         $champs_documents = ['charte_benevolat_fichier', 'contrat_intervention_fichier', 'cv_fichier', 'rib_fichier', 'assurance_fichier', 'projet_developpement_fichier'];
         $ins_version = db()->prepare('INSERT INTO intervenant_document_versions (intervenant_id, champ, fichier) VALUES (?,?,?)');
-        foreach ([...$champs_documents, 'photo'] as $f) {
+        $champs_avatars = ['avatar_mavka', 'avatar_domaine_culture', 'avatar_domaine_education', 'avatar_domaine_bien_etre', 'avatar_domaine_initiatives'];
+        foreach ([...$champs_documents, 'photo', ...$champs_avatars] as $f) {
             $uploaded = handle_upload($f, $subdir);
             if ($uploaded) {
                 $iv[$f] = $uploaded;
@@ -382,6 +395,46 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
     </label>
     <input type="file" id="photo_input" name="photo" accept="image/png,image/jpeg,image/webp" hidden>
     <p class="mavka-form-section__hint" style="margin-top:10px;">Clique la photo pour la changer.</p>
+
+    <div style="margin-top:22px; padding-top:18px; border-top:1px solid var(--mavka-color-cream-soft);">
+      <label>MAVKA-avatar <span style="font-weight:400; color:var(--mavka-color-text-muted);">(illustration, pas une photo — utilisée dans le bloc "Qui est [Nom]" de sa page publique)</span></label>
+      <label class="mavka-photo-edit" for="avatar_mavka_input">
+        <span class="mavka-photo-edit__preview" id="avatar_mavka_preview">
+          <?php if ($u = $file_url('avatar_mavka')): ?>
+            <img src="<?= $u ?>" alt="">
+          <?php else: ?>
+            🎨
+          <?php endif; ?>
+        </span>
+        <span class="mavka-photo-edit__badge">✎</span>
+      </label>
+      <input type="file" id="avatar_mavka_input" name="avatar_mavka" accept="image/png,image/webp" hidden>
+    </div>
+
+    <?php if ($domaines_actuels): ?>
+    <div style="margin-top:22px; padding-top:18px; border-top:1px solid var(--mavka-color-cream-soft);">
+      <label>Avatars par direction <span style="font-weight:400; color:var(--mavka-color-text-muted);">(un visuel par domaine coché plus haut — bibliothèque perso, à toi ensuite de le poser à la main sur les cartes d'activité concernées)</span></label>
+      <div style="display:flex; gap:20px; flex-wrap:wrap; margin-top:8px;">
+        <?php foreach ($domaines_actuels as $d): ?>
+        <?php $champ = $domaine_avatar_champs[$d] ?? null; if (!$champ) continue; ?>
+        <div style="text-align:center;">
+          <label class="mavka-photo-edit" for="<?= $champ ?>_input">
+            <span class="mavka-photo-edit__preview" id="<?= $champ ?>_preview">
+              <?php if ($u = $file_url($champ)): ?>
+                <img src="<?= $u ?>" alt="">
+              <?php else: ?>
+                🎨
+              <?php endif; ?>
+            </span>
+            <span class="mavka-photo-edit__badge">✎</span>
+          </label>
+          <input type="file" id="<?= $champ ?>_input" name="<?= $champ ?>" accept="image/png,image/webp" hidden>
+          <div style="font-size:12px; color:var(--mavka-color-text-muted); margin-top:4px;"><?= htmlspecialchars($d) ?></div>
+        </div>
+        <?php endforeach; ?>
+      </div>
+    </div>
+    <?php endif; ?>
     </div>
   </details>
 
@@ -690,6 +743,26 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
       reader.readAsDataURL(file);
     });
   }
+
+  // Même aperçu immédiat pour le MAVKA-avatar et les avatars par direction.
+  ['avatar_mavka', 'avatar_domaine_culture', 'avatar_domaine_education', 'avatar_domaine_bien_etre', 'avatar_domaine_initiatives'].forEach(function (champ) {
+    var input = document.getElementById(champ + '_input');
+    var preview = document.getElementById(champ + '_preview');
+    if (!input || !preview) return;
+    input.addEventListener('change', function () {
+      var file = input.files && input.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        preview.innerHTML = '';
+        var img = document.createElement('img');
+        img.src = e.target.result;
+        img.alt = '';
+        preview.appendChild(img);
+      };
+      reader.readAsDataURL(file);
+    });
+  });
 
   // Qualifications : statut (dont "Vérifié", géré côté serveur pour rester réservé à
   // super_admin) et note administrative — en direct via admin/qualification-inline-update.php,

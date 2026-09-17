@@ -36,6 +36,11 @@ CREATE TABLE IF NOT EXISTS intervenants (
     -- intervenant_qualifications ci-dessous. Sert pour les activités qui exigent une
     -- qualification professionnelle vérifiée (pas toutes) — voir alter-champs-v22.sql.
   photo VARCHAR(255) NULL,               -- ім'я файлу в /assets/uploads/intervenants/{dossier}/
+  avatar_mavka VARCHAR(255) NULL,        -- illustration (PNG transparent), bloc "Qui est [Nom]" de sa page publique
+  avatar_domaine_culture VARCHAR(255) NULL,      -- avatars posés à la main sur les cartes d'activité par Larysa —
+  avatar_domaine_education VARCHAR(255) NULL,    -- pas d'affichage automatique, juste une bibliothèque personnelle
+  avatar_domaine_bien_etre VARCHAR(255) NULL,    -- de visuels prêts à l'emploi, un par domaine coché pour la personne
+  avatar_domaine_initiatives VARCHAR(255) NULL,
   email VARCHAR(255) NULL,
   actif TINYINT(1) NOT NULL DEFAULT 1,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
