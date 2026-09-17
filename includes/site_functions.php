@@ -159,6 +159,36 @@ function site_categorie_habillage(string $categorie): array {
     return $map[$categorie] ?? ['cover' => 'mint', 'mascot' => 'm-wave', 'vb' => '0 0 626 722'];
 }
 
+// Correspondance catégorie -> colonne avatar sur intervenants (voir admin/intervenant-form.php,
+// $domaine_avatar_champs, et alter-champs-v23.sql).
+const SITE_CATEGORIE_AVATAR_CHAMP = [
+    'Culture'     => 'avatar_domaine_culture',
+    'Éducation'   => 'avatar_domaine_education',
+    'Bien-être'   => 'avatar_domaine_bien_etre',
+    'Initiatives' => 'avatar_domaine_initiatives',
+];
+
+// Avatar "par direction" du·de la 1er·ère intervenant·e lié·e à l'activité (par id, le plus
+// simple — pas de règle de priorité si plusieurs), pour la catégorie de l'ACTIVITÉ elle-même.
+// Utilisé comme image par défaut quand l'activité n'a pas de photo (render_event_card()) : si
+// cette personne n'a pas d'avatar pour cette direction, on retombe sur la mascotte générique,
+// pas de recherche plus loin parmi les autres intervenant·e·s lié·e·s.
+function site_activite_avatar_defaut(int $activite_id, string $categorie): ?string {
+    $champ = SITE_CATEGORIE_AVATAR_CHAMP[$categorie] ?? null;
+    if (!$champ) {
+        return null;
+    }
+    $stmt = db()->prepare("SELECT dossier, `$champ` AS avatar FROM activite_intervenant ai
+        JOIN intervenants iv ON iv.id = ai.intervenant_id
+        WHERE ai.activite_id = ? ORDER BY ai.intervenant_id ASC LIMIT 1");
+    $stmt->execute([$activite_id]);
+    $row = $stmt->fetch();
+    if (!$row || empty($row['avatar']) || empty($row['dossier'])) {
+        return null;
+    }
+    return '/assets/uploads/intervenants/' . rawurlencode($row['dossier']) . '/' . rawurlencode($row['avatar']);
+}
+
 const SITE_MOIS_FR = [1=>'jan',2=>'fév',3=>'mars',4=>'avr',5=>'mai',6=>'juin',7=>'juil',8=>'août',9=>'sept',10=>'oct',11=>'nov',12=>'déc'];
 
 // Bandeau jaune pâle (.strip, assets/event-card.css) : pavé carré jaune vif (date/heure ou
@@ -217,8 +247,17 @@ function render_event_card(array $a): string {
         . '<span class="corner corner--tr">' . htmlspecialchars($formatLabel) . '</span>'
         . '<span class="corner corner--br">' . htmlspecialchars($a['public'] ?? '') . '</span>'
         . '<span class="corner corner--br2">' . ($a['nombre_places'] !== null && $a['nombre_places'] !== '' ? htmlspecialchars($a['nombre_places'] . ' places') : '') . '</span>';
+    // Sans photo, on essaie d'abord l'avatar "par direction" du·de la 1er·ère intervenant·e
+    // lié·e (posé une fois pour toutes dans son profil, voir admin/intervenant-form.php) —
+    // fond blanc, image entière visible (comme une vraie photo). Seulement si personne n'en a
+    // pour cette catégorie : mascotte générique + fond pastel, comme avant.
+    $avatarDefaut = empty($a['photo']) && !empty($a['id'])
+        ? site_activite_avatar_defaut((int)$a['id'], $a['categorie'])
+        : null;
     if (!empty($a['photo'])) {
         $cover = '<div class="cover photo-cover"><img src="/assets/uploads/activites/' . htmlspecialchars($a['photo']) . '" alt="">' . $corners . '</div>';
+    } elseif ($avatarDefaut) {
+        $cover = '<div class="cover photo-cover"><img src="' . htmlspecialchars($avatarDefaut) . '" alt="">' . $corners . '</div>';
     } else {
         $cover = '<div class="cover ' . $habillage['cover'] . '">'
             . '<svg class="mascot" viewBox="' . $habillage['vb'] . '"><use href="#' . $habillage['mascot'] . '"/></svg>' . $corners . '</div>';
