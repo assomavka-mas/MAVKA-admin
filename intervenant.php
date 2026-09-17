@@ -84,9 +84,12 @@ if ($iv) {
 
 .tabpanel h2{margin-bottom:14px}
 .tabpanel p{color:var(--ink-2);max-width:44em;white-space:pre-line}
-.iv-avatar-mavka{border-radius:var(--r);overflow:hidden;background:var(--mint);aspect-ratio:3/4;display:flex;align-items:center;justify-content:center}
-.iv-avatar-mavka img{width:100%;height:100%;object-fit:contain}
-@media (max-width:820px){.iv-avatar-mavka{aspect-ratio:16/9;max-width:320px}}
+/* Pas de fond ni de cadre : l'avatar est un PNG transparent, pensé pour flotter directement sur
+   le fond de la page (pas dans une carte) — un fond ici referait exactement la bordure colorée
+   qu'on cherche à éviter. */
+.iv-avatar-mavka{display:flex;align-items:start;justify-content:center}
+.iv-avatar-mavka img{width:100%;height:auto;max-height:480px;object-fit:contain}
+@media (max-width:820px){.iv-avatar-mavka{max-width:280px;margin:0 auto}}
 </style>
 </head>
 <body>
@@ -252,6 +255,11 @@ if ($iv) {
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="m-stand" viewBox="0 0 310 769"><image href="/assets/site-img/img-02-33b2e93d45.webp" width="310" height="769"/></symbol>
+  <symbol id="m-wave" viewBox="0 0 626 722"><image href="/assets/site-img/img-03-1d459c08a4.webp" width="626" height="722"/></symbol>
+  <symbol id="m-magnify" viewBox="0 0 552 756"><image href="/assets/site-img/img-04-3b8dc488ec.webp" width="552" height="756"/></symbol>
+  <symbol id="m-jump" viewBox="0 0 469 734"><image href="/assets/site-img/img-05-10df6582b6.webp" width="469" height="734"/></symbol>
+  <symbol id="m-read" viewBox="0 0 549 767"><image href="/assets/site-img/img-06-3bc40d08fc.webp" width="549" height="767"/></symbol>
+  <symbol id="m-point" viewBox="0 0 404 867"><image href="/assets/site-img/img-07-b2cfcc755b.webp" width="404" height="867"/></symbol>
 </svg>
 
 <script>
