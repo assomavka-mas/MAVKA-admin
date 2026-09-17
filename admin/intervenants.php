@@ -123,6 +123,9 @@ admin_header('Intervenants', $user, 'intervenants');
         <?php endforeach; ?>
       </div>
     </div>
+    <?php if ($user['role'] === 'super_admin'): ?>
+    <a href="/admin/nettoyer-avatars.php" class="mavka-btn mavka-btn--sm">🧹 Nettoyer les avatars</a>
+    <?php endif; ?>
     <?php if (peut_editer($user)): ?>
     <a href="/admin/intervenant-form.php" class="mavka-btn mavka-btn--primary">+ Nouvel intervenant</a>
     <?php endif; ?>
