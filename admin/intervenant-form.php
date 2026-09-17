@@ -114,6 +114,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'save') === 's
                 if (in_array($f, $champs_documents, true)) {
                     $ins_version->execute([$id, $f, $uploaded]);
                 }
+                // Avatars : on retire automatiquement le fond blanc pour un rendu détouré.
+                if (in_array($f, $champs_avatars, true)) {
+                    retirer_fond_blanc(__DIR__ . '/../assets/uploads/' . $subdir . '/' . $uploaded);
+                }
             }
         }
 
@@ -398,6 +402,7 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
 
     <div style="margin-top:22px; padding-top:18px; border-top:1px solid var(--mavka-color-cream-soft);">
       <label>MAVKA-avatar <span style="font-weight:400; color:var(--mavka-color-text-muted);">(illustration, pas une photo — utilisée dans le bloc "Qui est [Nom]" de sa page publique)</span></label>
+      <p class="mavka-form-section__hint" style="margin-top:-4px; margin-bottom:8px;">PNG uniquement — le fond blanc est retiré automatiquement à l'envoi.</p>
       <label class="mavka-photo-edit" for="avatar_mavka_input">
         <span class="mavka-photo-edit__preview" id="avatar_mavka_preview">
           <?php if ($u = $file_url('avatar_mavka')): ?>
@@ -408,12 +413,13 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
         </span>
         <span class="mavka-photo-edit__badge">✎</span>
       </label>
-      <input type="file" id="avatar_mavka_input" name="avatar_mavka" accept="image/png,image/webp" hidden>
+      <input type="file" id="avatar_mavka_input" name="avatar_mavka" accept="image/png" hidden>
     </div>
 
     <?php if ($domaines_actuels): ?>
     <div style="margin-top:22px; padding-top:18px; border-top:1px solid var(--mavka-color-cream-soft);">
-      <label>Avatars par direction <span style="font-weight:400; color:var(--mavka-color-text-muted);">(un visuel par domaine coché plus haut — bibliothèque perso, à toi ensuite de le poser à la main sur les cartes d'activité concernées)</span></label>
+      <label>Avatars par direction <span style="font-weight:400; color:var(--mavka-color-text-muted);">(un visuel par domaine coché plus haut, affiché automatiquement sur les cartes d'activité de la personne quand aucune photo n'est ajoutée)</span></label>
+      <p class="mavka-form-section__hint" style="margin-top:-4px; margin-bottom:8px;">PNG uniquement — le fond blanc est retiré automatiquement à l'envoi.</p>
       <div style="display:flex; gap:20px; flex-wrap:wrap; margin-top:8px;">
         <?php foreach ($domaines_actuels as $d): ?>
         <?php $champ = $domaine_avatar_champs[$d] ?? null; if (!$champ) continue; ?>
@@ -428,7 +434,7 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
             </span>
             <span class="mavka-photo-edit__badge">✎</span>
           </label>
-          <input type="file" id="<?= $champ ?>_input" name="<?= $champ ?>" accept="image/png,image/webp" hidden>
+          <input type="file" id="<?= $champ ?>_input" name="<?= $champ ?>" accept="image/png" hidden>
           <div style="font-size:12px; color:var(--mavka-color-text-muted); margin-top:4px;"><?= htmlspecialchars($d) ?></div>
         </div>
         <?php endforeach; ?>

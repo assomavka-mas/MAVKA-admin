@@ -78,6 +78,83 @@ function handle_upload(string $field, string $subdir): ?string {
     return $filename;
 }
 
+// Retire automatiquement le fond blanc d'un PNG (avatars MAVKA/direction) : remplit à partir
+// des 4 bords de l'image et rend transparent tout pixel quasi-blanc connecté au bord — les
+// blancs "intérieurs" (yeux, vêtements...) ne sont donc jamais touchés. Fonctionne bien sur les
+// illustrations Canva à fond uni ; pas adapté à une photo ou un fond en dégradé/texturé.
+function retirer_fond_blanc(string $chemin): void {
+    $info = @getimagesize($chemin);
+    if (!$info || $info['mime'] !== 'image/png') {
+        return;
+    }
+    $image = @imagecreatefrompng($chemin);
+    if (!$image) {
+        return;
+    }
+
+    $max = 1200;
+    if (imagesx($image) > $max || imagesy($image) > $max) {
+        $ratio = min($max / imagesx($image), $max / imagesy($image));
+        $largeurRedim = (int)round(imagesx($image) * $ratio);
+        $hauteurRedim = (int)round(imagesy($image) * $ratio);
+        $redim = imagecreatetruecolor($largeurRedim, $hauteurRedim);
+        imagealphablending($redim, false);
+        imagesavealpha($redim, true);
+        imagecopyresampled($redim, $image, 0, 0, 0, 0, $largeurRedim, $hauteurRedim, imagesx($image), imagesy($image));
+        imagedestroy($image);
+        $image = $redim;
+    }
+
+    imagepalettetotruecolor($image);
+    imagealphablending($image, false);
+    imagesavealpha($image, true);
+
+    $largeur = imagesx($image);
+    $hauteur = imagesy($image);
+    $seuil = 18;
+    $transparent = imagecolorallocatealpha($image, 255, 255, 255, 127);
+
+    $visite = new SplFixedArray($largeur * $hauteur);
+    $pile = [];
+    for ($x = 0; $x < $largeur; $x++) {
+        $pile[] = [$x, 0];
+        $pile[] = [$x, $hauteur - 1];
+    }
+    for ($y = 0; $y < $hauteur; $y++) {
+        $pile[] = [0, $y];
+        $pile[] = [$largeur - 1, $y];
+    }
+
+    while ($pile) {
+        [$x, $y] = array_pop($pile);
+        if ($x < 0 || $x >= $largeur || $y < 0 || $y >= $hauteur) {
+            continue;
+        }
+        $idx = $y * $largeur + $x;
+        if ($visite[$idx]) {
+            continue;
+        }
+        $visite[$idx] = true;
+
+        $rgb = imagecolorat($image, $x, $y);
+        $r = ($rgb >> 16) & 0xFF;
+        $g = ($rgb >> 8) & 0xFF;
+        $b = $rgb & 0xFF;
+        if ($r < 255 - $seuil || $g < 255 - $seuil || $b < 255 - $seuil) {
+            continue;
+        }
+
+        imagesetpixel($image, $x, $y, $transparent);
+        $pile[] = [$x + 1, $y];
+        $pile[] = [$x - 1, $y];
+        $pile[] = [$x, $y + 1];
+        $pile[] = [$x, $y - 1];
+    }
+
+    imagepng($image, $chemin);
+    imagedestroy($image);
+}
+
 // Comme handle_upload(), mais pour un <input type="file" name="..[]" multiple> : plusieurs
 // photos ajoutées à la galerie en un seul envoi. Renvoie la liste des noms de fichiers
 // enregistrés (les fichiers invalides ou en erreur sont simplement ignorés).
