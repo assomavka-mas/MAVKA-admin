@@ -3,10 +3,11 @@ require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/layout.php';
 require_once __DIR__ . '/../includes/functions.php';
 
-// Outil ponctuel : les avatars (MAVKA-avatar + avatars par direction) envoyés AVANT la mise en
-// place du détourage automatique (retirer_fond_blanc(), voir includes/functions.php) ont gardé
-// leur fond blanc d'origine — le détourage ne s'applique qu'aux nouveaux envois. Ce bouton
-// retraite en une fois tous les avatars déjà en base, sans avoir à les réenvoyer un par un.
+// Outil ponctuel : les avatars (MAVKA-avatar + avatars par direction) et les photos-illustrations
+// des cartes "Voir sa page" envoyés AVANT la mise en place du détourage automatique
+// (retirer_fond_blanc(), voir includes/functions.php) ont gardé leur fond blanc d'origine — le
+// détourage ne s'applique qu'aux nouveaux envois. Ce bouton retraite en une fois tout ce qui est
+// déjà en base, sans avoir à tout réenvoyer un par un.
 $user = auth_require(['super_admin']);
 
 $champs_avatars = ['avatar_mavka', 'avatar_domaine_culture', 'avatar_domaine_education', 'avatar_domaine_bien_etre', 'avatar_domaine_initiatives'];
@@ -28,13 +29,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $journal[] = ['nom' => $iv['nom'], 'champ' => $f, 'statut' => retirer_fond_blanc($chemin)];
         }
     }
+
+    $activites = db()->query("SELECT id, titre, photo FROM activites WHERE texte_bouton = 'Voir sa page' AND photo IS NOT NULL")->fetchAll();
+    foreach ($activites as $act) {
+        $chemin = __DIR__ . '/../assets/uploads/activites/' . $act['photo'];
+        $journal[] = ['nom' => $act['titre'], 'champ' => 'photo (Voir sa page)', 'statut' => retirer_fond_blanc($chemin)];
+    }
 }
 
 admin_header('Nettoyer les avatars existants', $user);
 ?>
 <div class="mavka-form-section" style="padding:20px;">
-  <h3>Nettoyer le fond des avatars déjà envoyés</h3>
-  <p class="mavka-form-section__hint">Les avatars (MAVKA-avatar et avatars par direction) envoyés avant la mise en place du détourage automatique ont gardé leur fond blanc d'origine. Ce bouton les retraite tous en une fois — sans risque, on peut le relancer plusieurs fois si besoin.</p>
+  <h3>Nettoyer le fond des avatars et cartes-vitrines déjà envoyés</h3>
+  <p class="mavka-form-section__hint">Les avatars (MAVKA-avatar et avatars par direction) et les illustrations des cartes "Voir sa page" envoyés avant la mise en place du détourage automatique ont gardé leur fond blanc d'origine. Ce bouton les retraite tous en une fois — sans risque, on peut le relancer plusieurs fois si besoin.</p>
 
   <?php if ($journal !== null): ?>
     <?php if (!$journal): ?>

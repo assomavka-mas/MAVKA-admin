@@ -90,6 +90,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $new_photo = handle_upload('photo', 'activites');
     if ($new_photo) {
         $a['photo'] = $new_photo;
+        // "Voir sa page" : la photo est une illustration du·de la volontaire (comme les avatars
+        // par direction), pas une vraie photo d'activité — on peut donc lui retirer le fond
+        // blanc sans risque. Les vraies photos (festival, atelier...) ne passent jamais ici.
+        if ($a['texte_bouton'] === 'Voir sa page') {
+            retirer_fond_blanc(__DIR__ . '/../assets/uploads/activites/' . $new_photo);
+        }
     }
 
     if ($a['titre'] === '') {
