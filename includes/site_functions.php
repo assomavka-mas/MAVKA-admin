@@ -268,7 +268,11 @@ function render_event_card(array $a): string {
         ? site_activite_avatar_defaut((int)$a['id'], $a['categorie'])
         : null;
     if (!empty($a['photo'])) {
-        $cover = '<div class="cover photo-cover"><img src="/assets/uploads/activites/' . htmlspecialchars($a['photo']) . '" alt="">' . $corners . '</div>';
+        // "Voir sa page" = carte-vitrine pointant vers la page d'un·e volontaire (photo = son
+        // portrait, pas une photo d'activité) : fond teinté par catégorie comme les autres
+        // cartes sans photo, plutôt que le blanc réservé aux vraies photos d'activité.
+        $fondPhoto = $a['texte_bouton'] === 'Voir sa page' ? (SITE_CATEGORIE_AVATAR_FOND[$a['categorie']] ?? '') : '';
+        $cover = '<div class="cover photo-cover' . ($fondPhoto ? ' ' . $fondPhoto : '') . '"><img src="/assets/uploads/activites/' . htmlspecialchars($a['photo']) . '" alt="">' . $corners . '</div>';
     } elseif ($avatarDefaut) {
         $fondAvatar = SITE_CATEGORIE_AVATAR_FOND[$a['categorie']] ?? '';
         $cover = '<div class="cover photo-cover' . ($fondAvatar ? ' ' . $fondAvatar : '') . '"><img src="' . htmlspecialchars($avatarDefaut) . '" alt="">' . $corners . '</div>';
