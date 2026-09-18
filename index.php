@@ -279,7 +279,7 @@ $site_activites_initiatives = site_enrichir_avec_photo_intervenant(site_activite
         <p class="lede">Vous avez une passion, une compétence, un savoir-faire ou simplement une idée ? Le Parcours MAVKA vous permet d'avancer progressivement, d'expérimenter et de trouver la forme qui vous correspond.</p>
       </div>
 
-      <img class="parcours-visuel" src="/assets/site-img/parcours-etapes.webp" alt="Ta passion, ton nouveau départ : les 4 étapes du Parcours MAVKA sous forme d'escalier — Immersion, Engagement, Expérimentation, Collaboration durable">
+      <img class="parcours-visuel" src="/assets/site-img/parcours-etapes.webp?v=<?= @filemtime(__DIR__ . '/assets/site-img/parcours-etapes.webp') ?: time() ?>" alt="Ta passion, ton nouveau départ : les 4 étapes du Parcours MAVKA sous forme d'escalier — Immersion, Engagement, Expérimentation, Collaboration durable">
       <p class="parcours-visuel__note">Il n'y a pas de parcours imposé : chacun avance à son rythme et selon son projet.</p>
 
       <div class="steps" style="margin-top:32px">
