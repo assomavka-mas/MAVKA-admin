@@ -264,9 +264,14 @@ function render_event_card(array $a): string {
     // teinté selon la direction (SITE_CATEGORIE_AVATAR_FOND, blanc pour Initiatives), image
     // entière visible par-dessus. Seulement si personne n'en a pour cette catégorie : mascotte
     // générique + fond pastel, comme avant.
-    $avatarDefaut = empty($a['photo']) && !empty($a['id'])
-        ? site_activite_avatar_defaut((int)$a['id'], $a['categorie'])
-        : null;
+    $avatarDefaut = null;
+    if (empty($a['photo']) && !empty($a['id'])) {
+        // '_avatar_defaut' précalculé en lot par site_enrichir_avec_photo_intervenant() (voir
+        // plus haut) — sinon (page pas encore enrichie) une requête au cas par cas, comme avant.
+        $avatarDefaut = array_key_exists('_avatar_defaut', $a)
+            ? $a['_avatar_defaut']
+            : site_activite_avatar_defaut((int)$a['id'], $a['categorie']);
+    }
     if (!empty($a['photo'])) {
         // "Voir sa page" = carte-vitrine pointant vers la page d'un·e volontaire (photo = son
         // portrait, pas une photo d'activité) : fond teinté par catégorie comme les autres
@@ -306,7 +311,8 @@ function site_activites_intervenant_photos(array $activiteIds): array {
     $activiteIds = array_values(array_unique(array_map('intval', $activiteIds)));
     if (!$activiteIds) return [];
     $placeholders = implode(',', array_fill(0, count($activiteIds), '?'));
-    $stmt = db()->prepare("SELECT ai.activite_id, iv.photo, iv.dossier
+    $stmt = db()->prepare("SELECT ai.activite_id, iv.photo, iv.dossier,
+            iv.avatar_domaine_culture, iv.avatar_domaine_education, iv.avatar_domaine_bien_etre, iv.avatar_domaine_initiatives
         FROM activite_intervenant ai
         JOIN intervenants iv ON iv.id = ai.intervenant_id
         WHERE ai.activite_id IN ($placeholders)
@@ -319,17 +325,28 @@ function site_activites_intervenant_photos(array $activiteIds): array {
     return $parActivite;
 }
 
-// Ajoute 'intervenant_photo_urls' (tableau) à chaque activité, à partir de
-// site_activites_intervenant_photos() — un avatar par intervenant·e qui a une photo.
+// Ajoute 'intervenant_photo_urls' (tableau) et '_avatar_defaut' à chaque activité, à partir
+// d'UNE requête batch (site_activites_intervenant_photos()) plutôt qu'une requête par carte —
+// render_event_card() appelait site_activite_avatar_defaut() séparément pour chaque activité
+// sans photo, ce qui devenait lent à mesure que le nombre d'activités augmentait (une page
+// Activités avec 30 cartes = 30 requêtes en plus). '_avatar_defaut' est absent (pas juste null)
+// quand une activité n'est pas passée par ici (ex. mes-activites.php) : render_event_card()
+// retombe alors sur l'ancienne requête au cas par cas, plutôt que de perdre l'avatar.
 function site_enrichir_avec_photo_intervenant(array $activites): array {
     $photos = site_activites_intervenant_photos(array_column($activites, 'id'));
     foreach ($activites as &$a) {
         $a['intervenant_photo_urls'] = [];
+        $premier = $photos[$a['id']][0] ?? null;
         foreach ($photos[$a['id']] ?? [] as $iv) {
             if ($iv['photo'] && $iv['dossier']) {
                 $a['intervenant_photo_urls'][] = '/assets/uploads/intervenants/' . rawurlencode($iv['dossier']) . '/' . rawurlencode($iv['photo']);
             }
         }
+        $champ = SITE_CATEGORIE_AVATAR_CHAMP[$a['categorie']] ?? null;
+        $avatar = $champ && $premier ? ($premier[$champ] ?? null) : null;
+        $a['_avatar_defaut'] = ($avatar && $premier['dossier'])
+            ? '/assets/uploads/intervenants/' . rawurlencode($premier['dossier']) . '/' . rawurlencode($avatar)
+            : null;
     }
     unset($a);
     return $activites;
