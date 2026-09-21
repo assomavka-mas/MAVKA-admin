@@ -129,6 +129,7 @@ section.tight{padding:44px 0}
 .legal-doc{max-width:52em;margin-top:8px}
 .legal-doc h2{margin-top:40px;margin-bottom:12px;font-size:1.3rem}
 .legal-doc h2:first-child{margin-top:0}
+.legal-doc h3{margin-top:22px;margin-bottom:6px;font-size:1.05rem;font-family:var(--display);color:var(--ink)}
 .legal-doc p{color:var(--ink-2);margin-top:10px}
 .legal-doc p b{color:var(--ink)}
 .legal-doc ul{margin:10px 0 10px 1.2em;color:var(--ink-2)}
