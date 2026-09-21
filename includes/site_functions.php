@@ -87,11 +87,13 @@ function site_intervenant_rang(array $iv, array $enseigne): int {
 // "Membre de l'équipe") — selon les documents signés, pas selon ce qui est programmé :
 // contrat d'intervention signé = collaboration rémunérée établie (dernière étape du
 // Parcours MAVKA) ; charte du bénévole seule = engagement bénévole officiel ; rien encore
-// signé = en cours d'accompagnement.
+// signé = "Découverte", pas "Volontaire" — ce dernier terme désigne en France un statut
+// juridique encadré (volontariat associatif, service civique...) avec contrat et agrément
+// d'État, qu'une personne à ce stade (juste un profil, aucun engagement pris) n'a pas.
 function site_intervenant_statut_label(array $iv): string {
     if (!empty($iv['contrat_intervention_lien']) || !empty($iv['contrat_intervention_fichier'])) return 'Intervenant·e';
     if (!empty($iv['charte_benevolat_lien']) || !empty($iv['charte_benevolat_fichier'])) return 'Bénévole';
-    return 'Volontaire';
+    return 'Découverte';
 }
 
 function site_intervenants_actifs(): array {

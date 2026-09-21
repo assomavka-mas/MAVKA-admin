@@ -17,6 +17,11 @@ function activite_incomplete(array $a): bool {
 }
 
 // Statut calculé automatiquement à partir des documents signés (jamais saisi à la main).
+// "Découverte" (pas "Volontaire") pour le palier sans document signé : en France, "volontaire"
+// désigne un statut encadré par la loi (volontariat associatif, service civique...), avec
+// contrat, indemnité et agrément d'État — rien de tout ça à ce stade, juste un profil pas
+// encore engagé. Voir aussi site_intervenant_statut_label() (includes/site_functions.php),
+// même terminologie côté page publique.
 function intervenant_statuts(array $iv): array {
     $statuts = [];
     if (!empty($iv['charte_benevolat_lien']) || !empty($iv['charte_benevolat_fichier'])) {
@@ -25,7 +30,7 @@ function intervenant_statuts(array $iv): array {
     if (!empty($iv['contrat_intervention_lien']) || !empty($iv['contrat_intervention_fichier'])) {
         $statuts[] = 'Intervenant';
     }
-    return $statuts ?: ['Volontaire'];
+    return $statuts ?: ['Découverte'];
 }
 
 // Transforme un nom en morceau de chemin de dossier lisible : "Olena Kovalenko" -> "olena-kovalenko"

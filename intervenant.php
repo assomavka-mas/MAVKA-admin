@@ -60,7 +60,7 @@ if ($iv) {
    pleine largeur. .iv-hero-wrap rajoute le padding bas que .hero .wrap n'a pas par défaut
    (prévu pour laisser une illustration "déborder" jusqu'en bas ; ici la photo est ronde et
    contenue, donc pas de débordement à ménager).
-   .eyebrow--sun : l'eyebrow "Intervenant·e/Bénévole/Volontaire" utilise --teal-tint (~= --mint)
+   .eyebrow--sun : l'eyebrow "Intervenant·e/Bénévole/Découverte" utilise --teal-tint (~= --mint)
    par défaut — invisible sur ce nouveau fond mint, donc jaune ici comme la plashka de la photo. */
 .iv-hero-wrap{padding-bottom:56px}
 .iv-hero{display:grid;grid-template-columns:220px 1fr;gap:36px;align-items:center}
