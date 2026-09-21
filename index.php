@@ -390,7 +390,7 @@ $site_activites_initiatives = site_enrichir_avec_photo_intervenant(site_activite
         <li><a href="/assets/docs/contrat-cadre-prestation.pdf" target="_blank" rel="noopener"><svg class="doc-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/></svg><span>Contrat-cadre de prestation d'activités</span><span class="st">PDF</span></a></li>
         <li><a href="/assets/docs/projet-associatif.pdf" target="_blank" rel="noopener"><svg class="doc-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/></svg><span>Projet associatif</span><span class="st">PDF</span></a></li>
         <li><a href="/assets/docs/attestation-assurance-maif.pdf" target="_blank" rel="noopener"><svg class="doc-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/></svg><span>Attestation d'assurance responsabilité civile (MAIF)</span><span class="st">PDF</span></a></li>
-        <li><a href="#confidentialite"><svg class="doc-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/></svg><span>Politique de protection des données (RGPD)</span><span class="st">Page</span></a></li>
+        <li><a href="#confidentialite"><svg class="doc-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/></svg><span>Mentions légales &amp; RGPD</span><span class="st">Page</span></a></li>
         <li class="doc-soon"><svg class="doc-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/></svg><span>Accompagnement Guid'Asso</span><span class="st soon">En cours</span></li>
       </ul>
     </div>
@@ -489,11 +489,22 @@ $site_activites_initiatives = site_enrichir_avec_photo_intervenant(site_activite
   <section>
     <div class="wrap">
       <div class="head">
-        <span class="eyebrow">Vie privée</span>
-        <h1 style="font-size:clamp(2rem,4vw,3.2rem)">Politique de protection des données personnelles (RGPD)</h1>
-        <p class="lede">MAVKA accorde une grande importance au respect de la vie privée et à la protection des données personnelles. Cette politique explique quelles données peuvent être collectées, pourquoi elles sont utilisées, à qui elles peuvent être transmises, pendant combien de temps elles sont conservées et quels sont les droits des personnes concernées. Elle s'applique aux traitements réalisés dans le cadre des activités, projets, événements, préinscriptions, relations avec les bénévoles, intervenants, prestataires, partenaires et utilisateurs des services numériques de MAVKA, conformément au Règlement général sur la protection des données (RGPD) et à la loi française « Informatique et Libertés ».</p>
+        <span class="eyebrow">Informations légales</span>
+        <h1 style="font-size:clamp(2rem,4vw,3.2rem)">Mentions légales &amp; protection des données personnelles (RGPD)</h1>
+        <p class="lede">MAVKA accorde une grande importance au respect de la vie privée et à la protection des données personnelles. Cette page présente les mentions légales du site, puis la politique de protection des données : quelles données peuvent être collectées, pourquoi elles sont utilisées, à qui elles peuvent être transmises, pendant combien de temps elles sont conservées et quels sont les droits des personnes concernées. Elle s'applique aux traitements réalisés dans le cadre des activités, projets, événements, préinscriptions, relations avec les bénévoles, intervenants, prestataires, partenaires et utilisateurs des services numériques de MAVKA, conformément au Règlement général sur la protection des données (RGPD) et à la loi française « Informatique et Libertés ».</p>
       </div>
       <div class="legal-doc">
+        <h2>Mentions légales</h2>
+        <p><b>Éditeur du site</b><br>
+        Association MAVKA — association loi 1901, n° RNA W161010493.<br>
+        Siège social : 10 lotissement Les Hauts de Neuillac, 16410 Garat<br>
+        E-mail : <a href="mailto:contact@mavka16.fr">contact@mavka16.fr</a><br>
+        Directrice de la publication : Larysa MAS, présidente.</p>
+        <p><b>Hébergement</b><br>
+        Hostinger International Ltd.<br>
+        61 Lordou Vironos Street, 6023 Larnaca, Chypre<br>
+        <a href="https://www.hostinger.fr" target="_blank" rel="noopener">www.hostinger.fr</a></p>
+
         <h2>1. Responsable du traitement</h2>
         <p>Association MAVKA — association loi 1901, n° RNA W161010493.<br>
         Siège social : 10 lotissement Les Hauts de Neuillac, 16410 Garat<br>
@@ -665,7 +676,7 @@ $site_activites_initiatives = site_enrichir_avec_photo_intervenant(site_activite
   const routes=['accueil','agenda','activites','intervenants','collectivites','equipe','contact','confidentialite'];
   const alias={ateliers:'agenda'};
   const nav=document.getElementById('nav'), btn=document.getElementById('menuBtn');
-  const titles={accueil:'MAVKA',agenda:'Agenda · MAVKA',activites:'Activités · MAVKA',intervenants:'Devenir intervenant · MAVKA',collectivites:'Collectivités · MAVKA',equipe:"L'équipe · MAVKA",contact:'Contact · MAVKA',confidentialite:'Confidentialité (RGPD) · MAVKA'};
+  const titles={accueil:'MAVKA',agenda:'Agenda · MAVKA',activites:'Activités · MAVKA',intervenants:'Devenir intervenant · MAVKA',collectivites:'Collectivités · MAVKA',equipe:"L'équipe · MAVKA",contact:'Contact · MAVKA',confidentialite:'Mentions légales & RGPD · MAVKA'};
   function go(target){
     let h=alias[target]||target||'accueil', sub=null;
     if(!routes.includes(h)){
