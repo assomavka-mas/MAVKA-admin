@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/functions.php';
 
 function auth_start(): void {
     if (session_status() === PHP_SESSION_NONE) {
@@ -50,6 +51,7 @@ function auth_require(null|string|array $roles = null): array {
         header('Location: /admin/login.php');
         exit;
     }
+    purger_vieux_messages_contact();
     return $user;
 }
 

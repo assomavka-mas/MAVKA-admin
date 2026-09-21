@@ -305,3 +305,17 @@ function champ_fichier_seul(string $label, string $fichier_field, array $iv, ?st
     <?php endif; ?>
     <?php
 }
+
+// Politique de confidentialité (RGPD, section "Durées de conservation") : les messages du
+// formulaire de contact sont conservés 2 ans max après le dernier échange, puis supprimés.
+// Pas de vrai cron sur l'hébergement pour l'instant, donc on s'en charge ici : appelée à chaque
+// connexion admin (voir auth_require() dans auth.php), avec 1 chance sur 20 de vraiment lancer
+// la suppression — pour ne pas faire une requête d'écriture à chaque page vue, tout en restant
+// sûr de tourner régulièrement puisque l'admin se connecte souvent. Un simple DELETE, sans
+// risque à relancer plusieurs fois (contrairement aux alertes email de alertes-documents.php).
+function purger_vieux_messages_contact(): void {
+    if (random_int(1, 20) !== 1) {
+        return;
+    }
+    db()->exec("DELETE FROM messages_contact WHERE created_at < DATE_SUB(NOW(), INTERVAL 2 YEAR)");
+}
