@@ -239,6 +239,13 @@ section.tight{padding:44px 0}
 .step p{color:var(--ink-2);font-size:.97rem}
 @media (max-width:900px){.steps{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:560px){.steps{grid-template-columns:1fr}}
+/* Variante 6 cartes (3 colonnes x 2 rangs) — classe plutôt que style inline, pour que les
+   media queries ci-dessus puissent continuer à l'emporter sur mobile (un style inline sur
+   l'élément aurait une spécificité plus forte que .steps ci-dessus et resterait figé à 3
+   colonnes même en dessous de 900px). */
+.steps.cols-3{grid-template-columns:repeat(3,1fr)}
+@media (max-width:900px){.steps.cols-3{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.steps.cols-3{grid-template-columns:1fr}}
 
 /* Illustration "escalier" du Parcours MAVKA (au-dessus des cartes .step) — image fournie par
    Larysa (reprise de l'ancienne page WordPress), pas un habillage recréé en CSS. */
