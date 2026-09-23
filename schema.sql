@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS intervenants (
   projet_developpement VARCHAR(500) NULL,        -- lien Google Drive : document détaillé, public (page volontaire)
   projet_developpement_fichier VARCHAR(255) NULL, -- fichier téléversé, alternative/complément au lien, public
   projet_developpement_description TEXT NULL,    -- court texte public, affiché dans le bloc "Projet personnel"
+  projet_developpement_nom VARCHAR(255) NULL,    -- titre du projet, public (v25) — sert de h2 sur la page volontaire
   objectifs_mavka TEXT NULL,             -- interne : idem
   statut_qualifications ENUM('non_requis','a_verifier','verifie','a_completer') NOT NULL DEFAULT 'non_requis',
     -- interne, jamais public : coché à la main par Larysa — ne se déduit pas des lignes

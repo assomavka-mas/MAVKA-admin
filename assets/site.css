@@ -205,12 +205,14 @@ section.tight{padding:44px 0}
 
 /* stats strip (sous le Hero) : détachée du Hero (fond blanc + fine bordure verte, comme
    .cta-card), plus le même fond --mint qui la fondait dans le Hero juste au-dessus. */
-.stats-strip{background:var(--card);border:1px solid var(--card-line);border-radius:var(--r);padding:28px 32px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px 32px}
+.stats-strip{background:var(--card);border:1px solid var(--card-line);border-radius:var(--r);padding:28px 32px;display:grid;grid-template-columns:repeat(4,1fr);gap:24px 32px}
 .stats-strip .stat b{display:flex;align-items:center;gap:6px;font-family:var(--display);font-size:1.15rem;font-weight:700;color:var(--ink)}
 .stats-strip .stat--place b{text-transform:uppercase;font-size:1rem;letter-spacing:.01em;color:var(--teal)}
 .stats-strip .stat:nth-child(2) b{color:var(--sun-deep)}
 .stats-strip .stat:nth-child(3) b{color:var(--violet)}
+.stats-strip .stat:nth-child(4) b{color:var(--teal-deep)}
 .stats-strip .stat p{margin-top:8px;color:var(--ink-2);font-size:.92rem;line-height:1.4}
+@media (max-width:900px){.stats-strip{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:700px){.stats-strip{grid-template-columns:1fr}}
 
 /* story */

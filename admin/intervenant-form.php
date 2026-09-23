@@ -19,7 +19,7 @@ $iv = [
     'droit_exercer_necessaire' => 0, 'droit_exercer_fichier' => null, 'avis_sirene_fichier' => null,
     'b3_presente' => 0, 'b3_date' => null, 'b3_verifie_par' => null,
     'date_entree_prestataire' => '', 'dossier_prestataire_maj_le' => null,
-    'projet_developpement' => '', 'projet_developpement_fichier' => null, 'projet_developpement_description' => '', 'objectifs_mavka' => '',
+    'projet_developpement' => '', 'projet_developpement_fichier' => null, 'projet_developpement_description' => '', 'projet_developpement_nom' => '', 'objectifs_mavka' => '',
     'statut_qualifications' => 'non_requis',
     'photo' => null, 'avatar_mavka' => null,
     'avatar_domaine_culture' => null, 'avatar_domaine_education' => null, 'avatar_domaine_bien_etre' => null, 'avatar_domaine_initiatives' => null,
@@ -94,6 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'save') === 's
         $iv['b3_verifie_par'] = null;
     }
     $iv['projet_developpement'] = trim($_POST['projet_developpement'] ?? '');
+    $iv['projet_developpement_nom'] = trim($_POST['projet_developpement_nom'] ?? '');
     $iv['projet_developpement_description'] = trim($_POST['projet_developpement_description'] ?? '');
     $iv['objectifs_mavka'] = trim($_POST['objectifs_mavka'] ?? '');
     $iv['statut_qualifications'] = in_array($_POST['statut_qualifications'] ?? '', ['non_requis', 'a_verifier', 'verifie', 'a_completer'], true)
@@ -114,7 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'save') === 's
             'numero_siret', 'piece_identite_fichier', 'piece_identite_date_verification',
             'droit_exercer_necessaire', 'droit_exercer_fichier', 'avis_sirene_fichier',
             'b3_presente', 'b3_date', 'b3_verifie_par', 'date_entree_prestataire', 'dossier_prestataire_maj_le',
-            'projet_developpement', 'projet_developpement_fichier', 'projet_developpement_description', 'objectifs_mavka',
+            'projet_developpement', 'projet_developpement_fichier', 'projet_developpement_nom', 'projet_developpement_description', 'objectifs_mavka',
             'statut_qualifications', 'photo', 'avatar_mavka',
             'avatar_domaine_culture', 'avatar_domaine_education', 'avatar_domaine_bien_etre', 'avatar_domaine_initiatives',
             'email', 'actif',
@@ -531,8 +532,11 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
       <svg class="mavka-form-section__chevron" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </summary>
     <div class="mavka-form-section__body">
-    <p class="mavka-form-section__hint">Le projet de développement (description, lien et fichier ci-dessous) apparaît sur la page publique de la personne, dans un bloc "Projet personnel" — utile pour les échanges avec les mairies et partenaires. Tout vide = le bloc ne s'affiche pas du tout sur sa page.</p>
-    <label>Description publique du projet</label>
+    <p class="mavka-form-section__hint">Le projet de développement (nom, description, lien et fichier ci-dessous) apparaît sur la page publique de la personne, dans un bloc "Projet personnel" — utile pour les échanges avec les mairies et partenaires. Tout vide = le bloc ne s'affiche pas du tout sur sa page.</p>
+    <label>Nom du projet</label>
+    <input type="text" name="projet_developpement_nom" placeholder="Ex. Haiyan" value="<?= htmlspecialchars($iv['projet_developpement_nom'] ?? '') ?>">
+    <p class="mavka-form-section__hint" style="margin-top:-6px;">Sert de titre sur la page publique. Vide = le titre générique "En cours de construction" reste affiché.</p>
+    <label style="margin-top:16px;">Description publique du projet</label>
     <textarea name="projet_developpement_description" placeholder="Quelques phrases présentables au public : ce que la personne construit, où elle en est."><?= htmlspecialchars($iv['projet_developpement_description'] ?? '') ?></textarea>
     <p class="mavka-form-section__hint" style="margin-top:4px;">Le texte affiché tel quel dans le bloc. Le lien/fichier ci-dessous servent de document complet, consultable en plus (ex. lien vers le document Google Docs détaillé).</p>
     <?php champ_document('Lien ou fichier du document complet', 'projet_developpement', 'projet_developpement_fichier', $iv, $file_url('projet_developpement_fichier'), $iv['dossier'] ?? null, $hist('projet_developpement_fichier')); ?>

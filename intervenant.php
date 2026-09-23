@@ -221,7 +221,7 @@ if ($iv) {
     <div class="wrap">
       <div class="head">
         <span class="eyebrow">Projet personnel</span>
-        <h2>En cours de construction</h2>
+        <h2><?= !empty($iv['projet_developpement_nom']) ? htmlspecialchars($iv['projet_developpement_nom']) : 'En cours de construction' ?></h2>
       </div>
       <?php if ($iv['projet_developpement_description']): ?><p class="lede" style="white-space:pre-line"><?= htmlspecialchars($iv['projet_developpement_description']) ?></p><?php endif; ?>
       <?php if ($projetDocUrl): ?>
