@@ -16,7 +16,7 @@ $types_labels = [
     'association' => 'Association', 'entreprise' => 'Entreprise', 'autre' => 'Autre',
 ];
 $statuts_labels = [
-    'potentiel' => 'Potentiel', 'actif' => 'Actif', 'inactif' => 'Inactif', 'en_pause' => 'En pause',
+    'potentiel' => 'Potentiel', 'actif' => 'Actif', 'partenaire' => 'Partenaire', 'inactif' => 'Inactif', 'en_pause' => 'En pause',
 ];
 $etapes_labels = [
     'premiere_rencontre' => 'Première rencontre',
@@ -339,7 +339,13 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
 })();
 </script>
 
-<div class="mavka-form-section" id="rencontres" style="margin-top:24px; padding:20px;">
+<div class="mavka-form-section" id="rencontres-projets" style="margin-top:24px; padding:20px;">
+  <div class="mavka-tabs">
+    <button type="button" class="mavka-tab" data-tab-target="rencontres">Rencontres</button>
+    <button type="button" class="mavka-tab" data-tab-target="projets">Projets &amp; accords</button>
+  </div>
+
+  <div data-tab-panel="rencontres">
   <h3>Rencontres (négociations)</h3>
   <?php if ($rencontres): ?>
   <table class="mavka-table" style="margin-bottom:16px;">
@@ -401,9 +407,9 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
       <button type="submit" class="mavka-btn mavka-btn--primary">Ajouter</button>
     </form>
   </details>
-</div>
+  </div>
 
-<div class="mavka-form-section" id="projets" style="margin-top:24px; padding:20px;">
+  <div data-tab-panel="projets">
   <h3>Projets &amp; accords</h3>
   <p class="mavka-form-section__hint">Ce qui découle des rencontres — pas l'inverse.</p>
   <?php if ($projets): ?>
@@ -448,7 +454,30 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
       <button type="submit" class="mavka-btn mavka-btn--primary">Ajouter</button>
     </form>
   </details>
+  </div>
 </div>
+
+<script>
+(function(){
+  var boutons = document.querySelectorAll('.mavka-tab[data-tab-target]');
+  var panneaux = document.querySelectorAll('[data-tab-panel]');
+  function activer(nom){
+    boutons.forEach(function(b){ b.classList.toggle('mavka-tab--active', b.dataset.tabTarget === nom); });
+    panneaux.forEach(function(p){ p.hidden = p.dataset.tabPanel !== nom; });
+  }
+  boutons.forEach(function(b){
+    b.addEventListener('click', function(){
+      activer(b.dataset.tabTarget);
+      history.replaceState(null, '', '#' + b.dataset.tabTarget);
+    });
+  });
+  var initial = (location.hash || '').replace('#', '');
+  activer(initial === 'projets' ? 'projets' : 'rencontres');
+  if (initial === 'rencontres' || initial === 'projets') {
+    document.getElementById('rencontres-projets').scrollIntoView({block: 'start'});
+  }
+})();
+</script>
 
 <?php endif; ?>
 <?php admin_footer(); ?>

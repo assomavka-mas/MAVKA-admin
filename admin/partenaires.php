@@ -16,6 +16,7 @@ if (isset($_GET['delete'])) {
 $statuts_labels = [
     'potentiel' => 'Potentiel',
     'actif' => 'Actif',
+    'partenaire' => 'Partenaire',
     'inactif' => 'Inactif',
     'en_pause' => 'En pause',
 ];
@@ -52,14 +53,14 @@ function part_tri_lien(string $col, string $libelle, string $triActuel, string $
     return '<a href="?sort=' . urlencode($col) . '&dir=' . $prochainSens . '">' . htmlspecialchars($libelle) . $fleche . '</a>';
 }
 
-admin_header('Partenaires', $user, 'partenaires');
+admin_header('Contacts', $user, 'partenaires');
 ?>
 <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
-  <h1>Partenaires</h1>
-  <a href="/admin/partenaire-form.php" class="mavka-btn mavka-btn--primary">+ Nouveau partenaire</a>
+  <h1>Contacts</h1>
+  <a href="/admin/partenaire-form.php" class="mavka-btn mavka-btn--primary">+ Nouveau contact</a>
 </div>
 <?php if (isset($_GET['ok'])): ?><?php flash('ok', 'Enregistré avec succès.'); ?><?php endif; ?>
-<p style="font-size:12.5px; color:var(--mavka-color-text-muted); margin:8px 0 0;">Mairies, centres sociaux, fondations... Clique un titre de colonne pour trier.</p>
+<p style="font-size:12.5px; color:var(--mavka-color-text-muted); margin:8px 0 0;">Mairies, centres sociaux, fondations, associations... Clique un titre de colonne pour trier (Nom, Type, Ville, Statut, Dernière rencontre). Statut « Partenaire » = relation établie, à distinguer des contacts encore au stade « Potentiel ».</p>
 
 <table class="mavka-table" style="margin-top:12px;">
   <tr>

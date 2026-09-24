@@ -114,6 +114,17 @@ tr.mavka-row--incomplete .mavka-editable:hover { background: rgba(255,255,255,.6
   box-shadow: 0 8px 24px rgba(0,0,0,.12); min-width: 240px; max-height: 360px; overflow-y: auto; }
 .mavka-colpicker label { display: flex; align-items: center; gap: 8px; font-size: 13.5px; padding: 4px 0; font-weight: 400; }
 
+/* Onglets pour basculer entre deux blocs sans allonger la page (ex. Rencontres / Projets d'un
+   partenaire) — placés en haut à droite du bloc plutôt qu'empilés l'un sous l'autre. */
+.mavka-tabs { display: flex; justify-content: flex-end; gap: 6px; margin-bottom: 16px; }
+.mavka-tab {
+  font: inherit; font-weight: 700; font-size: 13.5px; padding: 7px 16px; cursor: pointer;
+  border-radius: var(--mavka-radius-pill); border: 2px solid var(--mavka-color-teal-light);
+  background: #fff; color: var(--mavka-color-text-muted);
+}
+.mavka-tab:hover { border-color: var(--mavka-color-teal); }
+.mavka-tab--active { background: var(--mavka-color-teal); border-color: var(--mavka-color-teal); color: #fff; }
+
 .mavka-form label { display: block; font-weight: 700; font-size: 13.5px; margin: 14px 0 5px; color: var(--mavka-color-ink); }
 .mavka-form input, .mavka-form select, .mavka-form textarea {
   width: 100%; padding: 10px 12px; border-radius: 10px; border: 1.5px solid var(--mavka-color-teal-light);

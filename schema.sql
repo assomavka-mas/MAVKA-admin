@@ -243,7 +243,7 @@ CREATE TABLE IF NOT EXISTS partenaires_organisations (
   site_web VARCHAR(500) NULL,
   email_general VARCHAR(255) NULL,
   telephone VARCHAR(50) NULL,
-  statut ENUM('potentiel','actif','inactif','en_pause') NOT NULL DEFAULT 'potentiel',
+  statut ENUM('potentiel','actif','partenaire','inactif','en_pause') NOT NULL DEFAULT 'potentiel', -- v31 : "partenaire" = relation établie
   notes TEXT NULL,
   dossier_drive_lien VARCHAR(500) NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
