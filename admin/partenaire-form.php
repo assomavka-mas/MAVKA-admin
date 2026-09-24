@@ -53,6 +53,37 @@ $fonctions_suggestions = [
 ];
 $genre_labels = ['M' => 'M.', 'Mme' => 'Mme', 'non_precise' => 'Non précisé'];
 
+// Champs communs au formulaire "Ajouter un contact" et à celui de modification — $c vide (mode
+// ajout) ou pré-rempli (mode modification). La date de nomination d'un maire etc. change peu,
+// mais un nom mal orthographié, une fonction ou un genre mal devinés au premier contact,
+// Larysa veut pouvoir les corriger au fil de sa connaissance de la personne (voir le "genre"
+// pas toujours évident depuis l'étranger — prénoms français pas toujours univoques).
+function partenaire_contact_champs(array $c, array $genre_labels, array $influence_labels): void {
+    ?>
+    <label>Nom <input type="text" name="nom" value="<?= htmlspecialchars($c['nom'] ?? '') ?>" required></label>
+    <label>Genre
+      <select name="genre">
+        <?php foreach ($genre_labels as $val => $label): ?>
+        <option value="<?= $val ?>" <?= ($c['genre'] ?? 'non_precise') === $val ? 'selected' : '' ?>><?= htmlspecialchars($label) ?></option>
+        <?php endforeach; ?>
+      </select>
+    </label>
+    <label>Fonction <input type="text" name="fonction" list="fonctions_suggestions" value="<?= htmlspecialchars($c['fonction'] ?? '') ?>" placeholder="Ex. adjoint·e, secrétaire de mairie..."></label>
+    <label>Email <input type="email" name="email" value="<?= htmlspecialchars($c['email'] ?? '') ?>"></label>
+    <label>Email secondaire <input type="email" name="email_secondaire" value="<?= htmlspecialchars($c['email_secondaire'] ?? '') ?>" placeholder="Ex. email personnel, en plus de celui de la mairie"></label>
+    <label>Téléphone <input type="text" name="telephone" value="<?= htmlspecialchars($c['telephone'] ?? '') ?>"></label>
+    <label>Langue <input type="text" name="langue" value="<?= htmlspecialchars($c['langue'] ?? '') ?>" placeholder="Français, ukrainien..."></label>
+    <label>Niveau d'influence
+      <select name="niveau_influence">
+        <?php foreach ($influence_labels as $val => $label): ?>
+        <option value="<?= $val ?>" <?= ($c['niveau_influence'] ?? 'inconnu') === $val ? 'selected' : '' ?>><?= htmlspecialchars($label) ?></option>
+        <?php endforeach; ?>
+      </select>
+    </label>
+    <label>Notes <textarea name="notes"><?= htmlspecialchars($c['notes'] ?? '') ?></textarea></label>
+    <?php
+}
+
 $org = [
     'nom' => '', 'type' => 'autre', 'ville' => '', 'adresse' => '', 'site_web' => '',
     'email_general' => '', 'telephone' => '', 'statut' => 'potentiel', 'notes' => '', 'dossier_drive_lien' => '',
@@ -100,6 +131,19 @@ if ($id) {
                 $id, trim($_POST['nom'] ?? ''), $genre, trim($_POST['fonction'] ?? ''), trim($_POST['email'] ?? ''),
                 trim($_POST['email_secondaire'] ?? ''), trim($_POST['telephone'] ?? ''), trim($_POST['langue'] ?? ''),
                 $niveau, trim($_POST['notes'] ?? ''),
+            ]);
+        header('Location: /admin/partenaire-form.php?id=' . $id . '#contacts');
+        exit;
+    }
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'update_contact') {
+        $contact_id = (int)($_POST['contact_id'] ?? 0);
+        $niveau = in_array($_POST['niveau_influence'] ?? '', array_keys($influence_labels), true) ? $_POST['niveau_influence'] : 'inconnu';
+        $genre = in_array($_POST['genre'] ?? '', array_keys($genre_labels), true) ? $_POST['genre'] : 'non_precise';
+        db()->prepare('UPDATE partenaires_contacts SET nom=?, genre=?, fonction=?, email=?, email_secondaire=?, telephone=?, langue=?, niveau_influence=?, notes=? WHERE id=? AND organisation_id=?')
+            ->execute([
+                trim($_POST['nom'] ?? ''), $genre, trim($_POST['fonction'] ?? ''), trim($_POST['email'] ?? ''),
+                trim($_POST['email_secondaire'] ?? ''), trim($_POST['telephone'] ?? ''), trim($_POST['langue'] ?? ''),
+                $niveau, trim($_POST['notes'] ?? ''), $contact_id, $id,
             ]);
         header('Location: /admin/partenaire-form.php?id=' . $id . '#contacts');
         exit;
@@ -197,6 +241,11 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
 
 <div class="mavka-form-section" id="contacts" style="margin-top:32px; padding:20px;">
   <h3>Contacts</h3>
+  <datalist id="fonctions_suggestions">
+    <?php foreach ($fonctions_suggestions as $f): ?>
+    <option value="<?= htmlspecialchars($f) ?>">
+    <?php endforeach; ?>
+  </datalist>
   <?php if ($contacts): ?>
   <table class="mavka-table" style="margin-bottom:16px;">
     <tr><th></th><th>Nom</th><th>Fonction</th><th>Email</th><th>Email secondaire</th><th>Téléphone</th><th>Influence</th><th></th></tr>
@@ -209,7 +258,18 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
       <td><?= htmlspecialchars($c['email_secondaire'] ?? '') ?></td>
       <td><?= htmlspecialchars($c['telephone'] ?? '') ?></td>
       <td><?= htmlspecialchars($influence_labels[$c['niveau_influence']] ?? $c['niveau_influence']) ?></td>
-      <td><a href="?id=<?= $id ?>&delete_contact=<?= $c['id'] ?>#contacts" class="mavka-btn mavka-btn--sm mavka-btn--danger" onclick="return confirm('Supprimer ce contact ?');">Supprimer</a></td>
+      <td style="white-space:nowrap;">
+        <details style="display:inline-block;">
+          <summary class="mavka-btn mavka-btn--sm" style="display:inline-block;">Modifier</summary>
+          <form method="post" class="mavka-form" style="margin-top:12px; min-width:280px;">
+            <input type="hidden" name="action" value="update_contact">
+            <input type="hidden" name="contact_id" value="<?= $c['id'] ?>">
+            <?php partenaire_contact_champs($c, $genre_labels, $influence_labels); ?>
+            <button type="submit" class="mavka-btn mavka-btn--primary">Enregistrer</button>
+          </form>
+        </details>
+        <a href="?id=<?= $id ?>&delete_contact=<?= $c['id'] ?>#contacts" class="mavka-btn mavka-btn--sm mavka-btn--danger" onclick="return confirm('Supprimer ce contact ?');">Supprimer</a>
+      </td>
     </tr>
     <?php endforeach; ?>
   </table>
@@ -218,32 +278,7 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
     <summary class="mavka-btn mavka-btn--sm">+ Ajouter un contact</summary>
     <form method="post" class="mavka-form" style="margin-top:12px;">
       <input type="hidden" name="action" value="add_contact">
-      <label>Nom <input type="text" name="nom" required></label>
-      <label>Genre
-        <select name="genre">
-          <?php foreach ($genre_labels as $val => $label): ?>
-          <option value="<?= $val ?>" <?= $val === 'non_precise' ? 'selected' : '' ?>><?= htmlspecialchars($label) ?></option>
-          <?php endforeach; ?>
-        </select>
-      </label>
-      <label>Fonction <input type="text" name="fonction" list="fonctions_suggestions" placeholder="Ex. adjoint·e, secrétaire de mairie..."></label>
-      <datalist id="fonctions_suggestions">
-        <?php foreach ($fonctions_suggestions as $f): ?>
-        <option value="<?= htmlspecialchars($f) ?>">
-        <?php endforeach; ?>
-      </datalist>
-      <label>Email <input type="email" name="email"></label>
-      <label>Email secondaire <input type="email" name="email_secondaire" placeholder="Ex. email personnel, en plus de celui de la mairie"></label>
-      <label>Téléphone <input type="text" name="telephone"></label>
-      <label>Langue <input type="text" name="langue" placeholder="Français, ukrainien..."></label>
-      <label>Niveau d'influence
-        <select name="niveau_influence">
-          <?php foreach ($influence_labels as $val => $label): ?>
-          <option value="<?= $val ?>" <?= $val === 'inconnu' ? 'selected' : '' ?>><?= htmlspecialchars($label) ?></option>
-          <?php endforeach; ?>
-        </select>
-      </label>
-      <label>Notes <textarea name="notes"></textarea></label>
+      <?php partenaire_contact_champs([], $genre_labels, $influence_labels); ?>
       <button type="submit" class="mavka-btn mavka-btn--primary">Ajouter</button>
     </form>
   </details>
