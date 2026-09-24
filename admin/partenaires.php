@@ -35,6 +35,27 @@ $organisations = db()->query('
     FROM partenaires_organisations o
 ')->fetchAll();
 
+// Liste des villes pour le filtre — regroupées sans tenir compte de la casse ("Garat" et "GARAT"
+// comptent comme la même ville), sinon une saisie moins uniforme ferait doublon dans le menu.
+$villes_par_cle = [];
+foreach ($organisations as $o) {
+    $v = trim((string)($o['ville'] ?? ''));
+    if ($v === '') continue;
+    $cle = mb_strtolower($v);
+    if (!isset($villes_par_cle[$cle])) $villes_par_cle[$cle] = $v;
+}
+$villes_disponibles = array_values($villes_par_cle);
+sort($villes_disponibles, SORT_FLAG_CASE | SORT_STRING);
+
+$filtre_type = $_GET['type'] ?? '';
+$filtre_ville = $_GET['ville'] ?? '';
+if ($filtre_type !== '' && isset($types_labels[$filtre_type])) {
+    $organisations = array_values(array_filter($organisations, fn($o) => $o['type'] === $filtre_type));
+}
+if ($filtre_ville !== '') {
+    $organisations = array_values(array_filter($organisations, fn($o) => mb_strtolower(trim((string)($o['ville'] ?? ''))) === mb_strtolower($filtre_ville)));
+}
+
 $tri = $_GET['sort'] ?? 'nom';
 $sens = ($_GET['dir'] ?? 'asc') === 'desc' ? 'desc' : 'asc';
 $colonnes_triables = ['nom', 'type', 'ville', 'statut', 'derniere_rencontre'];
@@ -47,28 +68,47 @@ if (in_array($tri, $colonnes_triables, true)) {
     });
 }
 
-function part_tri_lien(string $col, string $libelle, string $triActuel, string $sensActuel): string {
+function part_tri_lien(string $col, string $libelle, string $triActuel, string $sensActuel, string $filtre_type, string $filtre_ville): string {
     $prochainSens = ($triActuel === $col && $sensActuel === 'asc') ? 'desc' : 'asc';
     $fleche = $triActuel === $col ? ($sensActuel === 'asc' ? ' ▲' : ' ▼') : '';
-    return '<a href="?sort=' . urlencode($col) . '&dir=' . $prochainSens . '">' . htmlspecialchars($libelle) . $fleche . '</a>';
+    $params = ['sort' => $col, 'dir' => $prochainSens];
+    if ($filtre_type !== '') $params['type'] = $filtre_type;
+    if ($filtre_ville !== '') $params['ville'] = $filtre_ville;
+    return '<a href="?' . http_build_query($params) . '">' . htmlspecialchars($libelle) . $fleche . '</a>';
 }
 
 admin_header('Contacts', $user, 'partenaires');
 ?>
 <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
-  <h1>Contacts</h1>
-  <a href="/admin/partenaire-form.php" class="mavka-btn mavka-btn--primary">+ Nouveau contact</a>
+  <h1>Contacts<?php if ($filtre_type !== '' || $filtre_ville !== ''): ?><span style="font-weight:400; color:var(--mavka-color-text-muted); font-size:18px;"> — <?= count($organisations) ?></span><?php endif; ?></h1>
+  <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+    <select class="mavka-btn mavka-btn--sm" style="cursor:pointer;" onchange="var u=new URL(location.href); if(this.value){u.searchParams.set('type', this.value);}else{u.searchParams.delete('type');} location.href=u.toString();">
+      <option value="">— Tous les types —</option>
+      <?php foreach ($types_labels as $val => $label): ?>
+      <option value="<?= htmlspecialchars($val) ?>" <?= $filtre_type === $val ? 'selected' : '' ?>><?= htmlspecialchars($label) ?></option>
+      <?php endforeach; ?>
+    </select>
+    <select class="mavka-btn mavka-btn--sm" style="cursor:pointer;" onchange="var u=new URL(location.href); if(this.value){u.searchParams.set('ville', this.value);}else{u.searchParams.delete('ville');} location.href=u.toString();">
+      <option value="">— Toutes les villes —</option>
+      <?php foreach ($villes_disponibles as $v): ?>
+      <option value="<?= htmlspecialchars($v) ?>" <?= mb_strtolower($filtre_ville) === mb_strtolower($v) ? 'selected' : '' ?>><?= htmlspecialchars($v) ?></option>
+      <?php endforeach; ?>
+    </select>
+    <a href="/admin/partenaire-form.php" class="mavka-btn mavka-btn--primary">+ Nouveau contact</a>
+  </div>
 </div>
 <?php if (isset($_GET['ok'])): ?><?php flash('ok', 'Enregistré avec succès.'); ?><?php endif; ?>
-<p style="font-size:12.5px; color:var(--mavka-color-text-muted); margin:8px 0 0;">Mairies, centres sociaux, fondations, associations... Clique un titre de colonne pour trier (Nom, Type, Ville, Statut, Dernière rencontre). Statut « Partenaire » = relation établie, à distinguer des contacts encore au stade « Potentiel ».</p>
+<p style="font-size:12.5px; color:var(--mavka-color-text-muted); margin:8px 0 0;">Mairies, centres sociaux, fondations, associations... Clique un titre de colonne pour trier (Nom, Type, Ville, Statut, Dernière rencontre), ou filtre par Type/Ville ci-dessus. Statut « Partenaire » = relation établie, à distinguer des contacts encore au stade « Potentiel ».</p>
 
 <table class="mavka-table" style="margin-top:12px;">
   <tr>
-    <th><?= part_tri_lien('nom', 'Nom', $tri, $sens) ?></th>
-    <th><?= part_tri_lien('type', 'Type', $tri, $sens) ?></th>
-    <th><?= part_tri_lien('ville', 'Ville', $tri, $sens) ?></th>
-    <th><?= part_tri_lien('statut', 'Statut', $tri, $sens) ?></th>
-    <th><?= part_tri_lien('derniere_rencontre', 'Dernière rencontre', $tri, $sens) ?></th>
+    <th><?= part_tri_lien('nom', 'Nom', $tri, $sens, $filtre_type, $filtre_ville) ?></th>
+    <th><?= part_tri_lien('type', 'Type', $tri, $sens, $filtre_type, $filtre_ville) ?></th>
+    <th><?= part_tri_lien('ville', 'Ville', $tri, $sens, $filtre_type, $filtre_ville) ?></th>
+    <th><?= part_tri_lien('statut', 'Statut', $tri, $sens, $filtre_type, $filtre_ville) ?></th>
+    <th>Email</th>
+    <th>Téléphone</th>
+    <th><?= part_tri_lien('derniere_rencontre', 'Dernière rencontre', $tri, $sens, $filtre_type, $filtre_ville) ?></th>
     <th></th>
   </tr>
   <?php foreach ($organisations as $o): ?>
@@ -77,6 +117,8 @@ admin_header('Contacts', $user, 'partenaires');
     <td><?= htmlspecialchars($types_labels[$o['type']] ?? $o['type']) ?></td>
     <td><?= htmlspecialchars($o['ville'] ?? '') ?></td>
     <td><?= htmlspecialchars($statuts_labels[$o['statut']] ?? $o['statut']) ?></td>
+    <td><?php if ($o['email_general']): ?><a href="mailto:<?= htmlspecialchars($o['email_general']) ?>"><?= htmlspecialchars($o['email_general']) ?></a><?php else: ?>—<?php endif; ?></td>
+    <td><?= htmlspecialchars($o['telephone'] ?? '') ?: '—' ?></td>
     <td><?= $o['derniere_rencontre'] ? htmlspecialchars(date('d/m/Y', strtotime($o['derniere_rencontre']))) : '—' ?></td>
     <td style="white-space:nowrap;">
       <a href="/admin/partenaire-form.php?id=<?= $o['id'] ?>" class="mavka-btn mavka-btn--sm">Modifier</a>
@@ -86,7 +128,7 @@ admin_header('Contacts', $user, 'partenaires');
   </tr>
   <?php endforeach; ?>
   <?php if (!$organisations): ?>
-  <tr><td colspan="6" style="color:var(--mavka-color-text-muted);">Aucun partenaire pour l'instant.</td></tr>
+  <tr><td colspan="8" style="color:var(--mavka-color-text-muted);">Aucun contact pour l'instant.</td></tr>
   <?php endif; ?>
 </table>
 <?php admin_footer(); ?>
