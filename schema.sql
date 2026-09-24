@@ -255,9 +255,10 @@ CREATE TABLE IF NOT EXISTS partenaires_contacts (
   nom VARCHAR(255) NOT NULL,
   fonction VARCHAR(255) NULL,
   email VARCHAR(255) NULL,
+  email_secondaire VARCHAR(255) NULL,    -- ex. email mairie + email personnel (v28)
   telephone VARCHAR(50) NULL,
   langue VARCHAR(100) NULL,
-  decideur TINYINT(1) NOT NULL DEFAULT 0,
+  niveau_influence ENUM('decideur_final','decideur_delegue','consultatif','administratif','inconnu') NOT NULL DEFAULT 'inconnu', -- v28, remplace decideur (trop grossier)
   notes TEXT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (organisation_id) REFERENCES partenaires_organisations(id) ON DELETE CASCADE

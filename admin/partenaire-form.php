@@ -28,6 +28,25 @@ $etapes_labels = [
 ];
 $types_rencontre_labels = ['rencontre' => 'Rencontre', 'appel' => 'Appel', 'email' => 'Email', 'courrier' => 'Courrier'];
 $statuts_projet_labels = ['en_cours' => 'En cours', 'termine' => 'Terminé', 'abandonne' => 'Abandonné'];
+// Échelle volontairement indépendante des titres français précis (maire, adjoint délégué,
+// conseiller communautaire...) — utilisable sans connaître toutes leurs nuances. Voir
+// alter-champs-v28.sql.
+$influence_labels = [
+    'decideur_final' => 'Décision finale (maire, président·e...)',
+    'decideur_delegue' => 'Décision déléguée (adjoint·e, conseiller·ère délégué·e, vice-président·e...)',
+    'consultatif' => 'Influence / avis consultatif (conseiller·ère, membre de commission...)',
+    'administratif' => 'Suivi administratif (secrétaire de mairie, DGS...)',
+    'inconnu' => 'Inconnu pour l\'instant',
+];
+// Suggestions pour le champ "Fonction" (autocomplétion libre, pas une liste fermée) — pense-bête
+// des titres français les plus courants, pour ne pas avoir à les connaître par cœur.
+$fonctions_suggestions = [
+    'Maire', '1er adjoint', '2e adjoint', '3e adjoint', '4e adjoint',
+    'Conseiller municipal délégué', 'Conseillère municipale déléguée', 'Conseiller municipal', 'Conseillère municipale',
+    'Membre de commission', 'Vice-président', 'Vice-présidente', 'Conseiller communautaire', 'Conseillère communautaire',
+    'Secrétaire de mairie', 'Directeur général des services (DGS)', 'Directrice générale des services (DGS)',
+    'Chargé de mission vie associative', 'Chargée de mission vie associative', 'Directeur', 'Directrice', 'Président', 'Présidente',
+];
 
 $org = [
     'nom' => '', 'type' => 'autre', 'ville' => '', 'adresse' => '', 'site_web' => '',
@@ -69,11 +88,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_
 // ---- Sous-listes : uniquement possibles une fois l'organisation créée ----
 if ($id) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add_contact') {
-        db()->prepare('INSERT INTO partenaires_contacts (organisation_id, nom, fonction, email, telephone, langue, decideur, notes) VALUES (?,?,?,?,?,?,?,?)')
+        $niveau = in_array($_POST['niveau_influence'] ?? '', array_keys($influence_labels), true) ? $_POST['niveau_influence'] : 'inconnu';
+        db()->prepare('INSERT INTO partenaires_contacts (organisation_id, nom, fonction, email, email_secondaire, telephone, langue, niveau_influence, notes) VALUES (?,?,?,?,?,?,?,?,?)')
             ->execute([
                 $id, trim($_POST['nom'] ?? ''), trim($_POST['fonction'] ?? ''), trim($_POST['email'] ?? ''),
-                trim($_POST['telephone'] ?? ''), trim($_POST['langue'] ?? ''), isset($_POST['decideur']) ? 1 : 0,
-                trim($_POST['notes'] ?? ''),
+                trim($_POST['email_secondaire'] ?? ''), trim($_POST['telephone'] ?? ''), trim($_POST['langue'] ?? ''),
+                $niveau, trim($_POST['notes'] ?? ''),
             ]);
         header('Location: /admin/partenaire-form.php?id=' . $id . '#contacts');
         exit;
@@ -173,14 +193,15 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
   <h3>Contacts</h3>
   <?php if ($contacts): ?>
   <table class="mavka-table" style="margin-bottom:16px;">
-    <tr><th>Nom</th><th>Fonction</th><th>Email</th><th>Téléphone</th><th>Décideur</th><th></th></tr>
+    <tr><th>Nom</th><th>Fonction</th><th>Email</th><th>Email secondaire</th><th>Téléphone</th><th>Influence</th><th></th></tr>
     <?php foreach ($contacts as $c): ?>
     <tr>
       <td><?= htmlspecialchars($c['nom']) ?></td>
       <td><?= htmlspecialchars($c['fonction'] ?? '') ?></td>
       <td><?= htmlspecialchars($c['email'] ?? '') ?></td>
+      <td><?= htmlspecialchars($c['email_secondaire'] ?? '') ?></td>
       <td><?= htmlspecialchars($c['telephone'] ?? '') ?></td>
-      <td><?= $c['decideur'] ? '✓' : '' ?></td>
+      <td><?= htmlspecialchars($influence_labels[$c['niveau_influence']] ?? $c['niveau_influence']) ?></td>
       <td><a href="?id=<?= $id ?>&delete_contact=<?= $c['id'] ?>#contacts" class="mavka-btn mavka-btn--sm mavka-btn--danger" onclick="return confirm('Supprimer ce contact ?');">Supprimer</a></td>
     </tr>
     <?php endforeach; ?>
@@ -191,11 +212,23 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
     <form method="post" class="mavka-form" style="margin-top:12px;">
       <input type="hidden" name="action" value="add_contact">
       <label>Nom <input type="text" name="nom" required></label>
-      <label>Fonction <input type="text" name="fonction"></label>
+      <label>Fonction <input type="text" name="fonction" list="fonctions_suggestions" placeholder="Ex. 1er adjoint, secrétaire de mairie..."></label>
+      <datalist id="fonctions_suggestions">
+        <?php foreach ($fonctions_suggestions as $f): ?>
+        <option value="<?= htmlspecialchars($f) ?>">
+        <?php endforeach; ?>
+      </datalist>
       <label>Email <input type="email" name="email"></label>
+      <label>Email secondaire <input type="email" name="email_secondaire" placeholder="Ex. email personnel, en plus de celui de la mairie"></label>
       <label>Téléphone <input type="text" name="telephone"></label>
       <label>Langue <input type="text" name="langue" placeholder="Français, ukrainien..."></label>
-      <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" name="decideur" value="1"> A le pouvoir de décision</label>
+      <label>Niveau d'influence
+        <select name="niveau_influence">
+          <?php foreach ($influence_labels as $val => $label): ?>
+          <option value="<?= $val ?>" <?= $val === 'inconnu' ? 'selected' : '' ?>><?= htmlspecialchars($label) ?></option>
+          <?php endforeach; ?>
+        </select>
+      </label>
       <label>Notes <textarea name="notes"></textarea></label>
       <button type="submit" class="mavka-btn mavka-btn--primary">Ajouter</button>
     </form>
