@@ -41,7 +41,7 @@ $influence_labels = [
 // Suggestions pour le champ "Fonction" (autocomplétion libre, pas une liste fermée) — pense-bête
 // des titres français les plus courants, pour ne pas avoir à les connaître par cœur.
 $fonctions_suggestions = [
-    'Maire', '1er adjoint', '2e adjoint', '3e adjoint', '4e adjoint',
+    'Maire', '1er adjoint', '1ère adjointe', '2e adjoint', '2e adjointe', '3e adjoint', '3e adjointe', '4e adjoint', '4e adjointe',
     'Conseiller municipal délégué', 'Conseillère municipale déléguée', 'Conseiller municipal', 'Conseillère municipale',
     'Membre de commission', 'Vice-président', 'Vice-présidente', 'Conseiller communautaire', 'Conseillère communautaire',
     'Secrétaire de mairie', 'Directeur général des services (DGS)', 'Directrice générale des services (DGS)',
