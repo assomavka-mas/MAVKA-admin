@@ -22,7 +22,7 @@ $id = (int)($_POST['id'] ?? 0);
 $field = (string)($_POST['field'] ?? '');
 $value = $_POST['value'] ?? '';
 
-$champs_texte = ['nom', 'fonction', 'email', 'telephone', 'langue'];
+$champs_texte = ['nom', 'fonction', 'email', 'telephone', 'langue', 'notes'];
 $champs_enum = [
     'genre' => ['M', 'Mme', 'non_precise'],
     'niveau_influence' => ['decideur_final', 'decideur_delegue', 'consultatif', 'administratif', 'inconnu'],

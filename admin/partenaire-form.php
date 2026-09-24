@@ -235,7 +235,7 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
   <?php if ($contacts): ?>
   <p style="font-size:12.5px; color:var(--mavka-color-text-muted); margin:0 0 8px;">Clique une cellule pour la corriger directement — pratique pour ajuster au fil de ta connaissance de la personne (orthographe, genre, fonction...).</p>
   <table class="mavka-table" style="margin-bottom:16px;">
-    <tr><th>Genre</th><th>Nom</th><th>Fonction</th><th>Email</th><th>Téléphone</th><th>Influence</th><th></th></tr>
+    <tr><th>Genre</th><th>Nom</th><th>Fonction</th><th>Email</th><th>Téléphone</th><th>Influence</th><th>Notes</th><th></th></tr>
     <?php foreach ($contacts as $c): ?>
     <tr>
       <td>
@@ -255,6 +255,9 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
           <option value="<?= $val ?>" <?= $c['niveau_influence'] === $val ? 'selected' : '' ?>><?= htmlspecialchars($label) ?></option>
           <?php endforeach; ?>
         </select>
+      </td>
+      <td style="max-width:220px;">
+        <span class="mavka-editable" data-contact-editable data-field-type="textarea" data-id="<?= $c['id'] ?>" data-field="notes"><?= htmlspecialchars($c['notes'] ?? '') ?></span>
       </td>
       <td><a href="?id=<?= $id ?>&delete_contact=<?= $c['id'] ?>#contacts" class="mavka-btn mavka-btn--sm mavka-btn--danger" onclick="return confirm('Supprimer ce contact ?');">Supprimer</a></td>
     </tr>
@@ -285,11 +288,17 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
 
   document.querySelectorAll('[data-contact-editable]').forEach(function(span){
     span.addEventListener('click', function(){
-      if (span.querySelector('input')) return;
+      if (span.querySelector('input, textarea')) return;
+      var estTextarea = span.dataset.fieldType === 'textarea';
       var original = span.textContent;
-      var input = document.createElement('input');
-      input.type = span.dataset.field === 'email' ? 'email' : 'text';
-      if (span.dataset.list) input.setAttribute('list', span.dataset.list);
+      var input = document.createElement(estTextarea ? 'textarea' : 'input');
+      if (!estTextarea) {
+        input.type = span.dataset.field === 'email' ? 'email' : 'text';
+        if (span.dataset.list) input.setAttribute('list', span.dataset.list);
+      } else {
+        input.rows = 3;
+        input.style.width = '100%';
+      }
       input.value = original;
       span.textContent = '';
       span.appendChild(input);
@@ -308,7 +317,7 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
         });
       }
       input.addEventListener('keydown', function(e){
-        if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+        if (e.key === 'Enter' && !estTextarea) { e.preventDefault(); input.blur(); }
         if (e.key === 'Escape') { input.value = original; input.blur(); }
       });
       input.addEventListener('blur', tenterEnregistrer);
