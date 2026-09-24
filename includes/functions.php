@@ -327,3 +327,18 @@ function journal_logger(int $admin_id, string $action, ?string $detail = null): 
     $stmt = db()->prepare('INSERT INTO journal_activite (admin_id, action, detail) VALUES (?, ?, ?)');
     $stmt->execute([$admin_id, $action, $detail]);
 }
+
+// Lien "Ajouter à Google Calendar" (aucune clé API, aucune configuration serveur — juste une
+// URL avec les paramètres de l'événement pré-remplis). Volontairement pas de vraie synchro
+// automatique via l'API Google Calendar : ça demanderait un projet Google Cloud, un écran de
+// consentement OAuth et la conservation sécurisée d'un jeton sur le serveur — disproportionné
+// pour ce besoin. $dateISO = 'YYYY-MM-DD' ; génère un événement d'une journée entière.
+function google_calendar_lien(string $titre, string $dateISO, ?string $details = null): string {
+    $debut = str_replace('-', '', $dateISO);
+    $fin = str_replace('-', '', date('Y-m-d', strtotime($dateISO . ' +1 day')));
+    $params = ['action' => 'TEMPLATE', 'text' => $titre, 'dates' => $debut . '/' . $fin];
+    if ($details) {
+        $params['details'] = $details;
+    }
+    return 'https://calendar.google.com/calendar/render?' . http_build_query($params);
+}
