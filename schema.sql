@@ -256,7 +256,6 @@ CREATE TABLE IF NOT EXISTS partenaires_contacts (
   genre ENUM('M','Mme','non_precise') NOT NULL DEFAULT 'non_precise', -- v29 : sert à accorder les titres/emails, plutôt que dupliquer chaque fonction au masculin et au féminin
   fonction VARCHAR(255) NULL,
   email VARCHAR(255) NULL,
-  email_secondaire VARCHAR(255) NULL,    -- ex. email mairie + email personnel (v28)
   telephone VARCHAR(50) NULL,
   langue VARCHAR(100) NULL,
   niveau_influence ENUM('decideur_final','decideur_delegue','consultatif','administratif','inconnu') NOT NULL DEFAULT 'inconnu', -- v28, remplace decideur (trop grossier)

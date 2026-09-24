@@ -70,7 +70,6 @@ function partenaire_contact_champs(array $c, array $genre_labels, array $influen
     </label>
     <label>Fonction <input type="text" name="fonction" list="fonctions_suggestions" value="<?= htmlspecialchars($c['fonction'] ?? '') ?>" placeholder="Ex. adjoint·e, secrétaire de mairie..."></label>
     <label>Email <input type="email" name="email" value="<?= htmlspecialchars($c['email'] ?? '') ?>"></label>
-    <label>Email secondaire <input type="email" name="email_secondaire" value="<?= htmlspecialchars($c['email_secondaire'] ?? '') ?>" placeholder="Ex. email personnel, en plus de celui de la mairie"></label>
     <label>Téléphone <input type="text" name="telephone" value="<?= htmlspecialchars($c['telephone'] ?? '') ?>"></label>
     <label>Langue <input type="text" name="langue" value="<?= htmlspecialchars($c['langue'] ?? '') ?>" placeholder="Français, ukrainien..."></label>
     <label>Niveau d'influence
@@ -126,24 +125,11 @@ if ($id) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add_contact') {
         $niveau = in_array($_POST['niveau_influence'] ?? '', array_keys($influence_labels), true) ? $_POST['niveau_influence'] : 'inconnu';
         $genre = in_array($_POST['genre'] ?? '', array_keys($genre_labels), true) ? $_POST['genre'] : 'non_precise';
-        db()->prepare('INSERT INTO partenaires_contacts (organisation_id, nom, genre, fonction, email, email_secondaire, telephone, langue, niveau_influence, notes) VALUES (?,?,?,?,?,?,?,?,?,?)')
+        db()->prepare('INSERT INTO partenaires_contacts (organisation_id, nom, genre, fonction, email, telephone, langue, niveau_influence, notes) VALUES (?,?,?,?,?,?,?,?,?)')
             ->execute([
                 $id, trim($_POST['nom'] ?? ''), $genre, trim($_POST['fonction'] ?? ''), trim($_POST['email'] ?? ''),
-                trim($_POST['email_secondaire'] ?? ''), trim($_POST['telephone'] ?? ''), trim($_POST['langue'] ?? ''),
+                trim($_POST['telephone'] ?? ''), trim($_POST['langue'] ?? ''),
                 $niveau, trim($_POST['notes'] ?? ''),
-            ]);
-        header('Location: /admin/partenaire-form.php?id=' . $id . '#contacts');
-        exit;
-    }
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'update_contact') {
-        $contact_id = (int)($_POST['contact_id'] ?? 0);
-        $niveau = in_array($_POST['niveau_influence'] ?? '', array_keys($influence_labels), true) ? $_POST['niveau_influence'] : 'inconnu';
-        $genre = in_array($_POST['genre'] ?? '', array_keys($genre_labels), true) ? $_POST['genre'] : 'non_precise';
-        db()->prepare('UPDATE partenaires_contacts SET nom=?, genre=?, fonction=?, email=?, email_secondaire=?, telephone=?, langue=?, niveau_influence=?, notes=? WHERE id=? AND organisation_id=?')
-            ->execute([
-                trim($_POST['nom'] ?? ''), $genre, trim($_POST['fonction'] ?? ''), trim($_POST['email'] ?? ''),
-                trim($_POST['email_secondaire'] ?? ''), trim($_POST['telephone'] ?? ''), trim($_POST['langue'] ?? ''),
-                $niveau, trim($_POST['notes'] ?? ''), $contact_id, $id,
             ]);
         header('Location: /admin/partenaire-form.php?id=' . $id . '#contacts');
         exit;
@@ -247,29 +233,30 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
     <?php endforeach; ?>
   </datalist>
   <?php if ($contacts): ?>
+  <p style="font-size:12.5px; color:var(--mavka-color-text-muted); margin:0 0 8px;">Clique une cellule pour la corriger directement — pratique pour ajuster au fil de ta connaissance de la personne (orthographe, genre, fonction...).</p>
   <table class="mavka-table" style="margin-bottom:16px;">
-    <tr><th></th><th>Nom</th><th>Fonction</th><th>Email</th><th>Email secondaire</th><th>Téléphone</th><th>Influence</th><th></th></tr>
+    <tr><th>Genre</th><th>Nom</th><th>Fonction</th><th>Email</th><th>Téléphone</th><th>Influence</th><th></th></tr>
     <?php foreach ($contacts as $c): ?>
     <tr>
-      <td><?= htmlspecialchars($genre_labels[$c['genre']] ?? '') ?></td>
-      <td><?= htmlspecialchars($c['nom']) ?></td>
-      <td><?= htmlspecialchars($c['fonction'] ?? '') ?></td>
-      <td><?= htmlspecialchars($c['email'] ?? '') ?></td>
-      <td><?= htmlspecialchars($c['email_secondaire'] ?? '') ?></td>
-      <td><?= htmlspecialchars($c['telephone'] ?? '') ?></td>
-      <td><?= htmlspecialchars($influence_labels[$c['niveau_influence']] ?? $c['niveau_influence']) ?></td>
-      <td style="white-space:nowrap;">
-        <details style="display:inline-block;">
-          <summary class="mavka-btn mavka-btn--sm" style="display:inline-block;">Modifier</summary>
-          <form method="post" class="mavka-form" style="margin-top:12px; min-width:280px;">
-            <input type="hidden" name="action" value="update_contact">
-            <input type="hidden" name="contact_id" value="<?= $c['id'] ?>">
-            <?php partenaire_contact_champs($c, $genre_labels, $influence_labels); ?>
-            <button type="submit" class="mavka-btn mavka-btn--primary">Enregistrer</button>
-          </form>
-        </details>
-        <a href="?id=<?= $id ?>&delete_contact=<?= $c['id'] ?>#contacts" class="mavka-btn mavka-btn--sm mavka-btn--danger" onclick="return confirm('Supprimer ce contact ?');">Supprimer</a>
+      <td>
+        <select data-contact-editable-select data-id="<?= $c['id'] ?>" data-field="genre">
+          <?php foreach ($genre_labels as $val => $label): ?>
+          <option value="<?= $val ?>" <?= $c['genre'] === $val ? 'selected' : '' ?>><?= htmlspecialchars($label) ?></option>
+          <?php endforeach; ?>
+        </select>
       </td>
+      <td><span class="mavka-editable" data-contact-editable data-id="<?= $c['id'] ?>" data-field="nom"><?= htmlspecialchars($c['nom']) ?></span></td>
+      <td><span class="mavka-editable" data-contact-editable data-id="<?= $c['id'] ?>" data-field="fonction" data-list="fonctions_suggestions"><?= htmlspecialchars($c['fonction'] ?? '') ?></span></td>
+      <td><span class="mavka-editable" data-contact-editable data-id="<?= $c['id'] ?>" data-field="email"><?= htmlspecialchars($c['email'] ?? '') ?></span></td>
+      <td><span class="mavka-editable" data-contact-editable data-id="<?= $c['id'] ?>" data-field="telephone"><?= htmlspecialchars($c['telephone'] ?? '') ?></span></td>
+      <td>
+        <select data-contact-editable-select data-id="<?= $c['id'] ?>" data-field="niveau_influence">
+          <?php foreach ($influence_labels as $val => $label): ?>
+          <option value="<?= $val ?>" <?= $c['niveau_influence'] === $val ? 'selected' : '' ?>><?= htmlspecialchars($label) ?></option>
+          <?php endforeach; ?>
+        </select>
+      </td>
+      <td><a href="?id=<?= $id ?>&delete_contact=<?= $c['id'] ?>#contacts" class="mavka-btn mavka-btn--sm mavka-btn--danger" onclick="return confirm('Supprimer ce contact ?');">Supprimer</a></td>
     </tr>
     <?php endforeach; ?>
   </table>
@@ -283,6 +270,65 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
     </form>
   </details>
 </div>
+
+<script>
+(function(){
+  function envoyer(id, field, value, onOk, onErr){
+    fetch('/admin/partenaire-contact-inline-update.php', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: new URLSearchParams({id: id, field: field, value: value})
+    }).then(function(r){ return r.json(); }).then(function(data){
+      if (data.ok) onOk(data.value); else onErr(data.error || 'Erreur');
+    }).catch(function(){ onErr('Impossible de contacter le serveur.'); });
+  }
+
+  document.querySelectorAll('[data-contact-editable]').forEach(function(span){
+    span.addEventListener('click', function(){
+      if (span.querySelector('input')) return;
+      var original = span.textContent;
+      var input = document.createElement('input');
+      input.type = span.dataset.field === 'email' ? 'email' : 'text';
+      if (span.dataset.list) input.setAttribute('list', span.dataset.list);
+      input.value = original;
+      span.textContent = '';
+      span.appendChild(input);
+      input.focus();
+      input.select();
+
+      function fermer(nouvelleValeur){ span.textContent = nouvelleValeur; }
+      function tenterEnregistrer(){
+        var val = input.value;
+        if (val === original) { fermer(original); return; }
+        envoyer(span.dataset.id, span.dataset.field, val, function(saved){
+          fermer(saved);
+        }, function(err){
+          alert(err);
+          fermer(original);
+        });
+      }
+      input.addEventListener('keydown', function(e){
+        if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+        if (e.key === 'Escape') { input.value = original; input.blur(); }
+      });
+      input.addEventListener('blur', tenterEnregistrer);
+    });
+  });
+
+  document.querySelectorAll('[data-contact-editable-select]').forEach(function(select){
+    select.addEventListener('change', function(){
+      var original = select.dataset.original || select.value;
+      var nouvelleValeur = select.value;
+      envoyer(select.dataset.id, select.dataset.field, nouvelleValeur, function(){
+        select.dataset.original = nouvelleValeur;
+      }, function(err){
+        alert(err);
+        select.value = original;
+      });
+    });
+  });
+})();
+</script>
 
 <div class="mavka-form-section" id="rencontres" style="margin-top:24px; padding:20px;">
   <h3>Rencontres (négociations)</h3>
