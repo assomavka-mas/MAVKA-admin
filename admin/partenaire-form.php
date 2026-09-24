@@ -196,6 +196,19 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
 <?php if (isset($_GET['ok'])): ?><?php flash('ok', 'Enregistré avec succès.'); ?><?php endif; ?>
 <?php if (!empty($error)): ?><p style="color:var(--mavka-color-danger-text);"><?= htmlspecialchars($error) ?></p><?php endif; ?>
 
+<?php if ($id): ?>
+<!-- Une fois l'organisation créée, tout se range en onglets (Organisation/Contacts/Rencontres/
+     Projets) — un seul bloc visible à la fois plutôt qu'une longue page qui s'allonge avec le
+     nombre de contacts saisis. Avant création, il n'y a que le formulaire de l'organisation. -->
+<div class="mavka-tabs" style="justify-content:flex-start; margin-bottom:18px;">
+  <button type="button" class="mavka-tab" data-tab-target="organisation">Organisation</button>
+  <button type="button" class="mavka-tab" data-tab-target="contacts">Contacts</button>
+  <button type="button" class="mavka-tab" data-tab-target="rencontres">Rencontres</button>
+  <button type="button" class="mavka-tab" data-tab-target="projets">Projets &amp; accords</button>
+</div>
+<?php endif; ?>
+
+<div data-tab-panel="organisation">
 <form method="post" class="mavka-form">
   <input type="hidden" name="action" value="save_organisation">
   <label>Nom <input type="text" name="nom" value="<?= htmlspecialchars($org['nom']) ?>" required></label>
@@ -222,11 +235,11 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
   <label>Notes <textarea name="notes"><?= htmlspecialchars($org['notes'] ?? '') ?></textarea></label>
   <button type="submit" class="mavka-btn mavka-btn--primary"><?= $id ? 'Enregistrer' : 'Créer le partenaire' ?></button>
 </form>
+</div>
 
 <?php if ($id): ?>
 
-<div class="mavka-form-section" id="contacts" style="margin-top:32px; padding:20px;">
-  <h3>Contacts</h3>
+<div class="mavka-form-section" data-tab-panel="contacts" style="padding:20px;">
   <datalist id="fonctions_suggestions">
     <?php foreach ($fonctions_suggestions as $f): ?>
     <option value="<?= htmlspecialchars($f) ?>">
@@ -339,14 +352,7 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
 })();
 </script>
 
-<div class="mavka-form-section" id="rencontres-projets" style="margin-top:24px; padding:20px;">
-  <div class="mavka-tabs">
-    <button type="button" class="mavka-tab" data-tab-target="rencontres">Rencontres</button>
-    <button type="button" class="mavka-tab" data-tab-target="projets">Projets &amp; accords</button>
-  </div>
-
-  <div data-tab-panel="rencontres">
-  <h3>Rencontres (négociations)</h3>
+<div class="mavka-form-section" data-tab-panel="rencontres" style="padding:20px;">
   <?php if ($rencontres): ?>
   <table class="mavka-table" style="margin-bottom:16px;">
     <tr><th>Date</th><th>Type</th><th>Sujet</th><th>Étape</th><th>Prochaine action</th><th></th></tr>
@@ -407,10 +413,9 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
       <button type="submit" class="mavka-btn mavka-btn--primary">Ajouter</button>
     </form>
   </details>
-  </div>
+</div>
 
-  <div data-tab-panel="projets">
-  <h3>Projets &amp; accords</h3>
+<div class="mavka-form-section" data-tab-panel="projets" style="padding:20px;">
   <p class="mavka-form-section__hint">Ce qui découle des rencontres — pas l'inverse.</p>
   <?php if ($projets): ?>
   <table class="mavka-table" style="margin-bottom:16px;">
@@ -454,11 +459,11 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
       <button type="submit" class="mavka-btn mavka-btn--primary">Ajouter</button>
     </form>
   </details>
-  </div>
 </div>
 
 <script>
 (function(){
+  var ongletsValides = ['organisation', 'contacts', 'rencontres', 'projets'];
   var boutons = document.querySelectorAll('.mavka-tab[data-tab-target]');
   var panneaux = document.querySelectorAll('[data-tab-panel]');
   function activer(nom){
@@ -472,10 +477,7 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
     });
   });
   var initial = (location.hash || '').replace('#', '');
-  activer(initial === 'projets' ? 'projets' : 'rencontres');
-  if (initial === 'rencontres' || initial === 'projets') {
-    document.getElementById('rencontres-projets').scrollIntoView({block: 'start'});
-  }
+  activer(ongletsValides.includes(initial) ? initial : 'organisation');
 })();
 </script>
 
