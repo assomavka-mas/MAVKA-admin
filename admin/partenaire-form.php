@@ -39,14 +39,19 @@ $influence_labels = [
     'inconnu' => 'Inconnu pour l\'instant',
 ];
 // Suggestions pour le champ "Fonction" (autocomplétion libre, pas une liste fermée) — pense-bête
-// des titres français les plus courants, pour ne pas avoir à les connaître par cœur.
+// des titres français les plus courants, pour ne pas avoir à les connaître par cœur. Écriture
+// inclusive au point médian (déjà utilisée partout ailleurs dans ce projet — président·e,
+// trésorier·ère...) plutôt qu'un doublon masculin/féminin par titre : l'accord réel se fait via
+// le champ "genre" du contact, pas en dupliquant le texte (source du bug précédent, où
+// "adjoint" avait sa forme féminine oubliée alors que les autres titres l'avaient).
 $fonctions_suggestions = [
-    'Maire', '1er adjoint', '1ère adjointe', '2e adjoint', '2e adjointe', '3e adjoint', '3e adjointe', '4e adjoint', '4e adjointe',
-    'Conseiller municipal délégué', 'Conseillère municipale déléguée', 'Conseiller municipal', 'Conseillère municipale',
-    'Membre de commission', 'Vice-président', 'Vice-présidente', 'Conseiller communautaire', 'Conseillère communautaire',
-    'Secrétaire de mairie', 'Directeur général des services (DGS)', 'Directrice générale des services (DGS)',
-    'Chargé de mission vie associative', 'Chargée de mission vie associative', 'Directeur', 'Directrice', 'Président', 'Présidente',
+    'Maire', '1er·ère adjoint·e', '2e adjoint·e', '3e adjoint·e', '4e adjoint·e',
+    'Conseiller·ère municipal·e délégué·e', 'Conseiller·ère municipal·e',
+    'Membre de commission', 'Vice-président·e', 'Conseiller·ère communautaire',
+    'Secrétaire de mairie', 'Directeur·rice général·e des services (DGS)',
+    'Chargé·e de mission vie associative', 'Directeur·rice', 'Président·e',
 ];
+$genre_labels = ['M' => 'M.', 'Mme' => 'Mme', 'non_precise' => 'Non précisé'];
 
 $org = [
     'nom' => '', 'type' => 'autre', 'ville' => '', 'adresse' => '', 'site_web' => '',
@@ -89,9 +94,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_
 if ($id) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add_contact') {
         $niveau = in_array($_POST['niveau_influence'] ?? '', array_keys($influence_labels), true) ? $_POST['niveau_influence'] : 'inconnu';
-        db()->prepare('INSERT INTO partenaires_contacts (organisation_id, nom, fonction, email, email_secondaire, telephone, langue, niveau_influence, notes) VALUES (?,?,?,?,?,?,?,?,?)')
+        $genre = in_array($_POST['genre'] ?? '', array_keys($genre_labels), true) ? $_POST['genre'] : 'non_precise';
+        db()->prepare('INSERT INTO partenaires_contacts (organisation_id, nom, genre, fonction, email, email_secondaire, telephone, langue, niveau_influence, notes) VALUES (?,?,?,?,?,?,?,?,?,?)')
             ->execute([
-                $id, trim($_POST['nom'] ?? ''), trim($_POST['fonction'] ?? ''), trim($_POST['email'] ?? ''),
+                $id, trim($_POST['nom'] ?? ''), $genre, trim($_POST['fonction'] ?? ''), trim($_POST['email'] ?? ''),
                 trim($_POST['email_secondaire'] ?? ''), trim($_POST['telephone'] ?? ''), trim($_POST['langue'] ?? ''),
                 $niveau, trim($_POST['notes'] ?? ''),
             ]);
@@ -193,9 +199,10 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
   <h3>Contacts</h3>
   <?php if ($contacts): ?>
   <table class="mavka-table" style="margin-bottom:16px;">
-    <tr><th>Nom</th><th>Fonction</th><th>Email</th><th>Email secondaire</th><th>Téléphone</th><th>Influence</th><th></th></tr>
+    <tr><th></th><th>Nom</th><th>Fonction</th><th>Email</th><th>Email secondaire</th><th>Téléphone</th><th>Influence</th><th></th></tr>
     <?php foreach ($contacts as $c): ?>
     <tr>
+      <td><?= htmlspecialchars($genre_labels[$c['genre']] ?? '') ?></td>
       <td><?= htmlspecialchars($c['nom']) ?></td>
       <td><?= htmlspecialchars($c['fonction'] ?? '') ?></td>
       <td><?= htmlspecialchars($c['email'] ?? '') ?></td>
@@ -212,7 +219,14 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
     <form method="post" class="mavka-form" style="margin-top:12px;">
       <input type="hidden" name="action" value="add_contact">
       <label>Nom <input type="text" name="nom" required></label>
-      <label>Fonction <input type="text" name="fonction" list="fonctions_suggestions" placeholder="Ex. 1er adjoint, secrétaire de mairie..."></label>
+      <label>Genre
+        <select name="genre">
+          <?php foreach ($genre_labels as $val => $label): ?>
+          <option value="<?= $val ?>" <?= $val === 'non_precise' ? 'selected' : '' ?>><?= htmlspecialchars($label) ?></option>
+          <?php endforeach; ?>
+        </select>
+      </label>
+      <label>Fonction <input type="text" name="fonction" list="fonctions_suggestions" placeholder="Ex. adjoint·e, secrétaire de mairie..."></label>
       <datalist id="fonctions_suggestions">
         <?php foreach ($fonctions_suggestions as $f): ?>
         <option value="<?= htmlspecialchars($f) ?>">

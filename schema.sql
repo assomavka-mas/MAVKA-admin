@@ -253,6 +253,7 @@ CREATE TABLE IF NOT EXISTS partenaires_contacts (
   id INT AUTO_INCREMENT PRIMARY KEY,
   organisation_id INT NOT NULL,
   nom VARCHAR(255) NOT NULL,
+  genre ENUM('M','Mme','non_precise') NOT NULL DEFAULT 'non_precise', -- v29 : sert à accorder les titres/emails, plutôt que dupliquer chaque fonction au masculin et au féminin
   fonction VARCHAR(255) NULL,
   email VARCHAR(255) NULL,
   email_secondaire VARCHAR(255) NULL,    -- ex. email mairie + email personnel (v28)
