@@ -319,3 +319,11 @@ function purger_vieux_messages_contact(): void {
     }
     db()->exec("DELETE FROM messages_contact WHERE created_at < DATE_SUB(NOW(), INTERVAL 2 YEAR)");
 }
+
+// Activité des bénévoles (v26) : connexions + actions qu'un·e bénévole fait lui/elle-même
+// (profil, photos d'activité), pour que Larysa puisse voir qui s'engage sans avoir à demander —
+// jamais utilisé pour les actions d'un super_admin/mavka_admin (voir dashboard.php).
+function journal_logger(int $admin_id, string $action, ?string $detail = null): void {
+    $stmt = db()->prepare('INSERT INTO journal_activite (admin_id, action, detail) VALUES (?, ?, ?)');
+    $stmt->execute([$admin_id, $action, $detail]);
+}

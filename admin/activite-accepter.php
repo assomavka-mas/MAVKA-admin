@@ -22,6 +22,9 @@ $intervenant_id = $stmt->fetchColumn();
 if ($id && $intervenant_id) {
     db()->prepare('UPDATE activite_intervenant SET accepte = 1, accepte_le = NOW() WHERE activite_id = ? AND intervenant_id = ?')
         ->execute([$id, $intervenant_id]);
+    $titre = db()->prepare('SELECT titre FROM activites WHERE id = ?');
+    $titre->execute([$id]);
+    journal_logger((int)$user['id'], 'activite_acceptee', $titre->fetchColumn() ?: null);
 }
 
 header('Location: /admin/mes-activites.php?accepte=1');

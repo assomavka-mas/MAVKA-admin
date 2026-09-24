@@ -31,6 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'uploa
         $nouvelle_photo = handle_upload('photo', 'activites');
         if ($nouvelle_photo) {
             db()->prepare('UPDATE activites SET photo = ? WHERE id = ?')->execute([$nouvelle_photo, $activite_id]);
+            $titre = db()->prepare('SELECT titre FROM activites WHERE id = ?');
+            $titre->execute([$activite_id]);
+            journal_logger((int)$user['id'], 'photo_activite_ajoutee', $titre->fetchColumn() ?: null);
         }
     }
     header('Location: /admin/mes-activites.php');
@@ -46,6 +49,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delet
         if ($photo = $stmt->fetchColumn()) {
             db()->prepare('UPDATE activites SET photo = NULL WHERE id = ?')->execute([$activite_id]);
             @unlink(__DIR__ . '/../assets/uploads/activites/' . $photo);
+            $titre = db()->prepare('SELECT titre FROM activites WHERE id = ?');
+            $titre->execute([$activite_id]);
+            journal_logger((int)$user['id'], 'photo_activite_supprimee', $titre->fetchColumn() ?: null);
         }
     }
     header('Location: /admin/mes-activites.php');

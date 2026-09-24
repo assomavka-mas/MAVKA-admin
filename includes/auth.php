@@ -21,6 +21,11 @@ function auth_login_google(string $email): bool {
     $_SESSION['user_id'] = $user['id'];
     $_SESSION['role'] = $user['role'];
     $_SESSION['email'] = $user['email'];
+
+    db()->prepare('UPDATE admins SET derniere_connexion = NOW() WHERE id = ?')->execute([$user['id']]);
+    if ($user['role'] === 'benevole') {
+        journal_logger((int)$user['id'], 'connexion');
+    }
     return true;
 }
 

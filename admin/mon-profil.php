@@ -64,6 +64,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt = db()->prepare("UPDATE intervenants SET $set WHERE id = ?");
     $stmt->execute([...array_map(fn($f) => $iv[$f], $fields), $intervenant_id]);
 
+    journal_logger((int)$user['id'], 'profil_modifie');
+
     header('Location: /admin/mon-profil.php?ok=1');
     exit;
 }

@@ -168,7 +168,20 @@ CREATE TABLE IF NOT EXISTS admins (
   role ENUM('super_admin','mavka_admin','benevole','partenaire') NOT NULL DEFAULT 'benevole',
   intervenant_id INT NULL,               -- прив'язка до свого профілю в intervenants, якщо benevole
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  derniere_connexion DATETIME NULL,      -- mise à jour à chaque connexion Google (v26)
   FOREIGN KEY (intervenant_id) REFERENCES intervenants(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Activité des bénévoles visible pour Larysa (v26) : connexions + actions qu'un·e bénévole fait
+-- lui/elle-même (profil, photos d'activité) — jamais les actions d'un super_admin/mavka_admin,
+-- pas un audit-trail général, juste de quoi voir si les bénévoles s'engagent.
+CREATE TABLE IF NOT EXISTS journal_activite (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  admin_id INT NOT NULL,
+  action VARCHAR(100) NOT NULL,
+  detail VARCHAR(255) NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (admin_id) REFERENCES admins(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS messages_contact (
