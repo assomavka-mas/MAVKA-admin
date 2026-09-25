@@ -82,18 +82,25 @@ admin_header('Contacts', $user, 'partenaires');
 <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
   <h1>Contacts<?php if ($filtre_type !== '' || $filtre_ville !== ''): ?><span style="font-weight:400; color:var(--mavka-color-text-muted); font-size:18px;"> — <?= count($organisations) ?></span><?php endif; ?></h1>
   <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-    <select class="mavka-btn mavka-btn--sm" style="cursor:pointer;" onchange="var u=new URL(location.href); if(this.value){u.searchParams.set('type', this.value);}else{u.searchParams.delete('type');} location.href=u.toString();">
-      <option value="">— Tous les types —</option>
-      <?php foreach ($types_labels as $val => $label): ?>
-      <option value="<?= htmlspecialchars($val) ?>" <?= $filtre_type === $val ? 'selected' : '' ?>><?= htmlspecialchars($label) ?></option>
-      <?php endforeach; ?>
-    </select>
-    <select class="mavka-btn mavka-btn--sm" style="cursor:pointer;" onchange="var u=new URL(location.href); if(this.value){u.searchParams.set('ville', this.value);}else{u.searchParams.delete('ville');} location.href=u.toString();">
-      <option value="">— Toutes les villes —</option>
-      <?php foreach ($villes_disponibles as $v): ?>
-      <option value="<?= htmlspecialchars($v) ?>" <?= mb_strtolower($filtre_ville) === mb_strtolower($v) ? 'selected' : '' ?>><?= htmlspecialchars($v) ?></option>
-      <?php endforeach; ?>
-    </select>
+    <form method="get" style="display:contents;">
+      <?php if ($tri !== 'nom' || $sens !== 'asc'): ?>
+      <input type="hidden" name="sort" value="<?= htmlspecialchars($tri) ?>">
+      <input type="hidden" name="dir" value="<?= htmlspecialchars($sens) ?>">
+      <?php endif; ?>
+      <select name="type" class="mavka-btn mavka-btn--sm" style="cursor:pointer;" onchange="this.form.submit();">
+        <option value="">— Tous les types —</option>
+        <?php foreach ($types_labels as $val => $label): ?>
+        <option value="<?= htmlspecialchars($val) ?>" <?= $filtre_type === $val ? 'selected' : '' ?>><?= htmlspecialchars($label) ?></option>
+        <?php endforeach; ?>
+      </select>
+      <select name="ville" class="mavka-btn mavka-btn--sm" style="cursor:pointer;" onchange="this.form.submit();">
+        <option value="">— Toutes les villes —</option>
+        <?php foreach ($villes_disponibles as $v): ?>
+        <option value="<?= htmlspecialchars($v) ?>" <?= mb_strtolower($filtre_ville) === mb_strtolower($v) ? 'selected' : '' ?>><?= htmlspecialchars($v) ?></option>
+        <?php endforeach; ?>
+      </select>
+      <noscript><button type="submit" class="mavka-btn mavka-btn--sm">Filtrer</button></noscript>
+    </form>
     <a href="/admin/partenaire-form.php" class="mavka-btn mavka-btn--primary">+ Nouveau contact</a>
   </div>
 </div>
