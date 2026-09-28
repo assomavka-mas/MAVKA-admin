@@ -217,7 +217,7 @@ if ($iv) {
   <?php endif; ?>
 
   <?php if ($projetPublic): ?>
-  <section class="sand">
+  <section id="projet" class="sand">
     <div class="wrap">
       <div class="head">
         <span class="eyebrow">Projet personnel</span>
