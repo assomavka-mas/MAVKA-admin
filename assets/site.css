@@ -231,6 +231,8 @@ section.tight{padding:44px 0}
 .stats-strip .stat:nth-child(3) b{color:var(--violet)}
 .stats-strip .stat:nth-child(4) b{color:var(--teal-deep)}
 .stats-strip .stat p{margin-top:8px;color:var(--ink-2);font-size:.92rem;line-height:1.4}
+.stats-strip .stat b a{color:inherit;text-decoration:none}
+.stats-strip .stat b a:hover{text-decoration:underline;text-underline-offset:3px}
 @media (max-width:900px){.stats-strip{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:700px){.stats-strip{grid-template-columns:1fr}}
 

@@ -44,7 +44,7 @@ function collectivites_carte_projet(array $iv): void {
         <?php if ($tags): ?>
         <div class="project-card__tags"><?php foreach ($tags as $t): ?><span><?= htmlspecialchars($t) ?></span><?php endforeach; ?></div>
         <?php endif; ?>
-        <a class="btn btn-ghost" href="<?= htmlspecialchars($lien) ?>"<?= $ouvrirDansOnglet ? ' target="_blank" rel="noopener"' : '' ?>>Découvrir le projet →</a>
+        <a class="btn btn-primary" href="<?= htmlspecialchars($lien) ?>"<?= $ouvrirDansOnglet ? ' target="_blank" rel="noopener"' : '' ?>>Découvrir le projet →</a>
       </div>
     </div>
     <?php
@@ -123,11 +123,11 @@ $site_activites_initiatives = site_enrichir_avec_photo_intervenant(site_activite
         <p>Année de création de MAVKA.</p>
       </div>
       <div class="stat">
-        <b><?= count($site_intervenants) ?></b>
+        <b><a href="#equipe"><?= count($site_intervenants) ?></a></b>
         <p>Bénévoles engagés dans le développement de MAVKA.</p>
       </div>
       <div class="stat">
-        <b><?= $site_projets_count ?></b>
+        <b><a href="#projets-developpement"><?= $site_projets_count ?></a></b>
         <p>Projets bénévoles en développement au sein de MAVKA.</p>
       </div>
     </div>
@@ -506,7 +506,7 @@ $site_activites_initiatives = site_enrichir_avec_photo_intervenant(site_activite
     </div>
   </section>
 
-  <section class="sand">
+  <section id="projets-developpement" class="sand">
     <div class="wrap">
       <div class="head">
         <span class="eyebrow">Nos projets en développement</span>
