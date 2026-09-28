@@ -298,3 +298,14 @@ CREATE TABLE IF NOT EXISTS partenaires_projets (
   FOREIGN KEY (organisation_id) REFERENCES partenaires_organisations(id) ON DELETE CASCADE,
   FOREIGN KEY (origine_rencontre_id) REFERENCES partenaires_rencontres(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- v32 : archive interne des documents officiels signés — jamais publique (voir assets/docs/*.pdf
+-- pour les documents publics). Garde une trace des versions successives.
+CREATE TABLE IF NOT EXISTS archives_documents (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  titre VARCHAR(255) NOT NULL,
+  date_document DATE NULL,
+  fichier VARCHAR(255) NOT NULL,
+  notes TEXT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

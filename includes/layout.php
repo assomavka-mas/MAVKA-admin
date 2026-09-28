@@ -36,6 +36,7 @@ function admin_header(string $title, array $user, string $active = ''): void {
     <a href="/admin/partenaires.php" class="<?= $active === 'partenaires' ? 'active' : '' ?>">Contacts</a>
     <a href="/admin/messages.php" class="<?= $active === 'messages' ? 'active' : '' ?>">Messages</a>
     <a href="/admin/alertes-documents.php" class="<?= $active === 'alertes-documents' ? 'active' : '' ?>">Alertes documents</a>
+    <a href="/admin/archives.php" class="<?= $active === 'archives' ? 'active' : '' ?>">Archive</a>
     <?php endif; ?>
     <?php if ($user['role'] === 'super_admin'): ?>
     <a href="/admin/acces.php" class="<?= $active === 'acces' ? 'active' : '' ?>">Accès</a>
