@@ -18,14 +18,6 @@ $types_labels = [
 $statuts_labels = [
     'potentiel' => 'Potentiel', 'actif' => 'Actif', 'partenaire' => 'Partenaire', 'inactif' => 'Inactif', 'en_pause' => 'En pause',
 ];
-$etapes_labels = [
-    'premiere_rencontre' => 'Première rencontre',
-    'co_construction' => 'Co-construction',
-    'phase_pilote' => 'Phase pilote',
-    'mise_en_place' => 'Mise en place progressive',
-    'faire_evoluer' => 'Faire évoluer le partenariat',
-    'bilan' => 'Faire le bilan et décider de la suite',
-];
 $types_rencontre_labels = ['rencontre' => 'Rencontre', 'appel' => 'Appel', 'email' => 'Email', 'courrier' => 'Courrier'];
 $statuts_projet_labels = ['en_cours' => 'En cours', 'termine' => 'Terminé', 'abandonne' => 'Abandonné'];
 // Échelle volontairement indépendante des titres français précis (maire, adjoint délégué,
@@ -104,9 +96,31 @@ function partenaire_contact_champs(array $c, array $genre_labels, array $influen
     <?php
 }
 
+// Cases à cocher pour choisir les participant·e·s d'une rencontre ou d'un projet — tous
+// contacts confondus, groupés par organisation, pour pouvoir associer par exemple plusieurs
+// volontaires MAVKA (contacts de l'organisation "MAVKA", type membre_mavka) à une rencontre ou
+// un projet avec un partenaire, sans se limiter aux contacts de l'organisation concernée.
+function render_participants_checkboxes(array $contacts_par_org, array $selectionnes, string $name): void {
+    ?>
+    <div class="mavka-participants">
+      <?php foreach ($contacts_par_org as $organisation_nom => $contacts_org): ?>
+      <fieldset class="mavka-participants__groupe">
+        <legend><?= htmlspecialchars($organisation_nom) ?></legend>
+        <?php foreach ($contacts_org as $c): ?>
+        <label class="mavka-participants__item">
+          <input type="checkbox" name="<?= htmlspecialchars($name) ?>[]" value="<?= $c['id'] ?>" <?= in_array((int)$c['id'], $selectionnes, true) ? 'checked' : '' ?>>
+          <?= htmlspecialchars($c['nom']) ?>
+        </label>
+        <?php endforeach; ?>
+      </fieldset>
+      <?php endforeach; ?>
+    </div>
+    <?php
+}
+
 // Champs communs à "+ Ajouter une rencontre" et à "Modifier" (par ligne, dans le tableau) — un
 // seul jeu de champs pour éviter que les deux formulaires divergent au fil des futures évolutions.
-function rencontre_champs(array $r, array $contacts, array $types_rencontre_labels, array $etapes_labels, string $adresse_defaut = ''): void {
+function rencontre_champs(array $r, array $contacts_par_org, array $participant_ids, array $types_rencontre_labels, string $adresse_defaut = ''): void {
     ?>
     <label>Type
       <select name="type">
@@ -123,27 +137,11 @@ function rencontre_champs(array $r, array $contacts, array $types_rencontre_labe
         <label>Heure <input type="time" name="heure_rencontre" value="<?= htmlspecialchars($r['heure_rencontre'] ? substr($r['heure_rencontre'], 0, 5) : '') ?>"></label>
       </div>
     </div>
-    <label>Contact
-      <select name="contact_id">
-        <option value="">—</option>
-        <?php foreach ($contacts as $c): ?>
-        <option value="<?= $c['id'] ?>" <?= ($r['contact_id'] ?? '') == $c['id'] ? 'selected' : '' ?>><?= htmlspecialchars($c['nom']) ?></option>
-        <?php endforeach; ?>
-      </select>
-    </label>
     <label>Lieu / adresse <input type="text" name="lieu" value="<?= htmlspecialchars($r['lieu'] ?? $adresse_defaut) ?>" placeholder="Ex. 12 rue de la Mairie, Garat"></label>
     <label>Sujet <input type="text" name="sujet" value="<?= htmlspecialchars($r['sujet'] ?? '') ?>"></label>
+    <label>Participants</label>
+    <?php render_participants_checkboxes($contacts_par_org, $participant_ids, 'participant_ids'); ?>
     <label>Compte-rendu <textarea name="compte_rendu"><?= htmlspecialchars($r['compte_rendu'] ?? '') ?></textarea></label>
-    <label>Étape du parcours
-      <select name="etape_parcours">
-        <option value="">—</option>
-        <?php foreach ($etapes_labels as $val => $label): ?>
-        <option value="<?= $val ?>" <?= ($r['etape_parcours'] ?? '') === $val ? 'selected' : '' ?>><?= $label ?></option>
-        <?php endforeach; ?>
-      </select>
-    </label>
-    <label>Prochaine action <input type="text" name="prochaine_action" value="<?= htmlspecialchars($r['prochaine_action'] ?? '') ?>" placeholder="Ex. Envoyer la proposition d'atelier"></label>
-    <label>Date de la prochaine action <input type="date" name="date_prochaine_action" value="<?= htmlspecialchars($r['date_prochaine_action'] ?? '') ?>"></label>
     <label>Responsable MAVKA <input type="text" name="responsable" value="<?= htmlspecialchars($r['responsable'] ?? '') ?>"></label>
     <?php
 }
@@ -207,33 +205,40 @@ if ($id) {
     }
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add_rencontre') {
-        db()->prepare('INSERT INTO partenaires_rencontres (organisation_id, contact_id, type, date_rencontre, heure_rencontre, lieu, sujet, compte_rendu, etape_parcours, prochaine_action, date_prochaine_action, responsable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)')
+        db()->prepare('INSERT INTO partenaires_rencontres (organisation_id, type, date_rencontre, heure_rencontre, lieu, sujet, compte_rendu, responsable) VALUES (?,?,?,?,?,?,?,?)')
             ->execute([
-                $id, ($_POST['contact_id'] ?? '') !== '' ? (int)$_POST['contact_id'] : null,
-                $_POST['type'] ?? 'rencontre', $_POST['date_rencontre'] ?? date('Y-m-d'),
+                $id, $_POST['type'] ?? 'rencontre', $_POST['date_rencontre'] ?? date('Y-m-d'),
                 ($_POST['heure_rencontre'] ?? '') !== '' ? $_POST['heure_rencontre'] : null,
                 trim($_POST['lieu'] ?? ''),
                 trim($_POST['sujet'] ?? ''), trim($_POST['compte_rendu'] ?? ''),
-                ($_POST['etape_parcours'] ?? '') !== '' ? $_POST['etape_parcours'] : null,
-                trim($_POST['prochaine_action'] ?? ''), ($_POST['date_prochaine_action'] ?? '') !== '' ? $_POST['date_prochaine_action'] : null,
                 trim($_POST['responsable'] ?? ''),
             ]);
+        $nouvelle_rencontre_id = (int)db()->lastInsertId();
+        $participants = array_map('intval', $_POST['participant_ids'] ?? []);
+        if ($participants) {
+            $stmt = db()->prepare('INSERT INTO partenaires_rencontres_participants (rencontre_id, contact_id) VALUES (?,?)');
+            foreach ($participants as $contact_id) { $stmt->execute([$nouvelle_rencontre_id, $contact_id]); }
+        }
         header('Location: /admin/partenaire-form.php?id=' . $id . '#rencontres');
         exit;
     }
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'edit_rencontre') {
-        db()->prepare('UPDATE partenaires_rencontres SET contact_id=?, type=?, date_rencontre=?, heure_rencontre=?, lieu=?, sujet=?, compte_rendu=?, etape_parcours=?, prochaine_action=?, date_prochaine_action=?, responsable=? WHERE id=? AND organisation_id=?')
+        $rencontre_id = (int)($_POST['rencontre_id'] ?? 0);
+        db()->prepare('UPDATE partenaires_rencontres SET type=?, date_rencontre=?, heure_rencontre=?, lieu=?, sujet=?, compte_rendu=?, responsable=? WHERE id=? AND organisation_id=?')
             ->execute([
-                ($_POST['contact_id'] ?? '') !== '' ? (int)$_POST['contact_id'] : null,
                 $_POST['type'] ?? 'rencontre', $_POST['date_rencontre'] ?? date('Y-m-d'),
                 ($_POST['heure_rencontre'] ?? '') !== '' ? $_POST['heure_rencontre'] : null,
                 trim($_POST['lieu'] ?? ''),
                 trim($_POST['sujet'] ?? ''), trim($_POST['compte_rendu'] ?? ''),
-                ($_POST['etape_parcours'] ?? '') !== '' ? $_POST['etape_parcours'] : null,
-                trim($_POST['prochaine_action'] ?? ''), ($_POST['date_prochaine_action'] ?? '') !== '' ? $_POST['date_prochaine_action'] : null,
                 trim($_POST['responsable'] ?? ''),
-                (int)($_POST['rencontre_id'] ?? 0), $id,
+                $rencontre_id, $id,
             ]);
+        db()->prepare('DELETE FROM partenaires_rencontres_participants WHERE rencontre_id = ?')->execute([$rencontre_id]);
+        $participants = array_map('intval', $_POST['participant_ids'] ?? []);
+        if ($participants) {
+            $stmt = db()->prepare('INSERT INTO partenaires_rencontres_participants (rencontre_id, contact_id) VALUES (?,?)');
+            foreach ($participants as $contact_id) { $stmt->execute([$rencontre_id, $contact_id]); }
+        }
         header('Location: /admin/partenaire-form.php?id=' . $id . '#rencontres');
         exit;
     }
@@ -252,6 +257,12 @@ if ($id) {
                 ($_POST['date_fin'] ?? '') !== '' ? $_POST['date_fin'] : null,
                 trim($_POST['dossier_drive_lien'] ?? ''), trim($_POST['notes'] ?? ''),
             ]);
+        $nouveau_projet_id = (int)db()->lastInsertId();
+        $participants = array_map('intval', $_POST['participant_ids'] ?? []);
+        if ($participants) {
+            $stmt = db()->prepare('INSERT INTO partenaires_projets_participants (projet_id, contact_id) VALUES (?,?)');
+            foreach ($participants as $contact_id) { $stmt->execute([$nouveau_projet_id, $contact_id]); }
+        }
         header('Location: /admin/partenaire-form.php?id=' . $id . '#projets');
         exit;
     }
@@ -265,11 +276,42 @@ if ($id) {
     $contacts->execute([$id]);
     $contacts = $contacts->fetchAll();
 
-    $rencontres = db()->prepare('SELECT * FROM partenaires_rencontres WHERE organisation_id = ? ORDER BY date_rencontre DESC');
+    // Tous les contacts, toutes organisations confondues, groupés par organisation — pour
+    // choisir des participant·e·s (volontaires MAVKA compris·es) sans se limiter à cette fiche.
+    $tous_contacts = db()->query('
+        SELECT c.id, c.nom, o.nom AS organisation_nom
+        FROM partenaires_contacts c
+        JOIN partenaires_organisations o ON o.id = c.organisation_id
+        ORDER BY o.nom, c.nom
+    ')->fetchAll();
+    $tous_contacts_par_org = [];
+    foreach ($tous_contacts as $c) {
+        $tous_contacts_par_org[$c['organisation_nom']][] = $c;
+    }
+
+    $rencontres = db()->prepare('
+        SELECT r.*,
+            GROUP_CONCAT(DISTINCT c.nom ORDER BY c.nom SEPARATOR ", ") AS participants_noms,
+            GROUP_CONCAT(DISTINCT rp.contact_id) AS participant_ids_str
+        FROM partenaires_rencontres r
+        LEFT JOIN partenaires_rencontres_participants rp ON rp.rencontre_id = r.id
+        LEFT JOIN partenaires_contacts c ON c.id = rp.contact_id
+        WHERE r.organisation_id = ?
+        GROUP BY r.id
+        ORDER BY r.date_rencontre DESC, r.heure_rencontre DESC
+    ');
     $rencontres->execute([$id]);
     $rencontres = $rencontres->fetchAll();
 
-    $projets = db()->prepare('SELECT * FROM partenaires_projets WHERE organisation_id = ? ORDER BY created_at DESC');
+    $projets = db()->prepare('
+        SELECT p.*, GROUP_CONCAT(DISTINCT c.nom ORDER BY c.nom SEPARATOR ", ") AS participants_noms
+        FROM partenaires_projets p
+        LEFT JOIN partenaires_projets_participants pp ON pp.projet_id = p.id
+        LEFT JOIN partenaires_contacts c ON c.id = pp.contact_id
+        WHERE p.organisation_id = ?
+        GROUP BY p.id
+        ORDER BY p.created_at DESC
+    ');
     $projets->execute([$id]);
     $projets = $projets->fetchAll();
 }
@@ -439,35 +481,26 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
 <div class="mavka-form-section" data-tab-panel="rencontres" style="padding:20px;">
   <?php if ($rencontres): ?>
   <table class="mavka-table" style="margin-bottom:16px;">
-    <tr><th>Date</th><th>Type</th><th>Lieu</th><th>Sujet</th><th>Étape</th><th>Prochaine action</th><th></th></tr>
+    <tr><th>Date</th><th>Type</th><th>Lieu</th><th>Sujet</th><th>Participants</th><th></th></tr>
     <?php foreach ($rencontres as $r): ?>
+    <?php $participant_ids = $r['participant_ids_str'] ? array_map('intval', explode(',', $r['participant_ids_str'])) : []; ?>
     <tr>
       <td><?= htmlspecialchars(date('d/m/Y', strtotime($r['date_rencontre']))) ?><?= $r['heure_rencontre'] ? ' à ' . htmlspecialchars(substr($r['heure_rencontre'], 0, 5)) : '' ?></td>
       <td><?= htmlspecialchars($types_rencontre_labels[$r['type']] ?? $r['type']) ?></td>
       <td><?= htmlspecialchars($r['lieu'] ?? '') ?></td>
       <td><?= htmlspecialchars($r['sujet'] ?? '') ?></td>
-      <td><?= $r['etape_parcours'] ? htmlspecialchars($etapes_labels[$r['etape_parcours']] ?? $r['etape_parcours']) : '' ?></td>
-      <td>
-        <?php if ($r['date_prochaine_action']): ?>
-          <?= htmlspecialchars($r['prochaine_action'] ?? '') ?> — <?= htmlspecialchars(date('d/m/Y', strtotime($r['date_prochaine_action']))) ?>
-          <a href="<?= htmlspecialchars(google_calendar_lien(
-              'MAVKA — ' . $org['nom'] . ' : ' . ($r['prochaine_action'] ?: 'Suivi'),
-              $r['date_prochaine_action'],
-              $r['compte_rendu'] ?? ''
-          )) ?>" target="_blank" rel="noopener" title="Ajouter à Google Calendar">📅</a>
-        <?php endif; ?>
-      </td>
+      <td><?= htmlspecialchars($r['participants_noms'] ?? '') ?: '—' ?></td>
       <td style="white-space:nowrap;">
         <button type="button" class="mavka-btn mavka-btn--sm" data-toggle-edit-rencontre="<?= $r['id'] ?>">Modifier</button>
         <a href="?id=<?= $id ?>&delete_rencontre=<?= $r['id'] ?>#rencontres" class="mavka-btn mavka-btn--sm mavka-btn--danger" onclick="return confirm('Supprimer cette rencontre ?');">Supprimer</a>
       </td>
     </tr>
     <tr id="edit-rencontre-<?= $r['id'] ?>" style="display:none;">
-      <td colspan="7" style="background:var(--mavka-color-cream-soft);">
+      <td colspan="6" style="background:var(--mavka-color-cream-soft);">
         <form method="post" class="mavka-form" style="margin:12px 0;">
           <input type="hidden" name="action" value="edit_rencontre">
           <input type="hidden" name="rencontre_id" value="<?= $r['id'] ?>">
-          <?php rencontre_champs($r, $contacts, $types_rencontre_labels, $etapes_labels); ?>
+          <?php rencontre_champs($r, $tous_contacts_par_org, $participant_ids, $types_rencontre_labels); ?>
           <button type="submit" class="mavka-btn mavka-btn--primary">Enregistrer</button>
           <button type="button" class="mavka-btn mavka-btn--sm" data-toggle-edit-rencontre="<?= $r['id'] ?>">Annuler</button>
         </form>
@@ -488,7 +521,7 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
     <summary class="mavka-btn mavka-btn--sm">+ Ajouter une rencontre</summary>
     <form method="post" class="mavka-form" style="margin-top:12px;">
       <input type="hidden" name="action" value="add_rencontre">
-      <?php rencontre_champs([], $contacts, $types_rencontre_labels, $etapes_labels, $org['adresse'] ?? ''); ?>
+      <?php rencontre_champs([], $tous_contacts_par_org, [], $types_rencontre_labels, $org['adresse'] ?? ''); ?>
       <button type="submit" class="mavka-btn mavka-btn--primary">Ajouter</button>
     </form>
   </details>
@@ -498,13 +531,14 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
   <p class="mavka-form-section__hint">Ce qui découle des rencontres — pas l'inverse.</p>
   <?php if ($projets): ?>
   <table class="mavka-table" style="margin-bottom:16px;">
-    <tr><th>Nom</th><th>Statut</th><th>Début</th><th>Fin</th><th></th></tr>
+    <tr><th>Nom</th><th>Statut</th><th>Début</th><th>Fin</th><th>Participants</th><th></th></tr>
     <?php foreach ($projets as $p): ?>
     <tr>
       <td><?= htmlspecialchars($p['nom']) ?></td>
       <td><?= htmlspecialchars($statuts_projet_labels[$p['statut']] ?? $p['statut']) ?></td>
       <td><?= $p['date_debut'] ? htmlspecialchars(date('d/m/Y', strtotime($p['date_debut']))) : '' ?></td>
       <td><?= $p['date_fin'] ? htmlspecialchars(date('d/m/Y', strtotime($p['date_fin']))) : '' ?></td>
+      <td><?= htmlspecialchars($p['participants_noms'] ?? '') ?: '—' ?></td>
       <td><a href="?id=<?= $id ?>&delete_projet=<?= $p['id'] ?>#projets" class="mavka-btn mavka-btn--sm mavka-btn--danger" onclick="return confirm('Supprimer ce projet ?');">Supprimer</a></td>
     </tr>
     <?php endforeach; ?>
@@ -533,6 +567,8 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
       </label>
       <label>Date de début <input type="date" name="date_debut"></label>
       <label>Date de fin <input type="date" name="date_fin"></label>
+      <label>Participants</label>
+      <?php render_participants_checkboxes($tous_contacts_par_org, [], 'participant_ids'); ?>
       <label>Dossier Drive <input type="url" name="dossier_drive_lien" placeholder="https://drive.google.com/..."></label>
       <label>Notes <textarea name="notes"></textarea></label>
       <button type="submit" class="mavka-btn mavka-btn--primary">Ajouter</button>

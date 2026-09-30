@@ -264,25 +264,37 @@ CREATE TABLE IF NOT EXISTS partenaires_contacts (
   FOREIGN KEY (organisation_id) REFERENCES partenaires_organisations(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- etape_parcours reprend les 6 étapes déjà publiques du "Parcours de partenariat" (page
--- Collectivités) plutôt que d'inventer un statut différent.
+-- contact_id, etape_parcours, prochaine_action et date_prochaine_action ne sont plus utilisés
+-- par le formulaire (jugés peu utiles / remplacés par partenaires_rencontres_participants,
+-- v35) mais restent en base pour ne pas perdre l'historique déjà saisi.
 CREATE TABLE IF NOT EXISTS partenaires_rencontres (
   id INT AUTO_INCREMENT PRIMARY KEY,
   organisation_id INT NOT NULL,
-  contact_id INT NULL,
+  contact_id INT NULL,           -- non utilisé depuis v35, voir partenaires_rencontres_participants
   type ENUM('rencontre','appel','email','courrier') NOT NULL DEFAULT 'rencontre',
   date_rencontre DATE NOT NULL,
   heure_rencontre TIME NULL,     -- v33
   lieu VARCHAR(255) NULL,        -- v33 : adresse/lieu de la rencontre, séparé du sujet pour rester cherchable
   sujet VARCHAR(255) NULL,
   compte_rendu TEXT NULL,
-  etape_parcours ENUM('premiere_rencontre','co_construction','phase_pilote','mise_en_place','faire_evoluer','bilan') NULL,
-  prochaine_action VARCHAR(255) NULL,
-  date_prochaine_action DATE NULL,
+  etape_parcours ENUM('premiere_rencontre','co_construction','phase_pilote','mise_en_place','faire_evoluer','bilan') NULL, -- non utilisé depuis v35
+  prochaine_action VARCHAR(255) NULL,       -- non utilisé depuis v35
+  date_prochaine_action DATE NULL,          -- non utilisé depuis v35
   responsable VARCHAR(255) NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (organisation_id) REFERENCES partenaires_organisations(id) ON DELETE CASCADE,
   FOREIGN KEY (contact_id) REFERENCES partenaires_contacts(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- v35 : qui a participé à une rencontre — plusieurs contacts possibles (notamment plusieurs
+-- volontaires MAVKA), tous partenaires/organisations confondus (pas limité à l'organisation_id
+-- de la rencontre, pour pouvoir associer des membres MAVKA à une rencontre avec un partenaire).
+CREATE TABLE IF NOT EXISTS partenaires_rencontres_participants (
+  rencontre_id INT NOT NULL,
+  contact_id INT NOT NULL,
+  PRIMARY KEY (rencontre_id, contact_id),
+  FOREIGN KEY (rencontre_id) REFERENCES partenaires_rencontres(id) ON DELETE CASCADE,
+  FOREIGN KEY (contact_id) REFERENCES partenaires_contacts(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS partenaires_projets (
@@ -299,6 +311,15 @@ CREATE TABLE IF NOT EXISTS partenaires_projets (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (organisation_id) REFERENCES partenaires_organisations(id) ON DELETE CASCADE,
   FOREIGN KEY (origine_rencontre_id) REFERENCES partenaires_rencontres(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- v35 : qui participe à un projet — même logique que pour les rencontres.
+CREATE TABLE IF NOT EXISTS partenaires_projets_participants (
+  projet_id INT NOT NULL,
+  contact_id INT NOT NULL,
+  PRIMARY KEY (projet_id, contact_id),
+  FOREIGN KEY (projet_id) REFERENCES partenaires_projets(id) ON DELETE CASCADE,
+  FOREIGN KEY (contact_id) REFERENCES partenaires_contacts(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- v32 : archive interne des documents officiels signés — jamais publique (voir assets/docs/*.pdf

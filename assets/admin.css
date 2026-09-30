@@ -300,3 +300,20 @@ tr.mavka-row--incomplete .mavka-editable:hover { background: rgba(255,255,255,.6
 .mavka-kanban-card__desc { font-size: 13px; margin: 6px 0 8px; }
 .mavka-kanban-card select { width: 100%; padding: 5px 8px; border-radius: 8px; border: 1.5px solid var(--mavka-color-teal-light); font-size: 13px; }
 
+/* Cases à cocher "Participants" (rencontre/projet) — groupées par organisation, pour retrouver
+   facilement les volontaires MAVKA parmi les contacts d'un partenaire précis. Sélecteurs plus
+   spécifiques que ".mavka-form label"/".mavka-form input" (sinon ces règles génériques prennent
+   le dessus et cassent l'affichage des cases à cocher). */
+.mavka-participants { display: flex; flex-wrap: wrap; gap: 10px; margin: 4px 0 14px; }
+.mavka-participants__groupe {
+  border: 1.5px solid var(--mavka-color-teal-light); border-radius: 10px; padding: 8px 12px;
+  margin: 0; min-width: 160px;
+}
+.mavka-participants__groupe legend { font-size: 12px; font-weight: 700; color: var(--mavka-color-text-muted); padding: 0 4px; }
+.mavka-participants .mavka-participants__item {
+  display: flex; align-items: center; gap: 6px; font-weight: 400; font-size: 14px; margin: 4px 0; cursor: pointer;
+}
+.mavka-participants__item input[type="checkbox"] {
+  width: auto; padding: 0; border: none; border-radius: 0; background: none; accent-color: var(--mavka-color-teal);
+}
+

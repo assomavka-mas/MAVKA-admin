@@ -19,9 +19,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'chang
 }
 
 $projets = db()->query('
-    SELECT p.*, o.nom AS organisation_nom
+    SELECT p.*, o.nom AS organisation_nom,
+        GROUP_CONCAT(DISTINCT c.nom ORDER BY c.nom SEPARATOR ", ") AS participants_noms
     FROM partenaires_projets p
     JOIN partenaires_organisations o ON o.id = p.organisation_id
+    LEFT JOIN partenaires_projets_participants pp ON pp.projet_id = p.id
+    LEFT JOIN partenaires_contacts c ON c.id = pp.contact_id
+    GROUP BY p.id
     ORDER BY p.created_at DESC
 ')->fetchAll();
 
@@ -52,6 +56,9 @@ admin_header('Projets & accords', $user, 'projets');
       <?php endif; ?>
       <?php if ($p['description']): ?>
       <p class="mavka-kanban-card__desc"><?= htmlspecialchars(mb_strimwidth($p['description'], 0, 140, '…')) ?></p>
+      <?php endif; ?>
+      <?php if ($p['participants_noms']): ?>
+      <p class="mavka-kanban-card__meta">👥 <?= htmlspecialchars($p['participants_noms']) ?></p>
       <?php endif; ?>
       <form method="post">
         <input type="hidden" name="action" value="changer_statut">
