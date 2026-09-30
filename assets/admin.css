@@ -300,11 +300,12 @@ tr.mavka-row--incomplete .mavka-editable:hover { background: rgba(255,255,255,.6
 .mavka-kanban-card__desc { font-size: 13px; margin: 6px 0 8px; }
 .mavka-kanban-card select { width: 100%; padding: 5px 8px; border-radius: 8px; border: 1.5px solid var(--mavka-color-teal-light); font-size: 13px; }
 
-/* Sélecteur "Participants" (rencontre/projet) : choisir une organisation dans <select> affiche
-   ses membres à cocher ; les personnes cochées apparaissent en résumé (chips) au-dessus, même
-   une fois le groupe masqué — voir le script partagé .mavka-participants-picker. Sélecteurs
-   volontairement plus spécifiques que ".mavka-form label/input/select" génériques (sinon ces
-   règles prennent le dessus et cassent l'affichage). */
+/* Sélecteur "Participants" (rencontre/projet) : chercher une organisation (nom, ville ou type)
+   filtre la liste ; cliquer une organisation affiche ses membres à cocher ; les personnes
+   cochées apparaissent en résumé (chips) au-dessus, même une fois le groupe masqué — voir le
+   script partagé .mavka-participants-picker. Sélecteurs volontairement plus spécifiques que
+   ".mavka-form label/input/select" génériques (sinon ces règles prennent le dessus et cassent
+   l'affichage). */
 .mavka-participants-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
 .mavka-participants-chip {
   display: inline-flex; align-items: center; gap: 2px; background: var(--mavka-color-teal-light);
@@ -316,10 +317,26 @@ tr.mavka-row--incomplete .mavka-editable:hover { background: rgba(255,255,255,.6
   padding: 3px 6px; border-radius: 50%;
 }
 .mavka-participants-chip button:hover { background: rgba(36, 27, 40, 0.1); }
-.mavka-participants-picker .mavka-participants-select {
+.mavka-participants-picker .mavka-participants-search {
   width: 100%; padding: 9px 12px; border-radius: 10px; border: 1.5px solid var(--mavka-color-teal-light);
-  font-family: var(--mavka-font-body); font-size: 14px; background: #fff; margin-bottom: 10px;
+  font-family: var(--mavka-font-body); font-size: 14px; background: #fff;
 }
+.mavka-participants-orglist {
+  border: 1.5px solid var(--mavka-color-teal-light); border-radius: 10px; margin: 4px 0 10px;
+  max-height: 240px; overflow-y: auto; background: #fff;
+}
+.mavka-participants-orglist__item {
+  display: block; width: 100%; text-align: left; padding: 8px 12px; border: none; background: none;
+  border-bottom: 1px solid var(--mavka-color-cream-soft); font-family: var(--mavka-font-body); font-size: 14px; cursor: pointer;
+}
+/* Le "display: block" ci-dessus, en CSS d'auteur, prendrait autrement le pas sur le
+   "display: none" implicite de l'attribut [hidden] (qui vient de la feuille de style du
+   navigateur) — sans cette règle, le filtrage JS (btn.hidden = ...) ne masque rien visuellement. */
+.mavka-participants-orglist__item[hidden] { display: none; }
+.mavka-participants-orglist__item:last-child { border-bottom: none; }
+.mavka-participants-orglist__item:hover { background: var(--mavka-color-teal-light); }
+.mavka-participants-orglist__count { color: var(--mavka-color-text-muted); font-size: 12.5px; }
+.mavka-participants-orglist__vide { padding: 10px 12px; margin: 0; color: var(--mavka-color-text-muted); font-size: 13px; }
 .mavka-participants-picker .mavka-participants__groupe {
   border: 1.5px solid var(--mavka-color-teal-light); border-radius: 10px; padding: 8px 12px; margin: 0 0 10px;
 }

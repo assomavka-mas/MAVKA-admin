@@ -96,21 +96,26 @@ function partenaire_contact_champs(array $c, array $genre_labels, array $influen
     <?php
 }
 
-// Sélecteur de participant·e·s pour une rencontre ou un projet : on choisit d'abord une
-// organisation dans la liste déroulante, puis on coche ses membres — évite d'afficher tous les
-// contacts de tous les partenaires en même temps (illisible dès qu'il y en a beaucoup). Les
-// personnes cochées apparaissent en résumé (chips) au-dessus, même si le groupe correspondant
-// n'est plus affiché — voir le script partagé .mavka-participants-picker en bas de page.
+// Sélecteur de participant·e·s pour une rencontre ou un projet : on cherche une organisation
+// (par nom, ville OU type — "mairie" liste toutes les mairies, "Garat" toutes les organisations
+// de Garat) puis on coche ses membres — évite d'afficher tous les contacts de tous les
+// partenaires en même temps (illisible dès qu'il y en a beaucoup). Les personnes cochées
+// apparaissent en résumé (chips) au-dessus, même une fois le groupe refermé — voir le script
+// partagé .mavka-participants-picker en bas de page.
 function render_participants_picker(array $contacts_par_org, array $selectionnes, string $name): void {
     ?>
     <div class="mavka-participants-picker">
       <div class="mavka-participants-chips"></div>
-      <select class="mavka-participants-select">
-        <option value="">— Choisir une organisation pour cocher ses membres —</option>
+      <input type="text" class="mavka-participants-search" placeholder="Chercher une organisation — nom, ville ou type (ex. « mairie », « Garat »)...">
+      <div class="mavka-participants-orglist" hidden>
         <?php foreach ($contacts_par_org as $org_id => $groupe): ?>
-        <option value="<?= $org_id ?>"><?= htmlspecialchars($groupe['label']) ?> (<?= count($groupe['contacts']) ?>)</option>
+        <button type="button" class="mavka-participants-orglist__item" data-org="<?= $org_id ?>" data-label="<?= htmlspecialchars($groupe['label']) ?>"
+                data-recherche="<?= htmlspecialchars(mb_strtolower($groupe['label'] . ' ' . $groupe['type_label'])) ?>">
+          <?= htmlspecialchars($groupe['label']) ?> <span class="mavka-participants-orglist__count">(<?= count($groupe['contacts']) ?>)</span>
+        </button>
         <?php endforeach; ?>
-      </select>
+        <p class="mavka-participants-orglist__vide" hidden>Aucune organisation ne correspond.</p>
+      </div>
       <?php foreach ($contacts_par_org as $org_id => $groupe): ?>
       <fieldset class="mavka-participants__groupe" data-org="<?= $org_id ?>" hidden>
         <legend><?= htmlspecialchars($groupe['label']) ?></legend>
@@ -290,7 +295,7 @@ if ($id) {
     // portent souvent le même nom (ex. "Amicale laïque" dans plusieurs communes) — grouper par
     // nom les aurait mélangées. La ville est ajoutée au libellé pour les distinguer à l'affichage.
     $tous_contacts = db()->query('
-        SELECT c.id, c.nom, o.id AS organisation_id, o.nom AS organisation_nom, o.ville AS organisation_ville
+        SELECT c.id, c.nom, o.id AS organisation_id, o.nom AS organisation_nom, o.ville AS organisation_ville, o.type AS organisation_type
         FROM partenaires_contacts c
         JOIN partenaires_organisations o ON o.id = c.organisation_id
         ORDER BY o.nom, o.ville, c.nom
@@ -301,7 +306,8 @@ if ($id) {
         if (!isset($tous_contacts_par_org[$org_id])) {
             $label = $c['organisation_nom'];
             if (!empty($c['organisation_ville'])) $label .= ' — ' . $c['organisation_ville'];
-            $tous_contacts_par_org[$org_id] = ['label' => $label, 'contacts' => []];
+            $type_label = $types_labels[$c['organisation_type']] ?? $c['organisation_type'];
+            $tous_contacts_par_org[$org_id] = ['label' => $label, 'type_label' => $type_label, 'contacts' => []];
         }
         $tous_contacts_par_org[$org_id]['contacts'][] = $c;
     }
@@ -615,13 +621,17 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
 
 <script>
 (function(){
-  // Sélecteur "Participants" : choisir une organisation affiche ses membres à cocher, et un
-  // résumé (chips) au-dessus reste à jour même quand le groupe correspondant est masqué —
+  // Sélecteur "Participants" : chercher une organisation (nom, ville ou type — "mairie" liste
+  // toutes les mairies) filtre la liste, cliquer une organisation affiche ses membres à cocher,
+  // et un résumé (chips) au-dessus reste à jour même quand le groupe correspondant est masqué —
   // plusieurs instances possibles par page (Ajouter une rencontre, une ligne "Modifier" par
   // rencontre existante, Ajouter un projet), chacune isolée à son propre conteneur.
   document.querySelectorAll('.mavka-participants-picker').forEach(function(picker){
     var chips = picker.querySelector('.mavka-participants-chips');
-    var select = picker.querySelector('.mavka-participants-select');
+    var recherche = picker.querySelector('.mavka-participants-search');
+    var liste = picker.querySelector('.mavka-participants-orglist');
+    var items = picker.querySelectorAll('.mavka-participants-orglist__item');
+    var vide = picker.querySelector('.mavka-participants-orglist__vide');
 
     function rafraichirChips(){
       chips.innerHTML = '';
@@ -642,13 +652,32 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
       });
     }
 
-    select.addEventListener('change', function(){
-      picker.querySelectorAll('.mavka-participants__groupe').forEach(function(g){ g.hidden = true; });
-      if (select.value) {
+    function filtrer(){
+      var q = recherche.value.trim().toLowerCase();
+      var aucunVisible = true;
+      items.forEach(function(btn){
+        var correspond = q === '' || btn.dataset.recherche.indexOf(q) !== -1;
+        btn.hidden = !correspond;
+        if (correspond) aucunVisible = false;
+      });
+      vide.hidden = !aucunVisible;
+    }
+
+    recherche.addEventListener('focus', function(){ liste.hidden = false; filtrer(); });
+    recherche.addEventListener('input', filtrer);
+
+    items.forEach(function(btn){
+      btn.addEventListener('click', function(){
         picker.querySelectorAll('.mavka-participants__groupe').forEach(function(g){
-          if (g.dataset.org === select.value) g.hidden = false;
+          g.hidden = g.dataset.org !== btn.dataset.org;
         });
-      }
+        recherche.value = btn.dataset.label;
+        liste.hidden = true;
+      });
+    });
+
+    document.addEventListener('click', function(e){
+      if (!picker.contains(e.target)) liste.hidden = true;
     });
 
     picker.addEventListener('change', function(e){
