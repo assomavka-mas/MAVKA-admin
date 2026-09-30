@@ -39,17 +39,38 @@ $influence_labels = [
     'inconnu' => 'Inconnu pour l\'instant',
 ];
 // Suggestions pour le champ "Fonction" (autocomplétion libre, pas une liste fermée) — pense-bête
-// des titres français les plus courants, pour ne pas avoir à les connaître par cœur. Écriture
-// inclusive au point médian (déjà utilisée partout ailleurs dans ce projet — président·e,
-// trésorier·ère...) plutôt qu'un doublon masculin/féminin par titre : l'accord réel se fait via
-// le champ "genre" du contact, pas en dupliquant le texte (source du bug précédent, où
-// "adjoint" avait sa forme féminine oubliée alors que les autres titres l'avaient).
-$fonctions_suggestions = [
-    'Maire', '1er·ère adjoint·e', '2e adjoint·e', '3e adjoint·e', '4e adjoint·e',
-    'Conseiller·ère municipal·e délégué·e', 'Conseiller·ère municipal·e',
-    'Membre de commission', 'Vice-président·e', 'Conseiller·ère communautaire',
-    'Secrétaire de mairie', 'Directeur·rice général·e des services (DGS)',
-    'Chargé·e de mission vie associative', 'Directeur·rice', 'Président·e',
+// des titres les plus courants, pour ne pas avoir à les connaître par cœur. Une liste par type
+// d'organisation : les fonctions d'une mairie n'ont rien à voir avec celles d'une entreprise ou
+// d'un·e membre MAVKA. Écriture inclusive au point médian (déjà utilisée partout ailleurs dans
+// ce projet — président·e, trésorier·ère...) plutôt qu'un doublon masculin/féminin par titre :
+// l'accord réel se fait via le champ "genre" du contact, pas en dupliquant le texte (source du
+// bug précédent, où "adjoint" avait sa forme féminine oubliée alors que les autres l'avaient).
+$fonctions_suggestions_par_type = [
+    'mairie' => [
+        'Maire', '1er·ère adjoint·e', '2e adjoint·e', '3e adjoint·e', '4e adjoint·e',
+        'Conseiller·ère municipal·e délégué·e', 'Conseiller·ère municipal·e',
+        'Membre de commission', 'Vice-président·e', 'Conseiller·ère communautaire',
+        'Secrétaire de mairie', 'Directeur·rice général·e des services (DGS)',
+        'Chargé·e de mission vie associative',
+    ],
+    'centre_social' => [
+        'Directeur·rice', 'Coordinateur·rice', 'Animateur·rice',
+        'Travailleur·euse social·e', 'Référent·e famille',
+    ],
+    'fondation' => [
+        'Président·e', 'Directeur·rice', 'Chargé·e de mission', 'Trésorier·ère', 'Responsable mécénat',
+    ],
+    'association' => [
+        'Président·e', 'Vice-président·e', 'Trésorier·ère', 'Secrétaire', 'Membre du bureau', 'Bénévole',
+    ],
+    'entreprise' => [
+        'Directeur·rice', 'Gérant·e', 'Responsable RH', 'Responsable RSE / mécénat', 'Chargé·e de communication',
+    ],
+    'membre_mavka' => [
+        'Bénévole', 'Volontaire', 'Intervenant·e', 'Membre du bureau',
+        'Président·e', 'Trésorier·ère', 'Secrétaire', 'Coordinateur·rice',
+    ],
+    'autre' => ['Président·e', 'Directeur·rice', 'Responsable', 'Bénévole'],
 ];
 $genre_labels = ['M' => 'M.', 'Mme' => 'Mme', 'non_precise' => 'Non précisé'];
 
@@ -139,6 +160,7 @@ if ($id) {
     if (!$found) { http_response_code(404); exit('Partenaire introuvable.'); }
     $org = $found;
 }
+$fonctions_suggestions = $fonctions_suggestions_par_type[$org['type']] ?? $fonctions_suggestions_par_type['autre'];
 
 // ---- Enregistrement de l'organisation ----
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_organisation') {
