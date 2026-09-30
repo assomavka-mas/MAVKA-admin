@@ -283,3 +283,20 @@ tr.mavka-row--incomplete .mavka-editable:hover { background: rgba(255,255,255,.6
 }
 .mavka-galerie-item__delete:hover { background: var(--mavka-color-danger-text); }
 
+/* Kanban des projets/accords (admin/projets.php) — colonnes par statut, une carte par projet. */
+.mavka-kanban { display: flex; gap: 16px; align-items: flex-start; overflow-x: auto; padding-bottom: 8px; }
+.mavka-kanban-col {
+  flex: 1 1 260px; min-width: 240px; background: var(--mavka-color-cream-soft);
+  border-radius: var(--mavka-radius-card); padding: 14px; border-top: 4px solid var(--col-color, var(--mavka-color-teal));
+}
+.mavka-kanban-col--en_cours   { --col-color: var(--mavka-color-teal); }
+.mavka-kanban-col--termine    { --col-color: var(--mavka-color-purple); }
+.mavka-kanban-col--abandonne  { --col-color: var(--mavka-color-text-muted); }
+.mavka-kanban-col__title { font-family: var(--mavka-font-display); font-size: 16px; margin: 0 0 12px; display: flex; align-items: center; gap: 8px; }
+.mavka-kanban-count { background: #fff; border-radius: 20px; padding: 1px 9px; font-size: 12px; font-weight: 700; color: var(--mavka-color-text-muted); }
+.mavka-kanban-card { background: #fff; border: 1.5px solid var(--mavka-color-teal-light); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; }
+.mavka-kanban-card__title { font-weight: 700; margin: 0 0 4px; }
+.mavka-kanban-card__meta { font-size: 12.5px; color: var(--mavka-color-text-muted); margin: 0 0 4px; }
+.mavka-kanban-card__desc { font-size: 13px; margin: 6px 0 8px; }
+.mavka-kanban-card select { width: 100%; padding: 5px 8px; border-radius: 8px; border: 1.5px solid var(--mavka-color-teal-light); font-size: 13px; }
+
