@@ -272,6 +272,8 @@ CREATE TABLE IF NOT EXISTS partenaires_rencontres (
   contact_id INT NULL,
   type ENUM('rencontre','appel','email','courrier') NOT NULL DEFAULT 'rencontre',
   date_rencontre DATE NOT NULL,
+  heure_rencontre TIME NULL,     -- v33
+  lieu VARCHAR(255) NULL,        -- v33 : adresse/lieu de la rencontre, séparé du sujet pour rester cherchable
   sujet VARCHAR(255) NULL,
   compte_rendu TEXT NULL,
   etape_parcours ENUM('premiere_rencontre','co_construction','phase_pilote','mise_en_place','faire_evoluer','bilan') NULL,

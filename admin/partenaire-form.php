@@ -141,10 +141,12 @@ if ($id) {
     }
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'add_rencontre') {
-        db()->prepare('INSERT INTO partenaires_rencontres (organisation_id, contact_id, type, date_rencontre, sujet, compte_rendu, etape_parcours, prochaine_action, date_prochaine_action, responsable) VALUES (?,?,?,?,?,?,?,?,?,?)')
+        db()->prepare('INSERT INTO partenaires_rencontres (organisation_id, contact_id, type, date_rencontre, heure_rencontre, lieu, sujet, compte_rendu, etape_parcours, prochaine_action, date_prochaine_action, responsable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)')
             ->execute([
                 $id, ($_POST['contact_id'] ?? '') !== '' ? (int)$_POST['contact_id'] : null,
                 $_POST['type'] ?? 'rencontre', $_POST['date_rencontre'] ?? date('Y-m-d'),
+                ($_POST['heure_rencontre'] ?? '') !== '' ? $_POST['heure_rencontre'] : null,
+                trim($_POST['lieu'] ?? ''),
                 trim($_POST['sujet'] ?? ''), trim($_POST['compte_rendu'] ?? ''),
                 ($_POST['etape_parcours'] ?? '') !== '' ? $_POST['etape_parcours'] : null,
                 trim($_POST['prochaine_action'] ?? ''), ($_POST['date_prochaine_action'] ?? '') !== '' ? $_POST['date_prochaine_action'] : null,
@@ -355,11 +357,12 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
 <div class="mavka-form-section" data-tab-panel="rencontres" style="padding:20px;">
   <?php if ($rencontres): ?>
   <table class="mavka-table" style="margin-bottom:16px;">
-    <tr><th>Date</th><th>Type</th><th>Sujet</th><th>Étape</th><th>Prochaine action</th><th></th></tr>
+    <tr><th>Date</th><th>Type</th><th>Lieu</th><th>Sujet</th><th>Étape</th><th>Prochaine action</th><th></th></tr>
     <?php foreach ($rencontres as $r): ?>
     <tr>
-      <td><?= htmlspecialchars(date('d/m/Y', strtotime($r['date_rencontre']))) ?></td>
+      <td><?= htmlspecialchars(date('d/m/Y', strtotime($r['date_rencontre']))) ?><?= $r['heure_rencontre'] ? ' à ' . htmlspecialchars(substr($r['heure_rencontre'], 0, 5)) : '' ?></td>
       <td><?= htmlspecialchars($types_rencontre_labels[$r['type']] ?? $r['type']) ?></td>
+      <td><?= htmlspecialchars($r['lieu'] ?? '') ?></td>
       <td><?= htmlspecialchars($r['sujet'] ?? '') ?></td>
       <td><?= $r['etape_parcours'] ? htmlspecialchars($etapes_labels[$r['etape_parcours']] ?? $r['etape_parcours']) : '' ?></td>
       <td>
@@ -388,7 +391,14 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
           <?php endforeach; ?>
         </select>
       </label>
-      <label>Date <input type="date" name="date_rencontre" value="<?= date('Y-m-d') ?>" required></label>
+      <div class="row">
+        <div style="flex:0 0 160px;">
+          <label>Date <input type="date" name="date_rencontre" value="<?= date('Y-m-d') ?>" required></label>
+        </div>
+        <div style="flex:0 0 120px;">
+          <label>Heure <input type="time" name="heure_rencontre"></label>
+        </div>
+      </div>
       <label>Contact
         <select name="contact_id">
           <option value="">—</option>
@@ -397,6 +407,7 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
           <?php endforeach; ?>
         </select>
       </label>
+      <label>Lieu / adresse <input type="text" name="lieu" value="<?= htmlspecialchars($org['adresse'] ?? '') ?>" placeholder="Ex. 12 rue de la Mairie, Garat"></label>
       <label>Sujet <input type="text" name="sujet"></label>
       <label>Compte-rendu <textarea name="compte_rendu"></textarea></label>
       <label>Étape du parcours
