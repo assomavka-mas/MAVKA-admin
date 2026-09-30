@@ -13,7 +13,7 @@ $id = isset($_GET['id']) ? (int)$_GET['id'] : null;
 
 $types_labels = [
     'mairie' => 'Mairie', 'centre_social' => 'Centre social', 'fondation' => 'Fondation',
-    'association' => 'Association', 'entreprise' => 'Entreprise', 'autre' => 'Autre',
+    'association' => 'Association', 'entreprise' => 'Entreprise', 'membre_mavka' => 'Membre MAVKA', 'autre' => 'Autre',
 ];
 $statuts_labels = [
     'potentiel' => 'Potentiel', 'actif' => 'Actif', 'partenaire' => 'Partenaire', 'inactif' => 'Inactif', 'en_pause' => 'En pause',
