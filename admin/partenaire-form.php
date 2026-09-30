@@ -107,14 +107,14 @@ function render_participants_picker(array $contacts_par_org, array $selectionnes
       <div class="mavka-participants-chips"></div>
       <select class="mavka-participants-select">
         <option value="">— Choisir une organisation pour cocher ses membres —</option>
-        <?php foreach ($contacts_par_org as $organisation_nom => $contacts_org): ?>
-        <option value="<?= htmlspecialchars($organisation_nom) ?>"><?= htmlspecialchars($organisation_nom) ?> (<?= count($contacts_org) ?>)</option>
+        <?php foreach ($contacts_par_org as $org_id => $groupe): ?>
+        <option value="<?= $org_id ?>"><?= htmlspecialchars($groupe['label']) ?> (<?= count($groupe['contacts']) ?>)</option>
         <?php endforeach; ?>
       </select>
-      <?php foreach ($contacts_par_org as $organisation_nom => $contacts_org): ?>
-      <fieldset class="mavka-participants__groupe" data-org="<?= htmlspecialchars($organisation_nom) ?>" hidden>
-        <legend><?= htmlspecialchars($organisation_nom) ?></legend>
-        <?php foreach ($contacts_org as $c): ?>
+      <?php foreach ($contacts_par_org as $org_id => $groupe): ?>
+      <fieldset class="mavka-participants__groupe" data-org="<?= $org_id ?>" hidden>
+        <legend><?= htmlspecialchars($groupe['label']) ?></legend>
+        <?php foreach ($groupe['contacts'] as $c): ?>
         <label class="mavka-participants__item">
           <input type="checkbox" name="<?= htmlspecialchars($name) ?>[]" value="<?= $c['id'] ?>" data-nom="<?= htmlspecialchars($c['nom']) ?>" <?= in_array((int)$c['id'], $selectionnes, true) ? 'checked' : '' ?>>
           <?= htmlspecialchars($c['nom']) ?>
@@ -286,15 +286,24 @@ if ($id) {
 
     // Tous les contacts, toutes organisations confondues, groupés par organisation — pour
     // choisir des participant·e·s (volontaires MAVKA compris·es) sans se limiter à cette fiche.
+    // Groupé par organisation_id (pas par nom) : en France plusieurs associations différentes
+    // portent souvent le même nom (ex. "Amicale laïque" dans plusieurs communes) — grouper par
+    // nom les aurait mélangées. La ville est ajoutée au libellé pour les distinguer à l'affichage.
     $tous_contacts = db()->query('
-        SELECT c.id, c.nom, o.nom AS organisation_nom
+        SELECT c.id, c.nom, o.id AS organisation_id, o.nom AS organisation_nom, o.ville AS organisation_ville
         FROM partenaires_contacts c
         JOIN partenaires_organisations o ON o.id = c.organisation_id
-        ORDER BY o.nom, c.nom
+        ORDER BY o.nom, o.ville, c.nom
     ')->fetchAll();
     $tous_contacts_par_org = [];
     foreach ($tous_contacts as $c) {
-        $tous_contacts_par_org[$c['organisation_nom']][] = $c;
+        $org_id = $c['organisation_id'];
+        if (!isset($tous_contacts_par_org[$org_id])) {
+            $label = $c['organisation_nom'];
+            if (!empty($c['organisation_ville'])) $label .= ' — ' . $c['organisation_ville'];
+            $tous_contacts_par_org[$org_id] = ['label' => $label, 'contacts' => []];
+        }
+        $tous_contacts_par_org[$org_id]['contacts'][] = $c;
     }
 
     $rencontres = db()->prepare('
