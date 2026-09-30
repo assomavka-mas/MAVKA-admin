@@ -159,6 +159,36 @@ function rencontre_champs(array $r, array $contacts_par_org, array $participant_
     <?php
 }
 
+// Champs communs à "+ Ajouter un projet" et à "Modifier" (par ligne, dans le tableau) — même
+// principe que rencontre_champs() ci-dessus.
+function projet_champs(array $p, array $contacts_par_org, array $participant_ids, array $statuts_projet_labels, array $rencontres): void {
+    ?>
+    <label>Nom <input type="text" name="nom" value="<?= htmlspecialchars($p['nom'] ?? '') ?>" required></label>
+    <label>Description <textarea name="description"><?= htmlspecialchars($p['description'] ?? '') ?></textarea></label>
+    <label>Statut
+      <select name="statut">
+        <?php foreach ($statuts_projet_labels as $val => $label): ?>
+        <option value="<?= $val ?>" <?= ($p['statut'] ?? 'en_cours') === $val ? 'selected' : '' ?>><?= $label ?></option>
+        <?php endforeach; ?>
+      </select>
+    </label>
+    <label>Issu de la rencontre
+      <select name="origine_rencontre_id">
+        <option value="">—</option>
+        <?php foreach ($rencontres as $r): ?>
+        <option value="<?= $r['id'] ?>" <?= ($p['origine_rencontre_id'] ?? '') == $r['id'] ? 'selected' : '' ?>><?= htmlspecialchars(date('d/m/Y', strtotime($r['date_rencontre']))) ?> — <?= htmlspecialchars($r['sujet'] ?? '') ?></option>
+        <?php endforeach; ?>
+      </select>
+    </label>
+    <label>Date de début <input type="date" name="date_debut" value="<?= htmlspecialchars($p['date_debut'] ?? '') ?>"></label>
+    <label>Date de fin <input type="date" name="date_fin" value="<?= htmlspecialchars($p['date_fin'] ?? '') ?>"></label>
+    <label>Participants</label>
+    <?php render_participants_picker($contacts_par_org, $participant_ids, 'participant_ids'); ?>
+    <label>Dossier Drive <input type="url" name="dossier_drive_lien" value="<?= htmlspecialchars($p['dossier_drive_lien'] ?? '') ?>" placeholder="https://drive.google.com/..."></label>
+    <label>Notes <textarea name="notes"><?= htmlspecialchars($p['notes'] ?? '') ?></textarea></label>
+    <?php
+}
+
 $org = [
     'nom' => '', 'type' => 'autre', 'ville' => '', 'adresse' => '', 'site_web' => '',
     'email_general' => '', 'telephone' => '', 'statut' => 'potentiel', 'notes' => '', 'dossier_drive_lien' => '',
@@ -279,6 +309,26 @@ if ($id) {
         header('Location: /admin/partenaire-form.php?id=' . $id . '#projets');
         exit;
     }
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'edit_projet') {
+        $projet_id = (int)($_POST['projet_id'] ?? 0);
+        db()->prepare('UPDATE partenaires_projets SET origine_rencontre_id=?, nom=?, description=?, statut=?, date_debut=?, date_fin=?, dossier_drive_lien=?, notes=? WHERE id=? AND organisation_id=?')
+            ->execute([
+                ($_POST['origine_rencontre_id'] ?? '') !== '' ? (int)$_POST['origine_rencontre_id'] : null,
+                trim($_POST['nom'] ?? ''), trim($_POST['description'] ?? ''), $_POST['statut'] ?? 'en_cours',
+                ($_POST['date_debut'] ?? '') !== '' ? $_POST['date_debut'] : null,
+                ($_POST['date_fin'] ?? '') !== '' ? $_POST['date_fin'] : null,
+                trim($_POST['dossier_drive_lien'] ?? ''), trim($_POST['notes'] ?? ''),
+                $projet_id, $id,
+            ]);
+        db()->prepare('DELETE FROM partenaires_projets_participants WHERE projet_id = ?')->execute([$projet_id]);
+        $participants = array_map('intval', $_POST['participant_ids'] ?? []);
+        if ($participants) {
+            $stmt = db()->prepare('INSERT INTO partenaires_projets_participants (projet_id, contact_id) VALUES (?,?)');
+            foreach ($participants as $contact_id) { $stmt->execute([$projet_id, $contact_id]); }
+        }
+        header('Location: /admin/partenaire-form.php?id=' . $id . '#projets');
+        exit;
+    }
     if (isset($_GET['delete_projet'])) {
         db()->prepare('DELETE FROM partenaires_projets WHERE id = ? AND organisation_id = ?')->execute([(int)$_GET['delete_projet'], $id]);
         header('Location: /admin/partenaire-form.php?id=' . $id . '#projets');
@@ -327,7 +377,9 @@ if ($id) {
     $rencontres = $rencontres->fetchAll();
 
     $projets = db()->prepare('
-        SELECT p.*, GROUP_CONCAT(DISTINCT c.nom ORDER BY c.nom SEPARATOR ", ") AS participants_noms
+        SELECT p.*,
+            GROUP_CONCAT(DISTINCT c.nom ORDER BY c.nom SEPARATOR ", ") AS participants_noms,
+            GROUP_CONCAT(DISTINCT pp.contact_id) AS participant_ids_str
         FROM partenaires_projets p
         LEFT JOIN partenaires_projets_participants pp ON pp.projet_id = p.id
         LEFT JOIN partenaires_contacts c ON c.id = pp.contact_id
@@ -556,44 +608,45 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
   <table class="mavka-table" style="margin-bottom:16px;">
     <tr><th>Nom</th><th>Statut</th><th>Début</th><th>Fin</th><th>Participants</th><th></th></tr>
     <?php foreach ($projets as $p): ?>
+    <?php $projet_participant_ids = $p['participant_ids_str'] ? array_map('intval', explode(',', $p['participant_ids_str'])) : []; ?>
     <tr>
       <td><?= htmlspecialchars($p['nom']) ?></td>
       <td><?= htmlspecialchars($statuts_projet_labels[$p['statut']] ?? $p['statut']) ?></td>
       <td><?= $p['date_debut'] ? htmlspecialchars(date('d/m/Y', strtotime($p['date_debut']))) : '' ?></td>
       <td><?= $p['date_fin'] ? htmlspecialchars(date('d/m/Y', strtotime($p['date_fin']))) : '' ?></td>
       <td><?= htmlspecialchars($p['participants_noms'] ?? '') ?: '—' ?></td>
-      <td><a href="?id=<?= $id ?>&delete_projet=<?= $p['id'] ?>#projets" class="mavka-btn mavka-btn--sm mavka-btn--danger" onclick="return confirm('Supprimer ce projet ?');">Supprimer</a></td>
+      <td style="white-space:nowrap;">
+        <button type="button" class="mavka-btn mavka-btn--sm" data-toggle-edit-projet="<?= $p['id'] ?>">Modifier</button>
+        <a href="?id=<?= $id ?>&delete_projet=<?= $p['id'] ?>#projets" class="mavka-btn mavka-btn--sm mavka-btn--danger" onclick="return confirm('Supprimer ce projet ?');">Supprimer</a>
+      </td>
+    </tr>
+    <tr id="edit-projet-<?= $p['id'] ?>" style="display:none;">
+      <td colspan="6" style="background:var(--mavka-color-cream-soft);">
+        <form method="post" class="mavka-form" style="margin:12px 0;">
+          <input type="hidden" name="action" value="edit_projet">
+          <input type="hidden" name="projet_id" value="<?= $p['id'] ?>">
+          <?php projet_champs($p, $tous_contacts_par_org, $projet_participant_ids, $statuts_projet_labels, $rencontres); ?>
+          <button type="submit" class="mavka-btn mavka-btn--primary">Enregistrer</button>
+          <button type="button" class="mavka-btn mavka-btn--sm" data-toggle-edit-projet="<?= $p['id'] ?>">Annuler</button>
+        </form>
+      </td>
     </tr>
     <?php endforeach; ?>
   </table>
+  <script>
+  document.querySelectorAll('[data-toggle-edit-projet]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var row = document.getElementById('edit-projet-' + btn.dataset.toggleEditProjet);
+      row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+    });
+  });
+  </script>
   <?php endif; ?>
   <details>
     <summary class="mavka-btn mavka-btn--sm">+ Ajouter un projet</summary>
     <form method="post" class="mavka-form" style="margin-top:12px;">
       <input type="hidden" name="action" value="add_projet">
-      <label>Nom <input type="text" name="nom" required></label>
-      <label>Description <textarea name="description"></textarea></label>
-      <label>Statut
-        <select name="statut">
-          <?php foreach ($statuts_projet_labels as $val => $label): ?>
-          <option value="<?= $val ?>"><?= $label ?></option>
-          <?php endforeach; ?>
-        </select>
-      </label>
-      <label>Issu de la rencontre
-        <select name="origine_rencontre_id">
-          <option value="">—</option>
-          <?php foreach ($rencontres as $r): ?>
-          <option value="<?= $r['id'] ?>"><?= htmlspecialchars(date('d/m/Y', strtotime($r['date_rencontre']))) ?> — <?= htmlspecialchars($r['sujet'] ?? '') ?></option>
-          <?php endforeach; ?>
-        </select>
-      </label>
-      <label>Date de début <input type="date" name="date_debut"></label>
-      <label>Date de fin <input type="date" name="date_fin"></label>
-      <label>Participants</label>
-      <?php render_participants_picker($tous_contacts_par_org, [], 'participant_ids'); ?>
-      <label>Dossier Drive <input type="url" name="dossier_drive_lien" placeholder="https://drive.google.com/..."></label>
-      <label>Notes <textarea name="notes"></textarea></label>
+      <?php projet_champs([], $tous_contacts_par_org, [], $statuts_projet_labels, $rencontres); ?>
       <button type="submit" class="mavka-btn mavka-btn--primary">Ajouter</button>
     </form>
   </details>
