@@ -96,19 +96,27 @@ function partenaire_contact_champs(array $c, array $genre_labels, array $influen
     <?php
 }
 
-// Cases à cocher pour choisir les participant·e·s d'une rencontre ou d'un projet — tous
-// contacts confondus, groupés par organisation, pour pouvoir associer par exemple plusieurs
-// volontaires MAVKA (contacts de l'organisation "MAVKA", type membre_mavka) à une rencontre ou
-// un projet avec un partenaire, sans se limiter aux contacts de l'organisation concernée.
-function render_participants_checkboxes(array $contacts_par_org, array $selectionnes, string $name): void {
+// Sélecteur de participant·e·s pour une rencontre ou un projet : on choisit d'abord une
+// organisation dans la liste déroulante, puis on coche ses membres — évite d'afficher tous les
+// contacts de tous les partenaires en même temps (illisible dès qu'il y en a beaucoup). Les
+// personnes cochées apparaissent en résumé (chips) au-dessus, même si le groupe correspondant
+// n'est plus affiché — voir le script partagé .mavka-participants-picker en bas de page.
+function render_participants_picker(array $contacts_par_org, array $selectionnes, string $name): void {
     ?>
-    <div class="mavka-participants">
+    <div class="mavka-participants-picker">
+      <div class="mavka-participants-chips"></div>
+      <select class="mavka-participants-select">
+        <option value="">— Choisir une organisation pour cocher ses membres —</option>
+        <?php foreach ($contacts_par_org as $organisation_nom => $contacts_org): ?>
+        <option value="<?= htmlspecialchars($organisation_nom) ?>"><?= htmlspecialchars($organisation_nom) ?> (<?= count($contacts_org) ?>)</option>
+        <?php endforeach; ?>
+      </select>
       <?php foreach ($contacts_par_org as $organisation_nom => $contacts_org): ?>
-      <fieldset class="mavka-participants__groupe">
+      <fieldset class="mavka-participants__groupe" data-org="<?= htmlspecialchars($organisation_nom) ?>" hidden>
         <legend><?= htmlspecialchars($organisation_nom) ?></legend>
         <?php foreach ($contacts_org as $c): ?>
         <label class="mavka-participants__item">
-          <input type="checkbox" name="<?= htmlspecialchars($name) ?>[]" value="<?= $c['id'] ?>" <?= in_array((int)$c['id'], $selectionnes, true) ? 'checked' : '' ?>>
+          <input type="checkbox" name="<?= htmlspecialchars($name) ?>[]" value="<?= $c['id'] ?>" data-nom="<?= htmlspecialchars($c['nom']) ?>" <?= in_array((int)$c['id'], $selectionnes, true) ? 'checked' : '' ?>>
           <?= htmlspecialchars($c['nom']) ?>
         </label>
         <?php endforeach; ?>
@@ -140,7 +148,7 @@ function rencontre_champs(array $r, array $contacts_par_org, array $participant_
     <label>Lieu / adresse <input type="text" name="lieu" value="<?= htmlspecialchars($r['lieu'] ?? $adresse_defaut) ?>" placeholder="Ex. 12 rue de la Mairie, Garat"></label>
     <label>Sujet <input type="text" name="sujet" value="<?= htmlspecialchars($r['sujet'] ?? '') ?>"></label>
     <label>Participants</label>
-    <?php render_participants_checkboxes($contacts_par_org, $participant_ids, 'participant_ids'); ?>
+    <?php render_participants_picker($contacts_par_org, $participant_ids, 'participant_ids'); ?>
     <label>Compte-rendu <textarea name="compte_rendu"><?= htmlspecialchars($r['compte_rendu'] ?? '') ?></textarea></label>
     <label>Responsable MAVKA <input type="text" name="responsable" value="<?= htmlspecialchars($r['responsable'] ?? '') ?>"></label>
     <?php
@@ -568,7 +576,7 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
       <label>Date de début <input type="date" name="date_debut"></label>
       <label>Date de fin <input type="date" name="date_fin"></label>
       <label>Participants</label>
-      <?php render_participants_checkboxes($tous_contacts_par_org, [], 'participant_ids'); ?>
+      <?php render_participants_picker($tous_contacts_par_org, [], 'participant_ids'); ?>
       <label>Dossier Drive <input type="url" name="dossier_drive_lien" placeholder="https://drive.google.com/..."></label>
       <label>Notes <textarea name="notes"></textarea></label>
       <button type="submit" class="mavka-btn mavka-btn--primary">Ajouter</button>
@@ -593,6 +601,53 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
   });
   var initial = (location.hash || '').replace('#', '');
   activer(ongletsValides.includes(initial) ? initial : 'organisation');
+})();
+</script>
+
+<script>
+(function(){
+  // Sélecteur "Participants" : choisir une organisation affiche ses membres à cocher, et un
+  // résumé (chips) au-dessus reste à jour même quand le groupe correspondant est masqué —
+  // plusieurs instances possibles par page (Ajouter une rencontre, une ligne "Modifier" par
+  // rencontre existante, Ajouter un projet), chacune isolée à son propre conteneur.
+  document.querySelectorAll('.mavka-participants-picker').forEach(function(picker){
+    var chips = picker.querySelector('.mavka-participants-chips');
+    var select = picker.querySelector('.mavka-participants-select');
+
+    function rafraichirChips(){
+      chips.innerHTML = '';
+      picker.querySelectorAll('input[type="checkbox"]:checked').forEach(function(cb){
+        var chip = document.createElement('span');
+        chip.className = 'mavka-participants-chip';
+        chip.appendChild(document.createTextNode(cb.dataset.nom));
+        var retirer = document.createElement('button');
+        retirer.type = 'button';
+        retirer.textContent = '×';
+        retirer.title = 'Retirer';
+        retirer.addEventListener('click', function(){
+          cb.checked = false;
+          rafraichirChips();
+        });
+        chip.appendChild(retirer);
+        chips.appendChild(chip);
+      });
+    }
+
+    select.addEventListener('change', function(){
+      picker.querySelectorAll('.mavka-participants__groupe').forEach(function(g){ g.hidden = true; });
+      if (select.value) {
+        picker.querySelectorAll('.mavka-participants__groupe').forEach(function(g){
+          if (g.dataset.org === select.value) g.hidden = false;
+        });
+      }
+    });
+
+    picker.addEventListener('change', function(e){
+      if (e.target.matches('input[type="checkbox"]')) rafraichirChips();
+    });
+
+    rafraichirChips(); // état initial (modification d'une rencontre déjà renseignée)
+  });
 })();
 </script>
 

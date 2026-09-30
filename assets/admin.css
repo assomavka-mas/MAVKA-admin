@@ -300,17 +300,31 @@ tr.mavka-row--incomplete .mavka-editable:hover { background: rgba(255,255,255,.6
 .mavka-kanban-card__desc { font-size: 13px; margin: 6px 0 8px; }
 .mavka-kanban-card select { width: 100%; padding: 5px 8px; border-radius: 8px; border: 1.5px solid var(--mavka-color-teal-light); font-size: 13px; }
 
-/* Cases à cocher "Participants" (rencontre/projet) — groupées par organisation, pour retrouver
-   facilement les volontaires MAVKA parmi les contacts d'un partenaire précis. Sélecteurs plus
-   spécifiques que ".mavka-form label"/".mavka-form input" (sinon ces règles génériques prennent
-   le dessus et cassent l'affichage des cases à cocher). */
-.mavka-participants { display: flex; flex-wrap: wrap; gap: 10px; margin: 4px 0 14px; }
-.mavka-participants__groupe {
-  border: 1.5px solid var(--mavka-color-teal-light); border-radius: 10px; padding: 8px 12px;
-  margin: 0; min-width: 160px;
+/* Sélecteur "Participants" (rencontre/projet) : choisir une organisation dans <select> affiche
+   ses membres à cocher ; les personnes cochées apparaissent en résumé (chips) au-dessus, même
+   une fois le groupe masqué — voir le script partagé .mavka-participants-picker. Sélecteurs
+   volontairement plus spécifiques que ".mavka-form label/input/select" génériques (sinon ces
+   règles prennent le dessus et cassent l'affichage). */
+.mavka-participants-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.mavka-participants-chip {
+  display: inline-flex; align-items: center; gap: 2px; background: var(--mavka-color-teal-light);
+  color: var(--mavka-color-teal-dark, #276A62); border-radius: 20px; padding: 4px 4px 4px 12px;
+  font-size: 13px; font-weight: 700;
+}
+.mavka-participants-chip button {
+  border: none; background: none; cursor: pointer; font-size: 16px; line-height: 1; color: inherit;
+  padding: 3px 6px; border-radius: 50%;
+}
+.mavka-participants-chip button:hover { background: rgba(36, 27, 40, 0.1); }
+.mavka-participants-picker .mavka-participants-select {
+  width: 100%; padding: 9px 12px; border-radius: 10px; border: 1.5px solid var(--mavka-color-teal-light);
+  font-family: var(--mavka-font-body); font-size: 14px; background: #fff; margin-bottom: 10px;
+}
+.mavka-participants-picker .mavka-participants__groupe {
+  border: 1.5px solid var(--mavka-color-teal-light); border-radius: 10px; padding: 8px 12px; margin: 0 0 10px;
 }
 .mavka-participants__groupe legend { font-size: 12px; font-weight: 700; color: var(--mavka-color-text-muted); padding: 0 4px; }
-.mavka-participants .mavka-participants__item {
+.mavka-participants-picker .mavka-participants__item {
   display: flex; align-items: center; gap: 6px; font-weight: 400; font-size: 14px; margin: 4px 0; cursor: pointer;
 }
 .mavka-participants__item input[type="checkbox"] {
