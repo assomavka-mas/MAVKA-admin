@@ -83,6 +83,50 @@ function partenaire_contact_champs(array $c, array $genre_labels, array $influen
     <?php
 }
 
+// Champs communs à "+ Ajouter une rencontre" et à "Modifier" (par ligne, dans le tableau) — un
+// seul jeu de champs pour éviter que les deux formulaires divergent au fil des futures évolutions.
+function rencontre_champs(array $r, array $contacts, array $types_rencontre_labels, array $etapes_labels, string $adresse_defaut = ''): void {
+    ?>
+    <label>Type
+      <select name="type">
+        <?php foreach ($types_rencontre_labels as $val => $label): ?>
+        <option value="<?= $val ?>" <?= ($r['type'] ?? 'rencontre') === $val ? 'selected' : '' ?>><?= $label ?></option>
+        <?php endforeach; ?>
+      </select>
+    </label>
+    <div class="row">
+      <div style="flex:0 0 160px;">
+        <label>Date <input type="date" name="date_rencontre" value="<?= htmlspecialchars($r['date_rencontre'] ?? date('Y-m-d')) ?>" required></label>
+      </div>
+      <div style="flex:0 0 120px;">
+        <label>Heure <input type="time" name="heure_rencontre" value="<?= htmlspecialchars($r['heure_rencontre'] ? substr($r['heure_rencontre'], 0, 5) : '') ?>"></label>
+      </div>
+    </div>
+    <label>Contact
+      <select name="contact_id">
+        <option value="">—</option>
+        <?php foreach ($contacts as $c): ?>
+        <option value="<?= $c['id'] ?>" <?= ($r['contact_id'] ?? '') == $c['id'] ? 'selected' : '' ?>><?= htmlspecialchars($c['nom']) ?></option>
+        <?php endforeach; ?>
+      </select>
+    </label>
+    <label>Lieu / adresse <input type="text" name="lieu" value="<?= htmlspecialchars($r['lieu'] ?? $adresse_defaut) ?>" placeholder="Ex. 12 rue de la Mairie, Garat"></label>
+    <label>Sujet <input type="text" name="sujet" value="<?= htmlspecialchars($r['sujet'] ?? '') ?>"></label>
+    <label>Compte-rendu <textarea name="compte_rendu"><?= htmlspecialchars($r['compte_rendu'] ?? '') ?></textarea></label>
+    <label>Étape du parcours
+      <select name="etape_parcours">
+        <option value="">—</option>
+        <?php foreach ($etapes_labels as $val => $label): ?>
+        <option value="<?= $val ?>" <?= ($r['etape_parcours'] ?? '') === $val ? 'selected' : '' ?>><?= $label ?></option>
+        <?php endforeach; ?>
+      </select>
+    </label>
+    <label>Prochaine action <input type="text" name="prochaine_action" value="<?= htmlspecialchars($r['prochaine_action'] ?? '') ?>" placeholder="Ex. Envoyer la proposition d'atelier"></label>
+    <label>Date de la prochaine action <input type="date" name="date_prochaine_action" value="<?= htmlspecialchars($r['date_prochaine_action'] ?? '') ?>"></label>
+    <label>Responsable MAVKA <input type="text" name="responsable" value="<?= htmlspecialchars($r['responsable'] ?? '') ?>"></label>
+    <?php
+}
+
 $org = [
     'nom' => '', 'type' => 'autre', 'ville' => '', 'adresse' => '', 'site_web' => '',
     'email_general' => '', 'telephone' => '', 'statut' => 'potentiel', 'notes' => '', 'dossier_drive_lien' => '',
@@ -151,6 +195,22 @@ if ($id) {
                 ($_POST['etape_parcours'] ?? '') !== '' ? $_POST['etape_parcours'] : null,
                 trim($_POST['prochaine_action'] ?? ''), ($_POST['date_prochaine_action'] ?? '') !== '' ? $_POST['date_prochaine_action'] : null,
                 trim($_POST['responsable'] ?? ''),
+            ]);
+        header('Location: /admin/partenaire-form.php?id=' . $id . '#rencontres');
+        exit;
+    }
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'edit_rencontre') {
+        db()->prepare('UPDATE partenaires_rencontres SET contact_id=?, type=?, date_rencontre=?, heure_rencontre=?, lieu=?, sujet=?, compte_rendu=?, etape_parcours=?, prochaine_action=?, date_prochaine_action=?, responsable=? WHERE id=? AND organisation_id=?')
+            ->execute([
+                ($_POST['contact_id'] ?? '') !== '' ? (int)$_POST['contact_id'] : null,
+                $_POST['type'] ?? 'rencontre', $_POST['date_rencontre'] ?? date('Y-m-d'),
+                ($_POST['heure_rencontre'] ?? '') !== '' ? $_POST['heure_rencontre'] : null,
+                trim($_POST['lieu'] ?? ''),
+                trim($_POST['sujet'] ?? ''), trim($_POST['compte_rendu'] ?? ''),
+                ($_POST['etape_parcours'] ?? '') !== '' ? $_POST['etape_parcours'] : null,
+                trim($_POST['prochaine_action'] ?? ''), ($_POST['date_prochaine_action'] ?? '') !== '' ? $_POST['date_prochaine_action'] : null,
+                trim($_POST['responsable'] ?? ''),
+                (int)($_POST['rencontre_id'] ?? 0), $id,
             ]);
         header('Location: /admin/partenaire-form.php?id=' . $id . '#rencontres');
         exit;
@@ -375,52 +435,38 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
           )) ?>" target="_blank" rel="noopener" title="Ajouter à Google Calendar">📅</a>
         <?php endif; ?>
       </td>
-      <td><a href="?id=<?= $id ?>&delete_rencontre=<?= $r['id'] ?>#rencontres" class="mavka-btn mavka-btn--sm mavka-btn--danger" onclick="return confirm('Supprimer cette rencontre ?');">Supprimer</a></td>
+      <td style="white-space:nowrap;">
+        <button type="button" class="mavka-btn mavka-btn--sm" data-toggle-edit-rencontre="<?= $r['id'] ?>">Modifier</button>
+        <a href="?id=<?= $id ?>&delete_rencontre=<?= $r['id'] ?>#rencontres" class="mavka-btn mavka-btn--sm mavka-btn--danger" onclick="return confirm('Supprimer cette rencontre ?');">Supprimer</a>
+      </td>
+    </tr>
+    <tr id="edit-rencontre-<?= $r['id'] ?>" style="display:none;">
+      <td colspan="7" style="background:var(--mavka-color-cream-soft);">
+        <form method="post" class="mavka-form" style="margin:12px 0;">
+          <input type="hidden" name="action" value="edit_rencontre">
+          <input type="hidden" name="rencontre_id" value="<?= $r['id'] ?>">
+          <?php rencontre_champs($r, $contacts, $types_rencontre_labels, $etapes_labels); ?>
+          <button type="submit" class="mavka-btn mavka-btn--primary">Enregistrer</button>
+          <button type="button" class="mavka-btn mavka-btn--sm" data-toggle-edit-rencontre="<?= $r['id'] ?>">Annuler</button>
+        </form>
+      </td>
     </tr>
     <?php endforeach; ?>
   </table>
+  <script>
+  document.querySelectorAll('[data-toggle-edit-rencontre]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var row = document.getElementById('edit-rencontre-' + btn.dataset.toggleEditRencontre);
+      row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+    });
+  });
+  </script>
   <?php endif; ?>
   <details>
     <summary class="mavka-btn mavka-btn--sm">+ Ajouter une rencontre</summary>
     <form method="post" class="mavka-form" style="margin-top:12px;">
       <input type="hidden" name="action" value="add_rencontre">
-      <label>Type
-        <select name="type">
-          <?php foreach ($types_rencontre_labels as $val => $label): ?>
-          <option value="<?= $val ?>"><?= $label ?></option>
-          <?php endforeach; ?>
-        </select>
-      </label>
-      <div class="row">
-        <div style="flex:0 0 160px;">
-          <label>Date <input type="date" name="date_rencontre" value="<?= date('Y-m-d') ?>" required></label>
-        </div>
-        <div style="flex:0 0 120px;">
-          <label>Heure <input type="time" name="heure_rencontre"></label>
-        </div>
-      </div>
-      <label>Contact
-        <select name="contact_id">
-          <option value="">—</option>
-          <?php foreach ($contacts as $c): ?>
-          <option value="<?= $c['id'] ?>"><?= htmlspecialchars($c['nom']) ?></option>
-          <?php endforeach; ?>
-        </select>
-      </label>
-      <label>Lieu / adresse <input type="text" name="lieu" value="<?= htmlspecialchars($org['adresse'] ?? '') ?>" placeholder="Ex. 12 rue de la Mairie, Garat"></label>
-      <label>Sujet <input type="text" name="sujet"></label>
-      <label>Compte-rendu <textarea name="compte_rendu"></textarea></label>
-      <label>Étape du parcours
-        <select name="etape_parcours">
-          <option value="">—</option>
-          <?php foreach ($etapes_labels as $val => $label): ?>
-          <option value="<?= $val ?>"><?= $label ?></option>
-          <?php endforeach; ?>
-        </select>
-      </label>
-      <label>Prochaine action <input type="text" name="prochaine_action" placeholder="Ex. Envoyer la proposition d'atelier"></label>
-      <label>Date de la prochaine action <input type="date" name="date_prochaine_action"></label>
-      <label>Responsable MAVKA <input type="text" name="responsable"></label>
+      <?php rencontre_champs([], $contacts, $types_rencontre_labels, $etapes_labels, $org['adresse'] ?? ''); ?>
       <button type="submit" class="mavka-btn mavka-btn--primary">Ajouter</button>
     </form>
   </details>
