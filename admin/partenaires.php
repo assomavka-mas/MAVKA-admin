@@ -27,6 +27,7 @@ $types_labels = [
     'association' => 'Association',
     'entreprise' => 'Entreprise',
     'membre_mavka' => 'Membre MAVKA',
+    'formation' => 'Formation / ressources',
     'autre' => 'Autre',
 ];
 

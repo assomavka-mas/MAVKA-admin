@@ -13,7 +13,8 @@ $id = isset($_GET['id']) ? (int)$_GET['id'] : null;
 
 $types_labels = [
     'mairie' => 'Mairie', 'centre_social' => 'Centre social', 'fondation' => 'Fondation',
-    'association' => 'Association', 'entreprise' => 'Entreprise', 'membre_mavka' => 'Membre MAVKA', 'autre' => 'Autre',
+    'association' => 'Association', 'entreprise' => 'Entreprise', 'membre_mavka' => 'Membre MAVKA',
+    'formation' => 'Formation / ressources', 'autre' => 'Autre',
 ];
 $statuts_labels = [
     'potentiel' => 'Potentiel', 'actif' => 'Actif', 'partenaire' => 'Partenaire', 'inactif' => 'Inactif', 'en_pause' => 'En pause',
@@ -61,6 +62,10 @@ $fonctions_suggestions_par_type = [
     'membre_mavka' => [
         'Bénévole', 'Volontaire', 'Intervenant·e', 'Membre du bureau',
         'Président·e', 'Trésorier·ère', 'Secrétaire', 'Coordinateur·rice',
+    ],
+    'formation' => [
+        'Chargé·e de mission vie associative', 'Formateur·rice', 'Délégué·e vie fédérative',
+        'Conseiller·ère', 'Coordinateur·rice de réseau',
     ],
     'autre' => ['Président·e', 'Directeur·rice', 'Responsable', 'Bénévole'],
 ];

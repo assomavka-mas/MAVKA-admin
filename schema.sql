@@ -237,7 +237,7 @@ ORDER BY a.ordre ASC, a.date_debut ASC;
 CREATE TABLE IF NOT EXISTS partenaires_organisations (
   id INT AUTO_INCREMENT PRIMARY KEY,
   nom VARCHAR(255) NOT NULL,
-  type ENUM('mairie','centre_social','fondation','association','entreprise','membre_mavka','autre') NOT NULL DEFAULT 'autre', -- v34 : membre_mavka = volontaire/membre de l'association
+  type ENUM('mairie','centre_social','fondation','association','entreprise','membre_mavka','formation','autre') NOT NULL DEFAULT 'autre', -- v34 : membre_mavka = volontaire/membre de l'association ; v36 : formation = réseau d'accompagnement/formation des associations (Guid'Asso...)
   ville VARCHAR(255) NULL,
   adresse VARCHAR(500) NULL,
   site_web VARCHAR(500) NULL,
