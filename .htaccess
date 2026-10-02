@@ -1,0 +1,13 @@
+# Anciennes adresses WordPress ("Notre équipe") -> nouvelles fiches volontaire.
+# Mis en place ici (même si mavka16.fr pointe encore vers WordPress aujourd'hui) pour être
+# déjà actif le jour où ce site prend la place de WordPress sur mavka16.fr : les favoris et les
+# liens déjà partagés/indexés par Google continuent de fonctionner, sans page 404.
+# Seul·e·s les volontaires qui avaient une page WordPress "Notre équipe" sont concerné·e·s —
+# les autres avaient un lien direct vers un site Google, rien à rediriger pour elleux.
+RedirectMatch 301 ^/notre-equipe/dmytro-gorbatko/?$ /intervenant.php?id=4
+RedirectMatch 301 ^/notre-equipe/haiyan-huang/?$ /intervenant.php?id=3
+RedirectMatch 301 ^/notre-equipe/hanna-sokha/?$ /intervenant.php?id=5
+RedirectMatch 301 ^/notre-equipe/nadiia-denysenko/?$ /intervenant.php?id=7
+RedirectMatch 301 ^/notre-equipe/nataliia-veremeienko/?$ /intervenant.php?id=12
+RedirectMatch 301 ^/notre-equipe/olena-maksymova/?$ /intervenant.php?id=9
+RedirectMatch 301 ^/notre-equipe/snizhana-zhuravlova/?$ /intervenant.php?id=11
