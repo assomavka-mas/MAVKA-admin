@@ -27,7 +27,7 @@ admin_header('Rencontres', $user, 'rencontres');
 <p style="font-size:12.5px; color:var(--mavka-color-text-muted); margin:8px 0 16px;">Toutes les rencontres, tous partenaires confondus, les plus récentes en premier. Clique une organisation pour ouvrir sa fiche complète.</p>
 
 <table class="mavka-table">
-  <tr><th>Organisation</th><th>Date</th><th>Type</th><th>Lieu</th><th>Sujet</th><th>Participants</th></tr>
+  <tr><th>Organisation</th><th>Date</th><th>Type</th><th>Lieu</th><th>Sujet</th><th>Participants</th><th></th></tr>
   <?php foreach ($rencontres as $r): ?>
   <tr>
     <td><a href="/admin/partenaire-form.php?id=<?= $r['organisation_id'] ?>#rencontres"><?= htmlspecialchars($r['organisation_nom']) ?></a></td>
@@ -36,10 +36,19 @@ admin_header('Rencontres', $user, 'rencontres');
     <td><?= $r['lieu'] ? htmlspecialchars($r['lieu']) : '—' ?></td>
     <td><?= htmlspecialchars($r['sujet'] ?? '') ?></td>
     <td><?= htmlspecialchars($r['participants_noms'] ?? '') ?: '—' ?></td>
+    <td>
+      <a href="<?= htmlspecialchars(google_calendar_lien(
+          'MAVKA — ' . $r['organisation_nom'] . ' : ' . ($r['sujet'] ?: 'Rencontre'),
+          $r['date_rencontre'],
+          $r['compte_rendu'] ?? null,
+          $r['heure_rencontre'] ? substr($r['heure_rencontre'], 0, 5) : null,
+          $r['lieu'] ?? null
+      )) ?>" target="_blank" rel="noopener" class="mavka-btn mavka-btn--sm" title="Ajouter à Google Calendar">📅</a>
+    </td>
   </tr>
   <?php endforeach; ?>
   <?php if (!$rencontres): ?>
-  <tr><td colspan="6" style="color:var(--mavka-color-text-muted);">Aucune rencontre pour l'instant.</td></tr>
+  <tr><td colspan="7" style="color:var(--mavka-color-text-muted);">Aucune rencontre pour l'instant.</td></tr>
   <?php endif; ?>
 </table>
 <?php admin_footer(); ?>

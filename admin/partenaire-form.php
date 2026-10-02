@@ -571,6 +571,13 @@ admin_header($id ? 'Modifier ' . $org['nom'] : 'Nouveau partenaire', $user, 'par
       <td><?= htmlspecialchars($r['sujet'] ?? '') ?></td>
       <td><?= htmlspecialchars($r['participants_noms'] ?? '') ?: '—' ?></td>
       <td style="white-space:nowrap;">
+        <a href="<?= htmlspecialchars(google_calendar_lien(
+            'MAVKA — ' . $org['nom'] . ' : ' . ($r['sujet'] ?: 'Rencontre'),
+            $r['date_rencontre'],
+            $r['compte_rendu'] ?? null,
+            $r['heure_rencontre'] ? substr($r['heure_rencontre'], 0, 5) : null,
+            $r['lieu'] ?? null
+        )) ?>" target="_blank" rel="noopener" class="mavka-btn mavka-btn--sm" title="Ajouter à Google Calendar">📅</a>
         <button type="button" class="mavka-btn mavka-btn--sm" data-toggle-edit-rencontre="<?= $r['id'] ?>">Modifier</button>
         <a href="?id=<?= $id ?>&delete_rencontre=<?= $r['id'] ?>#rencontres" class="mavka-btn mavka-btn--sm mavka-btn--danger" onclick="return confirm('Supprimer cette rencontre ?');">Supprimer</a>
       </td>
