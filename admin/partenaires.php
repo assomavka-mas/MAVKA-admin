@@ -101,7 +101,7 @@ admin_header('Contacts', $user, 'partenaires');
       <input type="hidden" name="sort" value="<?= htmlspecialchars($tri) ?>">
       <input type="hidden" name="dir" value="<?= htmlspecialchars($sens) ?>">
       <?php endif; ?>
-      <input type="search" name="q" value="<?= htmlspecialchars($filtre_recherche) ?>" placeholder="Rechercher — nom d'organisation ou de contact..." style="padding:7px 12px; border-radius:20px; border:1.5px solid var(--mavka-color-teal-light); font-family:var(--mavka-font-body); font-size:14px; min-width:220px;">
+      <input type="search" id="recherche-contacts" name="q" value="<?= htmlspecialchars($filtre_recherche) ?>" placeholder="Rechercher — nom d'organisation ou de contact..." style="padding:7px 12px; border-radius:20px; border:1.5px solid var(--mavka-color-teal-light); font-family:var(--mavka-font-body); font-size:14px; min-width:220px;">
       <select name="type" class="mavka-btn mavka-btn--sm" style="cursor:pointer;" onchange="this.form.submit();">
         <option value="">— Tous les types —</option>
         <?php foreach ($types_labels as $val => $label): ?>
@@ -119,6 +119,25 @@ admin_header('Contacts', $user, 'partenaires');
     <a href="/admin/partenaire-form.php" class="mavka-btn mavka-btn--primary">+ Nouveau contact</a>
   </div>
 </div>
+<script>
+(function(){
+  // Comme les menus Type/Ville filtrent dès qu'on change la sélection, le champ de recherche
+  // filtre aussi "tout seul" (sans attendre Entrée/le bouton Filtrer) — avec un petit délai pour
+  // ne pas relancer une page à chaque lettre tapée.
+  var champ = document.getElementById('recherche-contacts');
+  if (champ) {
+    var minuteur;
+    champ.addEventListener('input', function(){
+      clearTimeout(minuteur);
+      minuteur = setTimeout(function(){ champ.form.submit(); }, 500);
+    });
+    if (champ.value) {
+      champ.focus();
+      champ.setSelectionRange(champ.value.length, champ.value.length);
+    }
+  }
+})();
+</script>
 <?php if (isset($_GET['ok'])): ?><?php flash('ok', 'Enregistré avec succès.'); ?><?php endif; ?>
 <p style="font-size:12.5px; color:var(--mavka-color-text-muted); margin:8px 0 0;">Mairies, centres sociaux, fondations, associations... La recherche porte aussi sur le nom des contacts (pratique pour retrouver une fiche par un nom de famille plutôt que par l'organisation). Clique un titre de colonne pour trier, ou filtre par Type/Ville. Statut « Partenaire » = relation établie, à distinguer des contacts encore au stade « Potentiel ».</p>
 
