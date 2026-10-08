@@ -1,7 +1,6 @@
 # Anciennes adresses WordPress ("Notre équipe") -> nouvelles fiches volontaire.
-# Mis en place ici (même si mavka16.fr pointe encore vers WordPress aujourd'hui) pour être
-# déjà actif le jour où ce site prend la place de WordPress sur mavka16.fr : les favoris et les
-# liens déjà partagés/indexés par Google continuent de fonctionner, sans page 404.
+# Ce site a pris la place de WordPress sur mavka16.fr (octobre 2026) : ces redirections gardent
+# vivants les favoris et les liens déjà partagés/indexés par Google, sans page 404.
 # Seul·e·s les volontaires qui avaient une page WordPress "Notre équipe" sont concerné·e·s —
 # les autres avaient un lien direct vers un site Google, rien à rediriger pour elleux.
 RedirectMatch 301 ^/notre-equipe/dmytro-gorbatko/?$ /intervenant.php?id=4

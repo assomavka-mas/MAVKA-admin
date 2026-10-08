@@ -1,9 +1,10 @@
 # MAVKA-admin — mémo pour Claude
 
-Site (public + admin) de l'association MAVKA (loi 1901, Charente), en remplacement de
-l'ancien site WordPress. Dev sur dev.mavka16.fr. Propriétaire du projet : Larysa (présidente
-de l'association) — non technicienne, communique en ukrainien, apprécie des résumés courts
-après chaque changement plutôt qu'un compte-rendu technique détaillé.
+Site (public + admin) de l'association MAVKA (loi 1901, Charente). **En production sur
+mavka16.fr depuis octobre 2026** (a remplacé l'ancien site WordPress — bascule effective, plus
+de WordPress en parallèle). dev.mavka16.fr reste l'environnement de dev/test. Propriétaire du
+projet : Larysa (présidente de l'association) — non technicienne, communique en ukrainien,
+apprécie des résumés courts après chaque changement plutôt qu'un compte-rendu technique détaillé.
 
 ## Architecture
 
