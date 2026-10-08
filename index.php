@@ -169,7 +169,7 @@ $site_activites_initiatives = site_enrichir_avec_photo_intervenant(site_activite
         <h2>Les activités se construisent avec vous</h2>
         <p class="lede">Les préinscriptions nous permettent de connaître les besoins, de constituer les groupes et d'organiser les activités dans les meilleures conditions. Votre intérêt nous aide également à rechercher les lieux et les conditions nécessaires à leur mise en place avec nos partenaires locaux.</p>
       </div>
-      <?= render_events_grid($site_agenda_teaser, 'three compact') ?>
+      <?= render_events_grid($site_agenda_teaser, 'three compact', '#agenda') ?>
       <p style="margin-top:22px"><a class="btn btn-ghost" href="#agenda">Voir tout l'agenda</a></p>
     </div>
   </section>

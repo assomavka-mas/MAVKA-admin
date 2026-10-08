@@ -25,6 +25,10 @@
      identiques. */
   border-radius:var(--ec-r); background:var(--ec-card); border:1px solid var(--ec-line); overflow:hidden;
 }
+/* Carte entière cliquable (teaser de l'accueil, voir render_event_card() $hrefCarte) — léger
+   survol pour signaler que toute la carte répond au clic, pas juste le bouton. */
+.event--cliquable{transition:box-shadow .15s ease, transform .15s ease}
+.event--cliquable:hover{box-shadow:0 6px 18px rgba(0,0,0,.08); transform:translateY(-2px)}
 
 /* Photo (ou habillage de secours par catégorie, si pas de photo) */
 .cover{position:relative; aspect-ratio:16/9; background:var(--ec-mint); overflow:hidden}

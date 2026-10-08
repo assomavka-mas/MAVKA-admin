@@ -32,10 +32,17 @@ function render_apercu_banner(): string {
 // $mis_en_avant_dabord (teaser de l'accueil uniquement) : les activités cochées "Mettre en avant
 // sur l'accueil" passent en premier, les places restantes se comblent par date la plus proche —
 // un seul ORDER BY suffit (mis_en_avant DESC place les 1 avant les 0), pas besoin d'une 2e requête.
+// Exclusion des dates passées (oct. 2026) : une activité datée qui n'a pas été marquée "termine"
+// à la main restait visible indéfiniment (ex. "Festival du jeu Garat" encore sur l'accueil
+// 12 jours après). On masque désormais automatiquement dès que date_debut remonte à avant-hier
+// ou plus — la veille reste affichée (délai de grâce, événement de la veille au soir encore
+// pertinent le lendemain matin). Les activités régulières (date_debut NULL) ne sont jamais
+// concernées : il n'y a pas de "date passée" pour elles.
 function site_activites_a_venir(?int $limit = null, ?array $formats_exclus = null, bool $mis_en_avant_dabord = false): array {
     $vue = site_previsualisation_active() ? 'activites_toutes' : 'activites_publiques';
     $sql = "SELECT * FROM $vue
-            WHERE statut_activite NOT IN ('annule','termine')";
+            WHERE statut_activite NOT IN ('annule','termine')
+              AND (date_debut IS NULL OR date_debut >= DATE_SUB(CURDATE(), INTERVAL 1 DAY))";
     $params = [];
     if ($formats_exclus) {
         $sql .= ' AND (format IS NULL OR format NOT IN (' . implode(',', array_fill(0, count($formats_exclus), '?')) . '))';
@@ -56,11 +63,15 @@ function site_activites_a_venir(?int $limit = null, ?array $formats_exclus = nul
 }
 
 // $formats_exclus : même principe que site_activites_a_venir() (ex. Individuel, réservé aux
-// pages volontaire — voir site_activites_intervenant()).
+// pages volontaire — voir site_activites_intervenant()). Exclusion des dates passées : même
+// règle que site_activites_a_venir() (voir son commentaire) — sinon une activité "terminée"
+// non mise à jour à la main reste visible dans l'onglet de sa catégorie même après avoir
+// disparu de l'Agenda général.
 function site_activites_par_categorie(string $categorie, ?array $formats_exclus = null): array {
     $vue = site_previsualisation_active() ? 'activites_toutes' : 'activites_publiques';
     $sql = "SELECT * FROM $vue
-        WHERE statut_activite NOT IN ('annule','termine') AND categorie = ?";
+        WHERE statut_activite NOT IN ('annule','termine') AND categorie = ?
+          AND (date_debut IS NULL OR date_debut >= DATE_SUB(CURDATE(), INTERVAL 1 DAY))";
     $params = [$categorie];
     if ($formats_exclus) {
         $sql .= ' AND (format IS NULL OR format NOT IN (' . implode(',', array_fill(0, count($formats_exclus), '?')) . '))';
@@ -249,7 +260,14 @@ function render_event_strip(array $a): string {
     return '<div class="strip">' . $badge . $loc . '</div>';
 }
 
-function render_event_card(array $a): string {
+// $hrefCarte (teaser de l'accueil uniquement, voir index.php) : rend toute la carte cliquable
+// vers cette adresse (ex. "#agenda"), en plus du vrai bouton "Inscription"/"En savoir plus" déjà
+// présent — sans l'imbriquer dans un <a> (invalide en HTML, comportement imprévisible selon les
+// navigateurs). À la place, un onclick sur la carte qui laisse passer les clics sur un vrai lien
+// (event.target.closest('a')) : cliquer le bouton garde son comportement normal (HelloAsso...),
+// cliquer ailleurs sur la carte envoie vers $hrefCarte. null = comportement inchangé (Agenda,
+// Activités par catégorie, aperçus admin...) — pas de sens d'y renvoyer une carte vers elle-même.
+function render_event_card(array $a, ?string $hrefCarte = null): string {
     $habillage = site_categorie_habillage($a['categorie']);
     // corner--tl : sous-titre affiché uniquement (ex. "Nouveau cours") — n'affiche plus la
     // catégorie (Culture/Éducation/Bien-être) en repli ; vide = pas de plashka (retiré définitivement).
@@ -299,7 +317,12 @@ function render_event_card(array $a): string {
     $btnHref = $a['lien_inscription'] ?: '#contact';
     $btnClass = in_array($a['texte_bouton'], ['En savoir plus', 'Voir sa page'], true) ? 'btn-ghost' : 'btn-primary';
 
-    return '<div class="event">' . $cover . render_event_strip($a) . '<div class="event-row"><div class="event-body">'
+    $carteAttrs = $hrefCarte !== null
+        ? ' class="event event--cliquable" style="cursor:pointer"'
+            . ' onclick="if(!event.target.closest(\'a\')) location.hash=' . htmlspecialchars(json_encode($hrefCarte), ENT_QUOTES) . '"'
+        : ' class="event"';
+
+    return '<div' . $carteAttrs . '>' . $cover . render_event_strip($a) . '<div class="event-row"><div class="event-body">'
         . '<div class="event-title-row">' . $avatars . '<h3>' . htmlspecialchars($a['titre']) . '</h3></div>'
         . ($desc !== '' ? '<p>' . $desc . '</p>' : '')
         . '<a class="btn ' . $btnClass . ' btn-sm" href="' . htmlspecialchars($btnHref) . '">' . $btnLabel . '</a>'
@@ -354,13 +377,13 @@ function site_enrichir_avec_photo_intervenant(array $activites): array {
     return $activites;
 }
 
-function render_events_grid(array $activites, string $extraClass = ''): string {
+function render_events_grid(array $activites, string $extraClass = '', ?string $hrefCarte = null): string {
     if (!$activites) {
         return '<p class="lede">Les premières activités sont en préparation. Découvrez les propositions et <a href="#contact">indiquez-nous</a> celles qui vous intéressent.</p>';
     }
     $html = '<div class="events ' . htmlspecialchars($extraClass) . '">';
     foreach ($activites as $a) {
-        $html .= render_event_card($a);
+        $html .= render_event_card($a, $hrefCarte);
     }
     return $html . '</div>';
 }
