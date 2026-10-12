@@ -12,6 +12,9 @@ function admin_header(string $title, array $user, string $active = ''): void {
 <head>
   <meta charset="utf-8">
   <title><?= htmlspecialchars($title) ?> — MAVKA</title>
+  <link rel="icon" href="/assets/favicon/favicon.ico?v=<?= @filemtime(__DIR__ . '/../assets/favicon/favicon.ico') ?: time() ?>" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png?v=<?= @filemtime(__DIR__ . '/../assets/favicon/favicon-32x32.png') ?: time() ?>">
+  <link rel="apple-touch-icon" href="/assets/favicon/apple-touch-icon.png?v=<?= @filemtime(__DIR__ . '/../assets/favicon/apple-touch-icon.png') ?: time() ?>">
   <link rel="stylesheet" href="/assets/admin.css?v=<?= @filemtime(__DIR__ . '/../assets/admin.css') ?: time() ?>">
 </head>
 <body>

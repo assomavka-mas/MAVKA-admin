@@ -50,6 +50,10 @@ if ($iv) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= $iv ? htmlspecialchars($iv['nom']) . ' — MAVKA' : 'Volontaire introuvable — MAVKA' ?></title>
 <meta name="description" content="<?= $iv ? htmlspecialchars($iv['nom'] . ' à MAVKA. ' . ($iv['resume'] ?? '')) : '' ?>">
+<link rel="icon" href="/assets/favicon/favicon.ico?v=<?= @filemtime(__DIR__ . '/assets/favicon/favicon.ico') ?: time() ?>" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png?v=<?= @filemtime(__DIR__ . '/assets/favicon/favicon-32x32.png') ?: time() ?>">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png?v=<?= @filemtime(__DIR__ . '/assets/favicon/favicon-16x16.png') ?: time() ?>">
+<link rel="apple-touch-icon" href="/assets/favicon/apple-touch-icon.png?v=<?= @filemtime(__DIR__ . '/assets/favicon/apple-touch-icon.png') ?: time() ?>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&family=Nunito+Sans:wght@400;600;700&display=swap">
 <link rel="stylesheet" href="/assets/site.css?v=<?= @filemtime(__DIR__ . '/assets/site.css') ?: time() ?>">

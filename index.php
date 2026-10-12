@@ -67,6 +67,10 @@ $site_activites_initiatives = site_enrichir_avec_photo_intervenant(site_activite
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="MAVKA — association loi 1901 en Charente. Ateliers de culture, éducation, bien-être et développement personnel dans sept communes autour d'Angoulême.">
 <title>MAVKA</title>
+<link rel="icon" href="/assets/favicon/favicon.ico?v=<?= @filemtime(__DIR__ . '/assets/favicon/favicon.ico') ?: time() ?>" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png?v=<?= @filemtime(__DIR__ . '/assets/favicon/favicon-32x32.png') ?: time() ?>">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png?v=<?= @filemtime(__DIR__ . '/assets/favicon/favicon-16x16.png') ?: time() ?>">
+<link rel="apple-touch-icon" href="/assets/favicon/apple-touch-icon.png?v=<?= @filemtime(__DIR__ . '/assets/favicon/apple-touch-icon.png') ?: time() ?>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <!-- PT Serif (titres) + Nunito Sans (texte) : choix fixé après comparaison sur la page réelle —
      toutes deux vérifiées pour le cyrillique (nécessaire pour la bascule UK), contrairement
@@ -634,11 +638,7 @@ $site_activites_initiatives = site_enrichir_avec_photo_intervenant(site_activite
             <div><dt>E-mail</dt><dd><a href="mailto:asso.mavka@gmail.com">asso.mavka@gmail.com</a></dd></div>
             <div><dt>Territoire</dt><dd>Sept communes autour d'Angoulême, Charente (16)</dd></div>
           </dl>
-          <div class="social" aria-label="Réseaux sociaux">
-            <a href="#" aria-label="Facebook"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M14 8h3V4h-3c-2.8 0-5 2.2-5 5v2H6v4h3v9h4v-9h3l1-4h-4V9c0-.6.4-1 1-1z"/></svg></a>
-            <a href="#" aria-label="Instagram"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a>
-            <a href="#" aria-label="YouTube"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M22 8.2c-.2-1.4-1-2.3-2.4-2.5C17.6 5.4 12 5.4 12 5.4s-5.6 0-7.6.3C3 5.9 2.2 6.8 2 8.2 1.7 10 1.7 12 1.7 12s0 2 .3 3.8c.2 1.4 1 2.3 2.4 2.5 2 .3 7.6.3 7.6.3s5.6 0 7.6-.3c1.4-.2 2.2-1.1 2.4-2.5.3-1.8.3-3.8.3-3.8s0-2-.3-3.8zM10 15V9l5.2 3L10 15z"/></svg></a>
-          </div>
+          <?= render_social_links() ?>
           <svg class="mascot tall" viewBox="0 0 310 769" style="aspect-ratio:310/769"><use href="#m-stand"/></svg>
         </div>
         <form id="contactForm">
@@ -836,6 +836,7 @@ $site_activites_initiatives = site_enrichir_avec_photo_intervenant(site_activite
       <div>
         <a class="brand" href="#accueil"><img src="/assets/site-img/img-01-017fac3c9d.webp" alt=""><b>MAVKA</b></a>
         <p style="margin-top:12px;max-width:26em">Notre mascotte : Mavka, esprit protecteur de la forêt dans le folklore ukrainien.</p>
+        <div style="margin-top:16px"><?= render_social_links() ?></div>
       </div>
       <div class="cols">
         <div class="col"><b>Découvrir</b><a href="#agenda">Agenda</a><a href="#activites">Activités</a><a href="#equipe">L'équipe</a></div>

@@ -377,6 +377,23 @@ function site_enrichir_avec_photo_intervenant(array $activites): array {
     return $activites;
 }
 
+// Icônes réseaux sociaux (page Contact + pied de page) — un seul endroit pour les liens réels,
+// pour ne jamais avoir à les mettre à jour à deux endroits. Pas de YouTube : l'association n'a
+// pas de chaîne, inutile d'afficher un lien mort.
+function render_social_links(): string {
+    $reseaux = [
+        'Facebook' => ['url' => 'https://www.facebook.com/profile.php?id=61594731971713',
+            'svg' => '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M14 8h3V4h-3c-2.8 0-5 2.2-5 5v2H6v4h3v9h4v-9h3l1-4h-4V9c0-.6.4-1 1-1z"/></svg>'],
+        'Instagram' => ['url' => 'https://www.instagram.com/asso.mavka/',
+            'svg' => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>'],
+    ];
+    $html = '<div class="social" aria-label="Réseaux sociaux">';
+    foreach ($reseaux as $nom => $r) {
+        $html .= '<a href="' . htmlspecialchars($r['url']) . '" target="_blank" rel="noopener" aria-label="' . htmlspecialchars($nom) . '">' . $r['svg'] . '</a>';
+    }
+    return $html . '</div>';
+}
+
 function render_events_grid(array $activites, string $extraClass = '', ?string $hrefCarte = null): string {
     if (!$activites) {
         return '<p class="lede">Les premières activités sont en préparation. Découvrez les propositions et <a href="#contact">indiquez-nous</a> celles qui vous intéressent.</p>';
