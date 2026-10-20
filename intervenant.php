@@ -247,7 +247,7 @@ if ($iv) {
       <div class="cols">
         <div class="col"><b>Découvrir</b><a href="/index.php#agenda">Agenda</a><a href="/index.php#activites">Activités</a><a href="/index.php#equipe">L'équipe</a></div>
         <div class="col"><b>Rejoindre</b><a href="/index.php#intervenants">Devenir intervenant</a><a href="/index.php#collectivites">Collectivités</a><a href="/index.php#contact">Contact</a><a href="/admin/login.php">Espace bénévole</a></div>
-        <div class="col"><b>Nous joindre</b><a href="tel:+33656682153">+33 6 56 68 21 53</a><a href="mailto:asso.mavka@gmail.com">asso.mavka@gmail.com</a><span>Lundi au samedi, 10h à 17h</span></div>
+        <div class="col"><b>Nous joindre</b><a href="tel:+33656682153">+33 6 56 68 21 53</a><a href="mailto:contact@mavka16.fr">contact@mavka16.fr</a><span>Lundi au samedi, 10h à 17h</span></div>
       </div>
     </div>
     <div class="legal">
