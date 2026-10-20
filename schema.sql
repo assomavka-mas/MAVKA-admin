@@ -190,6 +190,8 @@ CREATE TABLE IF NOT EXISTS messages_contact (
   email VARCHAR(255) NOT NULL,
   sujet VARCHAR(255) NULL,
   message TEXT NOT NULL,
+  email_envoye TINYINT(1) NULL DEFAULT NULL,    -- v37 : NULL = non suivi (messages d'avant v37) ; sinon true seulement si confirmé par le serveur SMTP (code 250), jamais déduit de mail(), non fiable
+  email_erreur VARCHAR(255) NULL,               -- v37 : raison de l'échec (visible dans /admin/messages.php, sans avoir besoin des logs serveur)
   lu TINYINT(1) NOT NULL DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

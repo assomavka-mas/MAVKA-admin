@@ -32,8 +32,14 @@ function mavka_smtp_code(string $reponse): string {
 
 // Retourne true si l'email est parti, false sinon (jamais d'exception — un échec d'envoi ne
 // doit pas empêcher d'enregistrer le message en base, voir contact-handler.php).
-function mavka_smtp_envoyer(string $to, string $subject, string $body, string $replyTo = ''): bool {
+// $erreur (optionnel, par référence) : rempli avec la raison de l'échec — jusqu'ici seulement
+// visible dans error_log() du serveur, inaccessible sur certains hébergements mutualisés
+// (ex. Hostinger ne l'expose pas dans hPanel). contact-handler.php l'enregistre maintenant
+// directement dans messages_contact pour qu'elle soit visible dans /admin/messages.php, sans
+// avoir besoin d'accès aux logs serveur.
+function mavka_smtp_envoyer(string $to, string $subject, string $body, string $replyTo = '', ?string &$erreur = null): bool {
     if (!defined('SMTP_HOST') || !defined('SMTP_USER') || !defined('SMTP_PASS')) {
+        $erreur = 'SMTP non configuré (SMTP_HOST/SMTP_USER/SMTP_PASS absents de config.php)';
         return false;
     }
     $host = SMTP_HOST;
@@ -46,7 +52,8 @@ function mavka_smtp_envoyer(string $to, string $subject, string $body, string $r
 
     $socket = @stream_socket_client("tcp://$host:$port", $errno, $errstr, 15);
     if (!$socket) {
-        error_log("SMTP: connexion échouée à $host:$port — $errstr");
+        $erreur = "Connexion échouée à $host:$port — $errstr (l'hébergeur bloque peut-être les connexions SMTP sortantes)";
+        error_log("SMTP: $erreur");
         return false;
     }
     stream_set_timeout($socket, 15);
@@ -58,11 +65,13 @@ function mavka_smtp_envoyer(string $to, string $subject, string $body, string $r
 
         $reponse = mavka_smtp_commande($socket, 'STARTTLS');
         if (mavka_smtp_code($reponse) !== '220') {
-            error_log('SMTP: STARTTLS refusé — ' . trim($reponse));
+            $erreur = 'STARTTLS refusé — ' . trim($reponse);
+            error_log("SMTP: $erreur");
             return false;
         }
         if (!stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
-            error_log('SMTP: la négociation TLS a échoué');
+            $erreur = 'La négociation TLS a échoué';
+            error_log("SMTP: $erreur");
             return false;
         }
         // Un serveur SMTP peut changer ce qu'il annonce une fois la connexion chiffrée —
@@ -71,25 +80,29 @@ function mavka_smtp_envoyer(string $to, string $subject, string $body, string $r
 
         $reponse = mavka_smtp_commande($socket, 'AUTH LOGIN');
         if (mavka_smtp_code($reponse) !== '334') {
-            error_log('SMTP: AUTH LOGIN non proposé — ' . trim($reponse));
+            $erreur = 'AUTH LOGIN non proposé — ' . trim($reponse);
+            error_log("SMTP: $erreur");
             return false;
         }
         mavka_smtp_commande($socket, base64_encode($user));
         $reponse = mavka_smtp_commande($socket, base64_encode($pass));
         if (mavka_smtp_code($reponse) !== '235') {
-            error_log('SMTP: authentification refusée — ' . trim($reponse));
+            $erreur = 'Authentification refusée (vérifier SMTP_USER/SMTP_PASS — le mot de passe d\'application Gmail) — ' . trim($reponse);
+            error_log("SMTP: $erreur");
             return false;
         }
 
         mavka_smtp_commande($socket, "MAIL FROM:<$from>");
         $reponse = mavka_smtp_commande($socket, "RCPT TO:<$to>");
         if (mavka_smtp_code($reponse) !== '250') {
-            error_log('SMTP: destinataire refusé — ' . trim($reponse));
+            $erreur = 'Destinataire refusé — ' . trim($reponse);
+            error_log("SMTP: $erreur");
             return false;
         }
         $reponse = mavka_smtp_commande($socket, 'DATA');
         if (mavka_smtp_code($reponse) !== '354') {
-            error_log('SMTP: DATA refusé — ' . trim($reponse));
+            $erreur = 'DATA refusé — ' . trim($reponse);
+            error_log("SMTP: $erreur");
             return false;
         }
 
@@ -113,7 +126,12 @@ function mavka_smtp_envoyer(string $to, string $subject, string $body, string $r
 
         mavka_smtp_commande($socket, 'QUIT');
 
-        return mavka_smtp_code($reponse) === '250';
+        $ok = mavka_smtp_code($reponse) === '250';
+        if (!$ok) {
+            $erreur = 'Message refusé après envoi — ' . trim($reponse);
+            error_log("SMTP: $erreur");
+        }
+        return $ok;
     } finally {
         fclose($socket);
     }

@@ -31,6 +31,11 @@ admin_header('Messages', $user, 'messages');
     </div>
     <div style="font-size:12.5px; color:var(--mavka-color-text-muted);"><?= htmlspecialchars($m['created_at']) ?></div>
   </div>
+  <?php if ($m['email_envoye'] === '1'): ?>
+  <div style="font-size:12.5px; color:var(--mavka-color-success-text); margin-top:6px;">✅ Email envoyé</div>
+  <?php elseif ($m['email_envoye'] === '0'): ?>
+  <div style="font-size:12.5px; color:var(--mavka-color-danger-text); margin-top:6px;" title="<?= htmlspecialchars($m['email_erreur'] ?? '') ?>">⚠️ Email non envoyé<?= $m['email_erreur'] ? ' — ' . htmlspecialchars($m['email_erreur']) : '' ?></div>
+  <?php endif; // NULL (messages d'avant cette fonctionnalité) : pas de badge, statut inconnu ?>
   <p style="white-space:pre-wrap; margin-top:10px;"><?= htmlspecialchars($m['message']) ?></p>
   <div style="display:flex; gap:8px;">
     <?php if (!$m['lu']): ?>

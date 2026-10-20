@@ -34,6 +34,7 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 
 $stmt = db()->prepare('INSERT INTO messages_contact (nom, email, sujet, message) VALUES (?,?,?,?)');
 $stmt->execute([$nom, $email, $sujet, $message]);
+$messageId = db()->lastInsertId();
 
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/includes/mailer.php';
@@ -43,9 +44,15 @@ $body = "Nom : $nom\nEmail : $email\nSujet : $sujet\n\n$message";
 // SMTP (Gmail) si configuré dans config.php — bien plus fiable que mail() sur hébergement
 // mutualisé. Si SMTP_* n'est pas défini, on retombe sur mail() (peut ne rien envoyer du tout
 // selon l'hébergeur, mais le message reste de toute façon enregistré en base ci-dessus).
-if (!mavka_smtp_envoyer(CONTACT_EMAIL, $subject, $body, $email)) {
+// $erreur (v37) : enregistrée sur le message en base, visible dans /admin/messages.php —
+// sans ça, un échec d'envoi est invisible (voir le commentaire de mavka_smtp_envoyer()).
+$erreur = null;
+$envoye = mavka_smtp_envoyer(CONTACT_EMAIL, $subject, $body, $email, $erreur);
+if (!$envoye) {
     $headers = "From: MAVKA Site <no-reply@" . parse_url(SITE_URL, PHP_URL_HOST) . ">\r\nReply-To: $email";
     @mail(CONTACT_EMAIL, $subject, $body, $headers);
 }
+db()->prepare('UPDATE messages_contact SET email_envoye = ?, email_erreur = ? WHERE id = ?')
+    ->execute([$envoye ? 1 : 0, $erreur, $messageId]);
 
 echo json_encode(['ok' => true]);
