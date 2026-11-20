@@ -11,7 +11,8 @@ $site_intervenants = site_intervenants_actifs();
 // admin/intervenant-form.php (nom/description/illustration/document), il apparaît automatiquement
 // aux deux endroits, sans toucher au code ni dupliquer le texte.
 $site_projets_developpement = array_filter($site_intervenants, fn($iv) =>
-    !empty($iv['projet_developpement_nom']) || !empty($iv['projet_developpement_description']));
+    empty($iv['projet_developpement_interne']) &&
+    (!empty($iv['projet_developpement_nom']) || !empty($iv['projet_developpement_description'])));
 $site_projets_count = count($site_projets_developpement);
 
 function collectivites_carte_projet(array $iv): void {

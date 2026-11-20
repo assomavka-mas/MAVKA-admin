@@ -24,7 +24,7 @@ $photoUrl = ($iv && $iv['photo'] && $iv['dossier'])
 // projet_developpement (lien) / projet_developpement_fichier (fichier) comme document complet
 // consultable en plus — les objectifs (admin/intervenant-form.php, section Suivi interne)
 // restent, eux, strictement privés. Rien de renseigné = pas de bloc du tout.
-$projetPublic = $iv && (!empty($iv['projet_developpement_description']) || !empty($iv['projet_developpement']) || !empty($iv['projet_developpement_fichier']));
+$projetPublic = $iv && empty($iv['projet_developpement_interne']) && (!empty($iv['projet_developpement_description']) || !empty($iv['projet_developpement']) || !empty($iv['projet_developpement_fichier']));
 $projetFichierUrl = ($iv && !empty($iv['projet_developpement_fichier']) && $iv['dossier'])
     ? '/assets/uploads/intervenants/' . rawurlencode($iv['dossier']) . '/' . rawurlencode($iv['projet_developpement_fichier'])
     : null;

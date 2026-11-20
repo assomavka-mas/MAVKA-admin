@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS intervenants (
   projet_developpement_fichier VARCHAR(255) NULL, -- fichier téléversé, alternative/complément au lien, public
   projet_developpement_description TEXT NULL,    -- court texte public, affiché dans le bloc "Projet personnel"
   projet_developpement_nom VARCHAR(255) NULL,    -- titre du projet, public (v25) — sert de h2 sur la page volontaire
+  projet_developpement_interne TINYINT(1) NOT NULL DEFAULT 0, -- v38 : coché = projet masqué partout sur le site public (page volontaire, chiffre d'accueil, bloc Collectivités), reste visible en admin
   objectifs_mavka TEXT NULL,             -- interne : idem
   statut_qualifications ENUM('non_requis','a_verifier','verifie','a_completer') NOT NULL DEFAULT 'non_requis',
     -- interne, jamais public : coché à la main par Larysa — ne se déduit pas des lignes

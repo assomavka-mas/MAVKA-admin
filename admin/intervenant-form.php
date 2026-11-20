@@ -19,7 +19,7 @@ $iv = [
     'droit_exercer_necessaire' => 0, 'droit_exercer_fichier' => null, 'avis_sirene_fichier' => null,
     'b3_presente' => 0, 'b3_date' => null, 'b3_verifie_par' => null,
     'date_entree_prestataire' => '', 'dossier_prestataire_maj_le' => null,
-    'projet_developpement' => '', 'projet_developpement_fichier' => null, 'projet_developpement_description' => '', 'projet_developpement_nom' => '', 'objectifs_mavka' => '',
+    'projet_developpement' => '', 'projet_developpement_fichier' => null, 'projet_developpement_description' => '', 'projet_developpement_nom' => '', 'projet_developpement_interne' => 0, 'objectifs_mavka' => '',
     'statut_qualifications' => 'non_requis',
     'photo' => null, 'avatar_mavka' => null,
     'avatar_domaine_culture' => null, 'avatar_domaine_education' => null, 'avatar_domaine_bien_etre' => null, 'avatar_domaine_initiatives' => null,
@@ -96,6 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'save') === 's
     $iv['projet_developpement'] = trim($_POST['projet_developpement'] ?? '');
     $iv['projet_developpement_nom'] = trim($_POST['projet_developpement_nom'] ?? '');
     $iv['projet_developpement_description'] = trim($_POST['projet_developpement_description'] ?? '');
+    $iv['projet_developpement_interne'] = isset($_POST['projet_developpement_interne']) ? 1 : 0;
     $iv['objectifs_mavka'] = trim($_POST['objectifs_mavka'] ?? '');
     $iv['statut_qualifications'] = in_array($_POST['statut_qualifications'] ?? '', ['non_requis', 'a_verifier', 'verifie', 'a_completer'], true)
         ? $_POST['statut_qualifications'] : 'non_requis';
@@ -115,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? 'save') === 's
             'numero_siret', 'piece_identite_fichier', 'piece_identite_date_verification',
             'droit_exercer_necessaire', 'droit_exercer_fichier', 'avis_sirene_fichier',
             'b3_presente', 'b3_date', 'b3_verifie_par', 'date_entree_prestataire', 'dossier_prestataire_maj_le',
-            'projet_developpement', 'projet_developpement_fichier', 'projet_developpement_nom', 'projet_developpement_description', 'objectifs_mavka',
+            'projet_developpement', 'projet_developpement_fichier', 'projet_developpement_nom', 'projet_developpement_description', 'projet_developpement_interne', 'objectifs_mavka',
             'statut_qualifications', 'photo', 'avatar_mavka',
             'avatar_domaine_culture', 'avatar_domaine_education', 'avatar_domaine_bien_etre', 'avatar_domaine_initiatives',
             'email', 'actif',
@@ -540,6 +541,8 @@ admin_header($id ? "Modifier l'intervenant·e" : 'Nouvel·le intervenant·e', $u
     <textarea name="projet_developpement_description" placeholder="Quelques phrases présentables au public : ce que la personne construit, où elle en est."><?= htmlspecialchars($iv['projet_developpement_description'] ?? '') ?></textarea>
     <p class="mavka-form-section__hint" style="margin-top:4px;">Le texte affiché tel quel dans le bloc. Le lien/fichier ci-dessous servent de document complet, consultable en plus (ex. lien vers le document Google Docs détaillé).</p>
     <?php champ_document('Lien ou fichier du document complet', 'projet_developpement', 'projet_developpement_fichier', $iv, $file_url('projet_developpement_fichier'), $iv['dossier'] ?? null, $hist('projet_developpement_fichier')); ?>
+    <label style="margin-top:16px;"><input type="checkbox" name="projet_developpement_interne" <?= !empty($iv['projet_developpement_interne']) ? 'checked' : '' ?>> Garder ce projet en suivi interne uniquement (ne pas publier)</label>
+    <p class="mavka-form-section__hint" style="margin-top:-6px;">Coché : le projet disparaît du site public — bloc "Projet personnel" de sa page, chiffre de l'accueil et bloc "Nos projets en développement" de la page Collectivités — tout en restant enregistré ici.</p>
     <label style="margin-top:16px;">Mes objectifs avec MAVKA</label>
     <p class="mavka-form-section__hint" style="margin-top:-6px;">Contrairement au projet ci-dessus : reste entre toi et la personne, jamais affiché sur le site.</p>
     <textarea name="objectifs_mavka"><?= htmlspecialchars($iv['objectifs_mavka'] ?? '') ?></textarea>
